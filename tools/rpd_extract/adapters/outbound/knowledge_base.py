@@ -109,22 +109,25 @@ def _profile(
                     verdict, note,
                 ])
 
-    # A column empty for one kind but populated for another is not a gap — it
-    # does not apply to that kind. A foreign key has no join expression; a
-    # complex join does. Derived by comparing kinds rather than declared, so it
-    # stays true for kinds added later.
+    # Where a column is empty for one kind and populated for another, say so —
+    # and stop there. It is tempting to call that "not applicable" and clear the
+    # row, and for `physical_joins` that is right: a foreign key has no join
+    # expression. For `security_rls` it is wrong: `row_filter` rows carry no
+    # role, and FR-4 requires row-level security filters per application role,
+    # so that blank is a genuine shortfall. Nothing here can tell the two apart
+    # without knowing what the column means, and a rule that guesses would bury
+    # the second case under a reassuring note. State the fact; let a human judge.
     populated_for = {
-        (row[1], row[3]): row[2]
-        for row in out
-        if int(row[5]) and row[2]
+        (row[1], row[3]): row[2] for row in out if int(row[5]) and row[2]
     }
     for row in out:
         table, kind, column, verdict = row[1], row[2], row[3], row[8]
         other = populated_for.get((table, column))
         if verdict == NEVER and other and other != kind:
             row[9] = (
-                f"not applicable to kind '{kind}' — the same column is populated "
-                f"for kind '{other}', so blank here is the shape of the data"
+                f"empty for kind '{kind}' but populated for kind '{other}'. "
+                f"Either it does not apply to this kind, or it is missing — "
+                f"the extractor cannot tell which"
             )
     return sorted(out)
 

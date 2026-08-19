@@ -302,14 +302,21 @@ class CompletenessReport(unittest.TestCase):
             knowledge_base.NEVER,
         )
 
-    def test_a_blank_explained_by_another_kind_is_not_sent_for_checking(self):
-        """Empty for one kind, populated for another: that is shape, not a gap."""
+    def test_a_blank_explained_by_another_kind_states_the_fact_not_a_verdict(self):
+        """It must NOT claim "not applicable" — that guess buries real gaps.
+
+        For `physical_joins` a foreign key genuinely has no join expression. For
+        `security_rls` a `row_filter` with no role is a genuine FR-4 shortfall.
+        Same shape, opposite meaning; the extractor cannot tell them apart, so it
+        reports the comparison and leaves the judgement to a human.
+        """
         got = self.profile([("physical_joins", ["row_id", "rpd_id", "kind", "expr_text"],
                              [["1", "r", "foreign_key", ""],
                               ["2", "r", "complex_join", "a=b"]])])
         note = got[("physical_joins", "foreign_key", "expr_text")][9]
-        self.assertIn("not applicable", note)
-        self.assertNotIn("unparsed.csv", note)
+        self.assertIn("complex_join", note)
+        self.assertIn("cannot tell which", note)
+        self.assertNotIn("not applicable", note)
 
     def test_report_tables_are_not_profiled(self):
         """"How populated is errors.csv" answers nothing, and self-profiling loops."""
