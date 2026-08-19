@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LogicalTable mdsid="mcclt" name="Fact Sales" xmlns="http://www.oracle.com/obis/repository" subjectAreaRef="/oracle/bi/server/base/BusinessModel/cc-bm.xml#mccbm">
+<LogicalColumn mdsid="mcclc1" name="Amount" isWriteable="false">
+<MeasureDefn mdsid="mccmd1" name="MeasureDefn">
+<AggrRule mdsid="mccag1" name="AggRule_Default" isDefault="true">
+<Expr mdsid="mccex1" name="Expr">
+<ExprText><![CDATA[ SUM("%1")]]></ExprText>
+<ExprTextDesc><![CDATA[ SUM("Constructed BM"."Fact Sales"."Amount")]]></ExprTextDesc>
+<ObjectRefList><RefObject refId="cr1" objectTypeId="3003" objectRef="/oracle/bi/server/base/PhysicalTable/cc-fct-detail.xml#mccpcd1"/></ObjectRefList>
+</Expr>
+</AggrRule>
+<AggrRule mdsid="mccag2" name="AggRule_Override_Time" isDefault="false">
+<Expr mdsid="mccex2" name="Expr">
+<ExprText><![CDATA[LAST("%1")]]></ExprText>
+<ExprTextDesc><![CDATA[LAST("Constructed BM"."Fact Sales"."Amount")]]></ExprTextDesc>
+<ObjectRefList><RefObject refId="cr2" objectTypeId="3003" objectRef="/oracle/bi/server/base/PhysicalTable/cc-fct-detail.xml#mccpcd1"/></ObjectRefList>
+</Expr>
+</AggrRule>
+</MeasureDefn>
+</LogicalColumn>
+<LogicalColumn mdsid="mcclc2" name="Rolling Amount 3M">
+<Expr mdsid="mccex3" name="Expr">
+<ExprText><![CDATA[PERIODROLLING("%1", -2, 0)]]></ExprText>
+<ExprTextDesc><![CDATA[PERIODROLLING("Constructed BM"."Fact Sales"."Amount", -2, 0)]]></ExprTextDesc>
+<ObjectRefList><RefObject refId="cr3" objectTypeId="2006" objectRef="/oracle/bi/server/base/LogicalTable/cc-lt.xml#mcclc1"/></ObjectRefList>
+</Expr>
+</LogicalColumn>
+<RefTableSources>
+<RefLogicalTableSource refId="crs1" logicalTableSourceRef="/oracle/bi/server/base/LogicalTableSource/cc-lts-detail.xml#mcclts1"/>
+<RefLogicalTableSource refId="crs2" logicalTableSourceRef="/oracle/bi/server/base/LogicalTableSource/cc-lts-agg.xml#mcclts2"/>
+</RefTableSources>
+</LogicalTable>

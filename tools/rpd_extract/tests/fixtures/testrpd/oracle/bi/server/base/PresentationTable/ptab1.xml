@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PresentationTable mdsid="mptab1" name="Facts" xmlns="http://www.oracle.com/obis/repository" containerRef="/oracle/bi/server/base/PresentationCatalog/pcat1.xml#mpcat1">
+<PresentationColumn mdsid="mpcol1" name="Total Revenue" overrideLogicalName="true" dispName="Revenue $" logicalColumnRef="/oracle/bi/server/base/LogicalTable/lt1.xml#mlc1"/>
+<PresentationColumn mdsid="mpcol2" name="Margin" overrideLogicalName="false" logicalColumnRef="/oracle/bi/server/base/LogicalTable/lt1.xml#mlc2"/>
+</PresentationTable>

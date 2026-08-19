@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LogicalTableSource mdsid="mcclts1" name="LTS_DETAIL" isActive="true" priorityGroup="0" xmlns="http://www.oracle.com/obis/repository" logicalTableRef="/oracle/bi/server/base/LogicalTable/cc-lt.xml#mcclt">
+<FragmentContent mdsid="mccfc1" name="FragmentContent">
+<ExprText><![CDATA["%1" >= TIMESTAMP '2020-01-01 00:00:00']]></ExprText>
+<ExprTextDesc><![CDATA["CC_SCHEMA"."FCT_SALES_DETAIL"."DAY_DT" >= TIMESTAMP '2020-01-01 00:00:00']]></ExprTextDesc>
+<ObjectRefList><RefObject refId="cf1" objectTypeId="3003" objectRef="/oracle/bi/server/base/PhysicalTable/cc-fct-detail.xml#mccpcd2"/></ObjectRefList>
+</FragmentContent>
+<ColumnMapping mdsid="mcccm1" name="ColumnMapping">
+<LogicalColumnExpr mdsid="mccle1" name="LogicalColumnExpr"><ExprText><![CDATA["%1"]]></ExprText><ExprTextDesc><![CDATA["Constructed BM"."Fact Sales"."Amount"]]></ExprTextDesc><ObjectRefList><RefObject refId="cm1" objectTypeId="2006" objectRef="/oracle/bi/server/base/LogicalTable/cc-lt.xml#mcclc1"/></ObjectRefList></LogicalColumnExpr>
+<Expr mdsid="mccpe1" name="Expr"><ExprText><![CDATA["%1"]]></ExprText><ExprTextDesc><![CDATA["CC_SCHEMA"."FCT_SALES_DETAIL"."AMOUNT"]]></ExprTextDesc><ObjectRefList><RefObject refId="cm2" objectTypeId="3003" objectRef="/oracle/bi/server/base/PhysicalTable/cc-fct-detail.xml#mccpcd1"/></ObjectRefList></Expr>
+</ColumnMapping>
+</LogicalTableSource>

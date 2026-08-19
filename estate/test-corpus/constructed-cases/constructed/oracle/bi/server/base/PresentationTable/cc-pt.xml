@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PresentationTable mdsid="mccpt" name="Sales Facts" xmlns="http://www.oracle.com/obis/repository" containerRef="/oracle/bi/server/base/PresentationCatalog/cc-sa.xml#mccsa">
+<PresentationColumn mdsid="mccpc1" name="Amount" overrideLogicalName="false" logicalColumnRef="/oracle/bi/server/base/LogicalTable/cc-lt.xml#mcclc1"/>
+<PresentationColumn mdsid="mccpc2" name="Rolling Amount 3M" overrideLogicalName="false" logicalColumnRef="/oracle/bi/server/base/LogicalTable/cc-lt.xml#mcclc2"/>
+</PresentationTable>

@@ -1,0 +1,9 @@
+# Customization for obiee-as-is-analysis.
+# Overrides merge per BMad structural rules; place team overrides in
+# _bmad/custom/obiee-as-is-analysis.toml (never edit this file's shipped defaults).
+
+[workflow]
+activation_steps_prepend = []
+activation_steps_append = []
+persistent_facts = []
+on_complete = ""

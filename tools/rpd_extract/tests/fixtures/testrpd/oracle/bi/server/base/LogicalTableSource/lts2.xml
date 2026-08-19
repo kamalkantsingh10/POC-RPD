@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LogicalTableSource mdsid="mlts2" name="SRC_AGG" isActive="true" xmlns="http://www.oracle.com/obis/repository" logicalTableRef="/oracle/bi/server/base/LogicalTable/lt1.xml#mlt1">
+<ColumnMapping mdsid="mcm3" name="ColumnMapping">
+<LogicalColumnExpr mdsid="mle3" name="LogicalColumnExpr"><ExprText><![CDATA["%1"]]></ExprText><ExprTextDesc><![CDATA["Sample Sales"."Fact Revenue"."Revenue"]]></ExprTextDesc><ObjectRefList><RefObject refId="e" objectTypeId="2006" objectRef="/oracle/bi/server/base/LogicalTable/lt1.xml#mlc1"/></ObjectRefList></LogicalColumnExpr>
+<Expr mdsid="mpe3" name="Expr"><ExprText><![CDATA["%1"]]></ExprText><ExprTextDesc><![CDATA["SALES_SCHEMA"."SAMP_REVENUE_F"."REVENUE"]]></ExprTextDesc><ObjectRefList><RefObject refId="f" objectTypeId="3003" objectRef="/oracle/bi/server/base/PhysicalTable/pt1.xml#mpc1"/></ObjectRefList></Expr>
+</ColumnMapping>
+</LogicalTableSource>

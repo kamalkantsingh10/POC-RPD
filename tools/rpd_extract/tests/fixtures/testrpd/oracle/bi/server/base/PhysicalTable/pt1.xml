@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PhysicalTable mdsid="mpt1" name="SAMP_REVENUE_F" type="Table" xmlns="http://www.oracle.com/obis/repository" containerRef="/oracle/bi/server/base/Schema/s1.xml#msch1">
+<PhysicalColumn mdsid="mpc1" name="REVENUE" dataType="DOUBLE" nullable="true"/>
+<PhysicalColumn mdsid="mpc2" name="00123_CODE" dataType="VARCHAR"/>
+</PhysicalTable>

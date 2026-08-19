@@ -1,0 +1,7 @@
+# Oracle SampleAppLite data, extracted from the OAS 2026 installer
+# (V1055080-01.zip, bifoundation/server/samples/SampleAppLite/).
+#
+# Oracle's IP. The licence terms accepted at download were not read, so whether
+# these may be committed is UNRESOLVED — same open question as the corpus.
+# Gitignored until that is settled. Re-extract from the installer if needed.
+*.xml

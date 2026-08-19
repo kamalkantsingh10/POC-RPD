@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PresentationCatalog mdsid="mccsa" name="Constructed SA" isAutoAggr="true" xmlns="http://www.oracle.com/obis/repository" subjectAreaRef="/oracle/bi/server/base/BusinessModel/cc-bm.xml#mccbm" defaultFactColumnRef="/oracle/bi/server/base/LogicalTable/cc-lt.xml#mcclc1">
+<RefTables><RefPresentationTable refId="cpt1" presentationTableRef="/oracle/bi/server/base/PresentationTable/cc-pt.xml#mccpt"/></RefTables>
+</PresentationCatalog>

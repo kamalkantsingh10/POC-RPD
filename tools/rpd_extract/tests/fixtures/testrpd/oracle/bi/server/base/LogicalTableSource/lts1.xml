@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LogicalTableSource mdsid="mlts1" name="SRC_DETAIL" isActive="true" xmlns="http://www.oracle.com/obis/repository" logicalTableRef="/oracle/bi/server/base/LogicalTable/lt1.xml#mlt1">
+<WhereClause mdsid="mwc1" name="WhereClause">
+<ExprText><![CDATA[-1 = VALUEOF(NQ_SESSION.X)]]></ExprText>
+<ExprTextDesc><![CDATA[-1 = VALUEOF(NQ_SESSION.X)]]></ExprTextDesc>
+</WhereClause>
+<FragmentContent mdsid="mfc1" name="FragmentContent"><ExprText></ExprText><ExprTextDesc></ExprTextDesc></FragmentContent>
+<ColumnMapping mdsid="mcm1" name="ColumnMapping">
+<LogicalColumnExpr mdsid="mle1" name="LogicalColumnExpr"><ExprText><![CDATA["%1"]]></ExprText><ExprTextDesc><![CDATA["Sample Sales"."Fact Revenue"."Revenue"]]></ExprTextDesc><ObjectRefList><RefObject refId="a" objectTypeId="2006" objectRef="/oracle/bi/server/base/LogicalTable/lt1.xml#mlc1"/></ObjectRefList></LogicalColumnExpr>
+<Expr mdsid="mpe1" name="Expr"><ExprText><![CDATA["%1"]]></ExprText><ExprTextDesc><![CDATA["SALES_SCHEMA"."SAMP_REVENUE_F"."REVENUE"]]></ExprTextDesc><ObjectRefList><RefObject refId="b" objectTypeId="3003" objectRef="/oracle/bi/server/base/PhysicalTable/pt1.xml#mpc1"/></ObjectRefList></Expr>
+</ColumnMapping>
+<ColumnMapping mdsid="mcm2" name="ColumnMapping">
+<LogicalColumnExpr mdsid="mle2" name="LogicalColumnExpr"><ExprText><![CDATA["%1"]]></ExprText><ExprTextDesc><![CDATA["Sample Sales"."Fact Revenue"."Negative Margin"]]></ExprTextDesc><ObjectRefList><RefObject refId="c" objectTypeId="2006" objectRef="/oracle/bi/server/base/LogicalTable/lt1.xml#mlc2"/></ObjectRefList></LogicalColumnExpr>
+<Expr mdsid="mpe2" name="Expr"><ExprText><![CDATA["%1"]]></ExprText><ExprTextDesc><![CDATA["SALES_SCHEMA"."SAMP_REVENUE_F"."00123_CODE"]]></ExprTextDesc><ObjectRefList><RefObject refId="d" objectTypeId="3003" objectRef="/oracle/bi/server/base/PhysicalTable/pt1.xml#mpc2"/></ObjectRefList></Expr>
+</ColumnMapping>
+</LogicalTableSource>

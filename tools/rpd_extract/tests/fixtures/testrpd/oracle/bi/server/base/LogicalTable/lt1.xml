@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LogicalTable mdsid="mlt1" name="Fact Revenue" xmlns="http://www.oracle.com/obis/repository" subjectAreaRef="/oracle/bi/server/base/BusinessModel/bm1.xml#mbm1">
+<LogicalColumn mdsid="mlc1" name="Revenue" isWriteable="false">
+<MeasureDefn mdsid="mmd1" name="MeasureDefn">
+<AggrRule mdsid="magg1" name="AggRule_default" isDefault="true">
+<Expr mdsid="mex1" name="Expr">
+<ExprText><![CDATA[ SUM("%1")]]></ExprText>
+<ExprTextDesc><![CDATA[ SUM("Sample Sales"."Fact Revenue"."Revenue")]]></ExprTextDesc>
+<ObjectRefList><RefObject refId="r1" objectTypeId="3003" objectRef="/oracle/bi/server/base/PhysicalTable/pt1.xml#mpc1"/></ObjectRefList>
+</Expr>
+</AggrRule>
+<AggrRule mdsid="magg2" name="AggRule_override" isDefault="false">
+<Expr mdsid="mex2" name="Expr">
+<ExprText><![CDATA[COUNT("%1")]]></ExprText>
+<ExprTextDesc><![CDATA[COUNT("Sample Sales"."Fact Revenue"."Revenue")]]></ExprTextDesc>
+</Expr>
+</AggrRule>
+</MeasureDefn>
+</LogicalColumn>
+<LogicalColumn mdsid="mlc2" name="Negative Margin">
+<Expr mdsid="mex3" name="Expr">
+<ExprText><![CDATA[-1 * "%1", "x"
+next]]></ExprText>
+<ExprTextDesc><![CDATA[-1 * "Sample Sales"."Fact Revenue"."Revenue", "x"
+next]]></ExprTextDesc>
+<ObjectRefList><RefObject refId="r2" objectTypeId="2006" objectRef="/oracle/bi/server/base/PhysicalTable/pt1.xml#mpc1"/></ObjectRefList>
+</Expr>
+</LogicalColumn>
+<RefTableSources>
+<RefLogicalTableSource refId="s1" logicalTableSourceRef="/oracle/bi/server/base/LogicalTableSource/lts1.xml#mlts1"/>
+<RefLogicalTableSource refId="s2" logicalTableSourceRef="/oracle/bi/server/base/LogicalTableSource/lts2.xml#mlts2"/>
+</RefTableSources>
+</LogicalTable>

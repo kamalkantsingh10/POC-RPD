@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PhysicalTable mdsid="mccpta" name="FCT_SALES_MONTHLY" type="Table" xmlns="http://www.oracle.com/obis/repository" containerRef="/oracle/bi/server/base/Schema/cc-schema.xml#mccsch">
+<PhysicalColumn mdsid="mccpca1" name="AMOUNT" dataType="DOUBLE"/>
+<PhysicalColumn mdsid="mccpca2" name="MONTH_DT" dataType="DATE"/>
+</PhysicalTable>

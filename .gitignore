@@ -1,0 +1,25 @@
+# --- Machine-local editor state -------------------------------------------
+# The C/C++ IntelliSense browse database reaches 1.3 GB and is a rebuildable
+# cache. The two small config files beside it are kept.
+.vscode/browse.vc.db
+.vscode/browse.vc.db-shm
+.vscode/browse.vc.db-wal
+.vscode/browse.vc.db.lock
+
+# --- Python ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# --- Corpus ---------------------------------------------------------------
+# The RPD and Web Catalog corpora live OUTSIDE this repository, at
+# ~/Documents/Garage/obiee-corpus/. They are unlicensed third-party content
+# pinned by commit — see estate/test-corpus/corpus-manifest.csv. Never copy
+# them in; acquire them from the pinned commits instead.
+/corpus/
+/obiee-corpus/
+
+# Derived Knowledge Base and Oracle sample data carry their own .gitignore
+# files, each recording why that content is withheld. Do not consolidate them
+# here — the reason belongs next to the thing it withholds.

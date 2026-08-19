@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PresentationCatalog mdsid="mpcat1" name="Sample Sales SA" isAutoAggr="true" xmlns="http://www.oracle.com/obis/repository" subjectAreaRef="/oracle/bi/server/base/BusinessModel/bm1.xml#mbm1" defaultFactColumnRef="/oracle/bi/server/base/LogicalTable/lt1.xml#mlc1">
+<Alias name="Old Sales SA"/>
+<RefTables><RefPresentationTable refId="rt1" presentationTableRef="/oracle/bi/server/base/PresentationTable/ptab1.xml#mptab1"/></RefTables>
+</PresentationCatalog>

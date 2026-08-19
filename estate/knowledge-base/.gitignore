@@ -1,0 +1,7 @@
+# The Knowledge Base is derived from two UNLICENSED corpus repositories and
+# carries verbatim names and formulas from them, including personal names.
+# Committing it inherits the same open legal question recorded in PRD §16.
+# Regenerate instead:
+#   python3 -m tools.rpd_extract.cli --corpus <corpus>/clean --out estate/knowledge-base
+# Revisit when the licensing question is settled (PRD §15 Open Question 15).
+*.csv

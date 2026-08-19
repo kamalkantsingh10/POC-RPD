@@ -1,0 +1,10 @@
+# Team override for Winston, the System Architect.
+#
+# AD-14: shipped BMad is read-only. Nothing under .claude/skills/bmad-agent-architect/
+# is edited. Menu arrays merge by `code`, so a new code appends and survives a
+# BMad upgrade — the mechanism FR-11 requires.
+
+[[agent.menu]]
+code = "AA"
+description = "As-is analysis of one OBIEE Subject Area — logic, lineage, physical objects and security, with the CSV slice it came from"
+skill = "obiee-as-is-analysis"
