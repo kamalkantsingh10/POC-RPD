@@ -603,7 +603,9 @@ class SubObjectHonesty(unittest.TestCase):
         self.assertTrue(hasattr(estate, "errors"))
         for gap in estate.unparsed:
             self.assertIn(
-                gap.kind, {"unmodelled_type", "unread_attribute", "unread_element"}
+                gap.kind,
+                {"unmodelled_type", "unread_attribute", "unread_element",
+                 "unread_text", "undiscovered_file", "redacted_value"},
             )
 
 

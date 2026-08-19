@@ -264,6 +264,38 @@ def _object_files(
     return found, unreadable
 
 
+def _report_undiscovered(
+    corpus_root: Path, files: list[tuple[str, str, Path]], estate: Estate
+) -> None:
+    """Report files under the corpus root that discovery never picked up.
+
+    Every other honesty artifact reports on files that entered the pipeline. A
+    file the walker never reached appears in none of them: it is not a parse
+    error, not an unmodelled type, and not an unread attribute — it is simply
+    absent, and the run looks clean.
+
+    Demonstrated on a constructed estate: a file at
+    ``PhysicalTable/nested/buried.xml`` and one saved without a ``.xml``
+    extension both extracted with zero errors and zero gaps. Discovery expects
+    ``<type-dir>/*.xml`` exactly one level deep, which is what OBIEE writes —
+    but "what OBIEE writes" is an assumption about an estate nobody has seen.
+
+    Recorded as a gap rather than an error: nothing broke, and a corpus root
+    holding a README or a .gitignore is ordinary. What matters is that the
+    number is stated instead of the file being silently absent.
+    """
+    discovered = {path.resolve() for _, _, path in files}
+    for found in sorted(corpus_root.rglob("*")):
+        if not found.is_file() or found.resolve() in discovered:
+            continue
+        estate.record_gap(
+            corpus_root.name,
+            "undiscovered_file",
+            "File",
+            str(found.relative_to(corpus_root)),
+        )
+
+
 def _parse_all(
     files: list[tuple[str, str, Path]], estate: Estate
 ) -> list[tuple[str, str, ET.Element]]:
@@ -1179,6 +1211,7 @@ def load(corpus_root: Path | str, rpd_id: str | None = None) -> Estate:
 
     estate = Estate()
     estate.rpd_ids = sorted({rpd_id for rpd_id, _, _ in files})
+    _report_undiscovered(corpus_root, files, estate)
     for rpd_id, reason in unreadable:
         estate.record_error(rpd_id, "unreadable", str(corpus_root), "Directory", reason)
     trees = _parse_all(files, estate)

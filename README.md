@@ -184,10 +184,11 @@ There is also a larger public corpus used to develop the tool — 1383 files acr
 
 **`errors.csv` is the one to read first.** Something that should have been captured was not: malformed XML, a reference that would not resolve, an object with no name, a directory that could not be read, or an identifier that names more than one row (`duplicate_identifier` — FR-8 requires an identifier cited from a Group Spec to resolve to exactly one row, and identifiers are built from names that OBIEE does not make unique). Each row names the source object, the kind, and the reason. **An empty `errors.csv` is the good outcome.** The CLI exits `3` when it is non-empty, so it is scriptable.
 
-**`unparsed.csv` is known gaps, and a healthy file is not empty.** Three kinds:
+**`unparsed.csv` is known gaps, and a healthy file is not empty.** Four kinds:
 
 | `kind` | Meaning |
 |---|---|
+| `undiscovered_file` | A file under the corpus root that discovery never picked up. **Should be zero** |
 | `unmodelled_type` | An object type no parser has been written for. Expected |
 | `unread_attribute` | An attribute present on an object we *did* parse, that no column carries |
 | `unread_element` | Same, for a child element |

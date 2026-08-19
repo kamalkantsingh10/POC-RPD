@@ -191,3 +191,47 @@ class UnreadAudit(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
+
+
+class FileDiscovery(unittest.TestCase):
+    """A file the walker never reaches must not vanish silently.
+
+    It appears in no other artifact: not a parse error, not an unmodelled type,
+    not an unread attribute. Before this check a constructed estate holding a
+    nested file and an extensionless one extracted with zero errors and zero
+    gaps — the run looked perfect and had never seen them.
+    """
+
+    def estate_with(self, extra):
+        import shutil, tempfile
+        src = FIXTURES / "testrpd"
+        tmp = Path(tempfile.mkdtemp())
+        shutil.copytree(src, tmp / "e" / "testrpd")
+        base = tmp / "e" / "testrpd" / "oracle" / "bi" / "server" / "base"
+        for relative in extra:
+            target = base / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text('<PhysicalTable mdsid="mx" name="X"/>', encoding="utf-8")
+        return mds_xml.load(tmp / "e"), tmp
+
+    def undiscovered(self, estate):
+        return sorted(g.detail for g in estate.unparsed if g.kind == "undiscovered_file")
+
+    def test_a_nested_file_is_reported(self):
+        estate, tmp = self.estate_with(["PhysicalTable/nested/buried.xml"])
+        self.assertTrue(
+            any("buried.xml" in d for d in self.undiscovered(estate)),
+            f"nested file not reported; got {self.undiscovered(estate)}",
+        )
+
+    def test_a_file_without_the_xml_extension_is_reported(self):
+        estate, tmp = self.estate_with(["PhysicalTable/no-extension"])
+        self.assertTrue(
+            any("no-extension" in d for d in self.undiscovered(estate)),
+            f"extensionless file not reported; got {self.undiscovered(estate)}",
+        )
+
+    def test_an_ordinary_corpus_reports_nothing(self):
+        """The check must stay silent when discovery really did find everything."""
+        estate, tmp = self.estate_with([])
+        self.assertEqual(self.undiscovered(estate), [])

@@ -34,11 +34,3 @@ re-derivation from the source corpus to confirm.
     (100), `QueryPrivilegeMapping@databaseRef` (73),
     `RefPresentationHierarchy@presentationHierarchyRef` (58),
     `Join@physicalJoinRef` (38), `InitBlock@connectionPoolRef` (6).
-
-- summary: files the walker never reaches are invisible to every report
-  evidence: a constructed estate with `PhysicalTable/nested/buried.xml` and a
-    file with no `.xml` extension extracted cleanly and reported neither. The
-    unknown object type beside them WAS reported correctly, so the gap is
-    specifically in file discovery, not in the audit. Did not occur on the
-    pinned corpus (1383 of 1383 found), but an estate exported differently
-    would hit it.
