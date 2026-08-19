@@ -89,3 +89,66 @@ That is not an argument against the approach. It is the approach working: it wou
 - Whether the workflow's work unit is the measure or the logical table.
 - Which LLD the template describes — as-is, to-be, or a shared skeleton with two fillings.
 - Whether the questions the agent raises are an appendix, an inline marker, or a separate file that a later run can consume as answers.
+
+---
+
+## 4. Candidate templates, and what our Knowledge Base can actually fill
+
+Searched 2026-08-20. Two are worth starting from; the rest of what is published is either wireframe galleries (visual layout, not design content) or generic "reporting requirements" forms that do not reach LLD depth.
+
+### A. Kimball-lineage: *BI Application Content Specification* (BI Guidebook, ch. 13)
+
+The closest thing to a real LLD for report content. Structure:
+
+```
+BI APPLICATION - DESCRIPTION      identifier, name, description, category
+BI APPLICATION - BUSINESS CONTEXT owner, SME, constituency, business processes,
+                                  priority, concerns
+BI APPLICATION - EXISTING REPORTS existing reports / data shadow systems, samples
+BI APPLICATION - DATA CONTENT     business requirements, data integration
+                                  requirements, Systems of Record, FIELDS TABLE
+BI APPLICATION - TRANSFORMATIONS  update frequency, update type, data filters,
+                                  data hierarchies (drill paths / roll-ups)
+CROSS-MATRIX + APPROVALS
+```
+
+Its **fields table** is the part that matters, and it maps almost one-to-one onto the Estate Knowledge Base:
+
+| Kimball field | Knowledge Base source | Can we fill it? |
+|---|---|---|
+| Field ID | `presentation_columns.row_id` | **Yes** |
+| Field Name | `presentation_columns.name` | **Yes** |
+| Data Source | `lineage.source_id` → `logical_table_sources` | **Yes** |
+| Table | `lineage.physical_table_id` | **Yes** |
+| Column | `lineage.physical_column_id` | **Yes** |
+| Data Type | `physical_columns.data_type` | **Yes** — 1096/1096 populated |
+| Derivation or Transformation | `logical_columns.derived_expr_text` + `aggregation_rules.expr_text` | **Yes, verbatim** |
+| Description | — | **No. Must come from a human.** |
+
+That last row is worth dwelling on. The audit already reported `Description#text` unread on `Variable` (248), `InitBlock` (21), `Group` (12) — and checking the source shows `hasDispDescription` is present on all 1543 presentation columns and **false on every one**. The estate carries no column descriptions at all. So this is not an extraction gap to close; it is a slot no RPD can ever fill, and the template should ask rather than leave it blank.
+
+**Two independent mechanisms agreeing** — a published template demanding a field, and our own audit flagging it — is good evidence the approach works.
+
+### B. Microsoft: *Gather requirements to migrate to Power BI*
+
+Authoritative and migration-specific. Its report checklist is a ready-made slot list: purpose/audience/expected action; how consumers use it; owner and SME; content delivery method; interactivity needs (filters, drill-down, drillthrough); data sources and latency; security (viewers, editors, RLS, sensitivity); calculations, KPIs and business rules; usability and layout; printing and exporting; risks and concerns; open issues.
+
+Almost all of these are **human-supplied**, not extractable. Which is the point: they are exactly the slots the agent must raise as questions.
+
+### What this tells us about the template's shape
+
+Sorting the two templates' fields by where the answer lives:
+
+| Source of truth | Examples | Today |
+|---|---|---|
+| **RPD — extractable now** | field lineage, data types, derivations, aggregation rules, RLS filters, variables | Knowledge Base fills these |
+| **Web Catalog — Epic 2** | which reports exist, visuals, prompts, drill paths as built, page layout | **absent** |
+| **Human only** | purpose, audience, expected action, owner, priority, concerns, printing needs, descriptions | must be asked |
+
+So a dashboard LLD pointed at today's Knowledge Base fills roughly the middle third, leaves the report layer empty until Epic 2, and asks for the rest. Stating that split up front is more honest than a document that quietly covers only what it happened to find.
+
+### Sources
+
+- Kimball-lineage BI Application Content Specification — `athena-solutions.com/pdfs/templates/BIGuidebook Templates - BI Application Content Specification.docx`
+- Microsoft, *Gather requirements to migrate to Power BI* — `learn.microsoft.com/en-us/power-bi/guidance/powerbi-migration-requirements`
+- Microsoft, *Power BI implementation planning: BI solution planning* — `learn.microsoft.com/en-us/power-bi/guidance/powerbi-implementation-planning-bi-strategy-bi-solution-planning`
