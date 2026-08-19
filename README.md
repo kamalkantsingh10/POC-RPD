@@ -182,7 +182,7 @@ There is also a larger public corpus used to develop the tool — 1383 files acr
 
 ### `unparsed.csv` and `errors.csv` — read both, they answer different questions
 
-**`errors.csv` is the one to read first.** Something that should have been captured was not: malformed XML, a reference that would not resolve, an object with no name, a directory that could not be read. Each row names the source object, the kind, and the reason. **An empty `errors.csv` is the good outcome.** The CLI exits `3` when it is non-empty, so it is scriptable.
+**`errors.csv` is the one to read first.** Something that should have been captured was not: malformed XML, a reference that would not resolve, an object with no name, a directory that could not be read, or an identifier that names more than one row (`duplicate_identifier` — FR-8 requires an identifier cited from a Group Spec to resolve to exactly one row, and identifiers are built from names that OBIEE does not make unique). Each row names the source object, the kind, and the reason. **An empty `errors.csv` is the good outcome.** The CLI exits `3` when it is non-empty, so it is scriptable.
 
 **`unparsed.csv` is known gaps, and a healthy file is not empty.** Three kinds:
 
@@ -191,10 +191,15 @@ There is also a larger public corpus used to develop the tool — 1383 files acr
 | `unmodelled_type` | An object type no parser has been written for. Expected |
 | `unread_attribute` | An attribute present on an object we *did* parse, that no column carries |
 | `unread_element` | Same, for a child element |
+| `unread_text` | Same, for an element's text content |
 
-The last two matter more than they look. **An object can parse "successfully" while attributes and elements on it are discarded silently** — the same failure NFR7 names as primary, one level below where AD-3 was watching. On the development corpus that is **136 distinct items across 8148 occurrences**, including the SQL that defines `select`-type views.
+The last three matter more than they look. **An object can parse "successfully" while attributes, elements and text on it are discarded silently** — the same failure NFR7 names as primary, one level below where AD-3 was watching. On the development corpus that is **227 distinct items across 25,985 occurrences**, including the SQL that defines `select`-type views.
 
 It is also the **format-drift detector**. A repository from a different OBIEE version carrying new attributes announces itself here instead of being quietly dropped — which is the honest answer to "will this work on my estate?"
+
+**How the audit knows.** It does not consult a list of what the parsers are supposed to read. It **observes what they actually read**, during the run, and reports the difference against what the file contained. That distinction is not academic: the audit was previously driven by a hand-maintained declaration, and six of its entries had drifted from the code. One of them, `PrivilegePackage@userRef`, silenced three privilege grants made to named users — the file reported as fully understood while the data was dropped. A declaration records an intention and can disagree with the code; an observation cannot.
+
+The remaining failure mode is the harmless one: a branch your estate exercises and the development corpus never did may report a gap that turns out to be read after all. Noise, not silence.
 
 ---
 

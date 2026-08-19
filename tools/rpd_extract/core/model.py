@@ -413,3 +413,50 @@ class Estate:
             Unparsed(rpd_id, "unmodelled_type", object_type, source_id)
         )
         self.count(rpd_id, object_type, "skipped")
+
+    def check_identifier_uniqueness(self) -> None:
+        """FR-8: an identifier must name exactly one row, in every table.
+
+        Identifiers are built from names, and OBIEE does not make names unique.
+        The pinned corpus holds three ``Schema`` objects all called ``SH``, under
+        three different ``Database`` objects, and two distinct physical tables
+        named ``COSTS`` inside two of them. Any construction that drops a
+        distinction the source made collapses two real objects onto one
+        identifier, and every downstream citation of it becomes ambiguous.
+
+        Nothing else detects this. Both rows are present, both are well-formed,
+        both parse, and the totals look right — which is why it survived ten
+        stories and a full test suite before anyone looked.
+
+        Recorded as an error but deliberately **not** counted against coverage:
+        the objects did parse, so marking them skipped would make coverage lie in
+        the opposite direction.
+
+        The sweep is generic — any list of rows carrying ``row_id`` is checked —
+        so a table added later is covered without anyone remembering to add it.
+        """
+        for table, rows in sorted(vars(self).items()):
+            if not isinstance(rows, list):
+                continue
+            seen: dict[str, str] = {}
+            duplicated: dict[str, int] = {}
+            for row in rows:
+                row_id = getattr(row, "row_id", None)
+                if not row_id:
+                    continue
+                if row_id in seen:
+                    duplicated[row_id] = duplicated.get(row_id, 1) + 1
+                else:
+                    seen[row_id] = getattr(row, "rpd_id", "")
+            for row_id, occurrences in sorted(duplicated.items()):
+                self.errors.append(
+                    ExtractionError(
+                        seen[row_id],
+                        "duplicate_identifier",
+                        row_id,
+                        table,
+                        f"{occurrences} rows in {table} share this identifier; "
+                        f"a Group Spec citing it cannot name which one. The "
+                        f"identifier does not carry a distinction the source made.",
+                    )
+                )

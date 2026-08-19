@@ -85,10 +85,65 @@ def _tag(element: ET.Element) -> str:
 
 
 def _text(element: ET.Element | None) -> str:
-    """Verbatim text. No stripping — FR-2 forbids reformatting anywhere."""
-    if element is None or element.text is None:
+    """Verbatim text. No stripping — FR-2 forbids reformatting anywhere.
+
+    The single chokepoint for text access, which is what lets the audit observe
+    it: every parser reads element text through here.
+    """
+    if element is None:
+        return ""
+    # Marked before the empty check: asking an element for text that turns out to
+    # be absent is still a read. Marking only non-empty text would report every
+    # empty <ExprText/> as content we ignored.
+    if isinstance(element, _Observed):
+        element.text_read = True
+    if element.text is None:
         return ""
     return element.text
+
+
+class _RecordingAttrib(dict):
+    """An attribute map that remembers which keys the parsers asked for.
+
+    Only the two accessors a parser uses record. ``keys``/``items``/iteration
+    stay silent so the audit can inspect what is *present* without that
+    inspection counting as a read.
+    """
+
+    __slots__ = ("owner",)
+
+    def __init__(self, source, owner: "_Observed") -> None:
+        super().__init__(source)
+        self.owner = owner
+
+    def get(self, key, default=None):
+        self.owner.attributes_read.add(key)
+        return super().get(key, default)
+
+    def __getitem__(self, key):
+        self.owner.attributes_read.add(key)
+        return super().__getitem__(key)
+
+
+class _Observed(ET.Element):
+    """An element that records what the parsers actually took from it.
+
+    This is the mechanism that replaces a hand-written declaration of what the
+    adapter reads. A declaration states an intention and drifts from the code
+    silently; this states what the code demonstrably did on this very run, so
+    the audit cannot claim a field was consumed when nothing consumed it.
+    """
+
+    def __init__(self, tag, attrib):
+        super().__init__(tag, {})
+        self.attributes_read: set[str] = set()
+        self.text_read = False
+        self.sought = False
+        self.attrib = _RecordingAttrib(attrib, self)
+
+
+def _observing_parser() -> ET.XMLParser:
+    return ET.XMLParser(target=ET.TreeBuilder(element_factory=_Observed))
 
 
 @dataclass(frozen=True)
@@ -100,6 +155,7 @@ class _Indexed:
     tag: str
     name: str
     owner_mdsid: str
+    container_mdsid: str = ""
 
 
 class _Index:
@@ -208,27 +264,60 @@ def _object_files(
     return found, unreadable
 
 
-def _build_index(files: list[tuple[str, str, Path]], estate: Estate) -> _Index:
-    index = _Index()
+def _parse_all(
+    files: list[tuple[str, str, Path]], estate: Estate
+) -> list[tuple[str, str, ET.Element]]:
+    """Parse every file once, into trees that observe what is read from them.
+
+    Parsing once and keeping the trees is what makes the audit possible: reads
+    happen across several passes, and they must all accumulate on the *same*
+    elements for the audit to see the whole picture. Re-parsing per pass would
+    give each pass a fresh tree that forgets what the previous one read.
+
+    Measured at 28 MB for the 1383-file corpus, against roughly 9 MB of source.
+    """
+    trees: list[tuple[str, str, ET.Element]] = []
     for rpd_id, object_type, path in files:
         try:
-            root = ET.parse(path).getroot()
+            root = ET.parse(path, parser=_observing_parser()).getroot()
         except ET.ParseError as exc:
             estate.record_error(rpd_id, "malformed_xml", path.name, object_type, str(exc))
             continue
+        trees.append((rpd_id, object_type, root))
+    return trees
+
+
+def _build_index(trees: list[tuple[str, str, ET.Element]]) -> _Index:
+    index = _Index()
+    for rpd_id, object_type, root in trees:
         stack = [(root, "")]
         while stack:
             element, owner = stack.pop()
-            mdsid = element.attrib.get("mdsid", "")
+            # Read through ``dict`` deliberately, bypassing the recording
+            # accessor. Indexing touches mdsid, name and containerRef on every
+            # element in the corpus purely to build the reference graph; letting
+            # that count as consumption would mark every nested structure as
+            # read and silence the audit exactly where it is needed. A LogicalKey
+            # whose only reader is the index has not been modelled, and must
+            # still be reported as a gap.
+            mdsid = dict.get(element.attrib, "mdsid", "")
             if mdsid:
+                # The containment chain is recorded during indexing so it can be
+                # walked when identifiers are built: a container's name alone does
+                # not identify it, because OBIEE permits the same Schema name under
+                # more than one Database.
+                _, container_mdsid = index.resolve_ref(
+                    dict.get(element.attrib, "containerRef", "")
+                )
                 index.add(
                     mdsid,
                     _Indexed(
                         rpd_id=rpd_id,
                         object_type=object_type,
                         tag=_tag(element),
-                        name=element.attrib.get("name", ""),
+                        name=dict.get(element.attrib, "name", ""),
                         owner_mdsid=owner,
+                        container_mdsid=container_mdsid,
                     ),
                 )
                 owner = mdsid
@@ -279,27 +368,63 @@ def _read_expression(
     return Expression(text=text, text_desc=text_desc, refs=tuple(refs))
 
 
+def _sought(element: ET.Element) -> ET.Element:
+    """Mark an element as one a parser deliberately went looking for.
+
+    Traversal is consumption too. A wrapper the parser walks through on purpose —
+    ``RefColumns``, ``ObjectRefList`` — has been handled even though nothing is
+    read off the wrapper itself, and reporting it as a gap would bury the real
+    findings in noise.
+    """
+    if isinstance(element, _Observed):
+        element.sought = True
+    return element
+
+
 def _first_child(element: ET.Element, name: str) -> ET.Element | None:
     for child in element:
         if _tag(child) == name:
-            return child
+            return _sought(child)
     return None
 
 
 def _children(element: ET.Element, name: str) -> list[ET.Element]:
-    return [child for child in element if _tag(child) == name]
+    return [_sought(child) for child in element if _tag(child) == name]
 
 
-def _container_name(element: ET.Element, index: _Index) -> str:
-    """Resolve ``@containerRef`` to the owning schema or database name."""
+def _container_path(element: ET.Element, index: _Index) -> tuple[str, ...]:
+    """Resolve ``@containerRef`` to the full containment chain, outermost first.
+
+    A single container *name* does not identify a container. In the pinned corpus
+    three distinct ``Schema`` objects are all named ``SH``, each under a different
+    ``Database``, and two different physical tables named ``COSTS`` live in two of
+    them. Keying on the name alone collapsed those onto one identifier, which
+    breaks FR-8: an identifier cited from a Group Spec must name exactly one row.
+
+    Walking the chain gives ``<Database>.<Schema>.<Table>`` where a Database is
+    present, and ``<Schema>.<Table>`` where it is not, so a repository that never
+    had the ambiguity keeps the identifiers it already had.
+
+    Cycles are possible in a hand-edited repository, so the walk is bounded by the
+    set of mdsids already visited rather than trusting the data to terminate.
+    """
     _, mdsid = index.resolve_ref(element.attrib.get("containerRef", ""))
-    entry = index.get(mdsid) if mdsid else None
-    return entry.name if entry else ""
+    parts: list[str] = []
+    seen: set[str] = set()
+    while mdsid and mdsid not in seen:
+        seen.add(mdsid)
+        entry = index.get(mdsid)
+        if entry is None or not entry.name:
+            break
+        parts.append(entry.name)
+        mdsid = entry.container_mdsid
+    parts.reverse()
+    return tuple(parts)
 
 
 def _parse_physical(rpd_id: str, root: ET.Element, index: _Index, estate: Estate) -> None:
     name = root.attrib.get("name", "")
-    container = _container_name(root, index)
+    container = _container_path(root, index)
     if not name or not container:
         estate.record_error(
             rpd_id, "missing_name", root.attrib.get("mdsid", "?"), "PhysicalTable",
@@ -307,13 +432,15 @@ def _parse_physical(rpd_id: str, root: ET.Element, index: _Index, estate: Estate
         )
         return
 
-    table_id = ids.make_id(rpd_id, ids.PHYSICAL, container, name)
+    table_id = ids.make_id(rpd_id, ids.PHYSICAL, *container, name)
     index.bind(root.attrib.get("mdsid", ""), table_id)
     estate.physical_tables.append(
         PhysicalTable(
             row_id=table_id,
             rpd_id=rpd_id,
-            container=container,
+            # Dotted, matching the identifier: a reader joining this column to a
+            # row_id should not have to reconstruct the separator.
+            container=".".join(container),
             name=name,
             table_type=root.attrib.get("type", ""),
             max_conn=root.attrib.get("maxConn", ""),
@@ -329,7 +456,7 @@ def _parse_physical(rpd_id: str, root: ET.Element, index: _Index, estate: Estate
                 "PhysicalColumn", "column has no name",
             )
             continue
-        column_id = ids.make_id(rpd_id, ids.PHYSICAL, container, name, column_name)
+        column_id = ids.make_id(rpd_id, ids.PHYSICAL, *container, name, column_name)
         index.bind(column.attrib.get("mdsid", ""), column_id)
         estate.physical_columns.append(
             PhysicalColumn(
@@ -356,7 +483,9 @@ def _parse_physical(rpd_id: str, root: ET.Element, index: _Index, estate: Estate
                 columns.append(mdsid)
         estate.physical_joins.append(
             PhysicalJoin(
-                row_id=ids.make_id(rpd_id, ids.PHYSICAL, container, name, fk_name or "fk"),
+                row_id=ids.make_id(
+                    rpd_id, ids.PHYSICAL, *container, name, fk_name or "fk"
+                ),
                 rpd_id=rpd_id,
                 kind="foreign_key",
                 name=fk_name,
@@ -874,149 +1003,91 @@ def _flag_time_series(estate: Estate) -> None:
 
 
 
-#: What each parser above actually consumes, declared per object type as
-#: ``Tag@attribute`` and bare ``Tag`` for child elements.
-#:
-#: This is a declaration, so it can drift from the code. It drifts in the SAFE
-#: direction: forgetting to declare something we do read reports a phantom gap
-#: (noisy), while the dangerous case — content silently discarded — is exactly
-#: what the audit catches. Over-reporting is the correct bias here.
-_CONSUMED: dict[str, set[str]] = {
-    "PhysicalTable": {
-        "PhysicalTable@mdsid", "PhysicalTable@name", "PhysicalTable@type",
-        "PhysicalTable@maxConn", "PhysicalTable@containerRef",
-        "PhysicalColumn", "PhysicalColumn@mdsid", "PhysicalColumn@name",
-        "PhysicalColumn@dataType", "PhysicalColumn@specialType",
-        "PhysicalColumn@precision", "PhysicalColumn@nullable", "PhysicalColumn@extName",
-        "PhysicalForeignKey", "PhysicalForeignKey@mdsid", "PhysicalForeignKey@name",
-        "RefColumns", "RefColumn", "RefColumn@columnRef", "RefColumn@refId",
-    },
-    "ComplexJoin": {
-        "ComplexJoin@mdsid", "ComplexJoin@name", "ComplexJoin@cardinality",
-        "ComplexJoin@table1Ref", "ComplexJoin@table2Ref",
-        "Expr", "Expr@mdsid", "Expr@name", "ExprText", "ExprTextDesc",
-        "ObjectRefList", "RefObject", "RefObject@objectRef", "RefObject@refId",
-        "RefObject@objectTypeId",
-    },
-    "LogicalTable": {
-        "LogicalTable@mdsid", "LogicalTable@name", "LogicalTable@subjectAreaRef",
-        "LogicalColumn", "LogicalColumn@mdsid", "LogicalColumn@name",
-        "LogicalColumn@isWriteable",
-        "AttrDefn", "AttrDefn@mdsid", "AttrDefn@name",
-        "MeasureDefn", "MeasureDefn@mdsid", "MeasureDefn@name",
-        "AggrRule", "AggrRule@mdsid", "AggrRule@name", "AggrRule@isDefault",
-        "Expr", "Expr@mdsid", "Expr@name", "ExprText", "ExprTextDesc",
-        "ObjectRefList", "RefObject", "RefObject@objectRef", "RefObject@refId",
-        "RefObject@objectTypeId",
-        "RefTableSources", "RefLogicalTableSource",
-        "RefLogicalTableSource@logicalTableSourceRef", "RefLogicalTableSource@refId",
-    },
-    "LogicalTableSource": {
-        "LogicalTableSource@mdsid", "LogicalTableSource@name",
-        "LogicalTableSource@isActive", "LogicalTableSource@logicalTableRef",
-        "LogicalTableSource@priorityGroup",
-        "FragmentContent", "FragmentContent@mdsid", "FragmentContent@name",
-        "WhereClause", "WhereClause@mdsid", "WhereClause@name",
-        "GroupBy", "GroupBy@mdsid", "GroupBy@name",
-        "ColumnMapping", "ColumnMapping@mdsid", "ColumnMapping@name",
-        "LogicalColumnExpr", "LogicalColumnExpr@mdsid", "LogicalColumnExpr@name",
-        "Expr", "Expr@mdsid", "Expr@name", "ExprText", "ExprTextDesc",
-        "ObjectRefList", "RefObject", "RefObject@objectRef", "RefObject@refId",
-        "RefObject@objectTypeId",
-    },
-    "PresentationCatalog": {
-        "PresentationCatalog@mdsid", "PresentationCatalog@name",
-        "PresentationCatalog@subjectAreaRef", "PresentationCatalog@isAutoAggr",
-        "PresentationCatalog@defaultFactColumnRef",
-        "Alias", "Alias@name",
-        "RefTables", "RefPresentationTable", "RefPresentationTable@presentationTableRef",
-        "RefPresentationTable@refId",
-    },
-    "PresentationTable": {
-        "PresentationTable@mdsid", "PresentationTable@name",
-        "PresentationTable@containerRef", "PresentationTable@dispName",
-        "PresentationColumn", "PresentationColumn@mdsid", "PresentationColumn@name",
-        "PresentationColumn@logicalColumnRef",
-        "PresentationColumn@overrideLogicalName", "PresentationColumn@dispName",
-        "Alias", "Alias@name",
-    },
-    "LogicalComplexJoin": {
-        "LogicalComplexJoin@mdsid", "LogicalComplexJoin@name",
-        "LogicalComplexJoin@type", "LogicalComplexJoin@logicalTable1Ref",
-        "LogicalComplexJoin@multiplicity1", "LogicalComplexJoin@isAggregate1",
-        "LogicalComplexJoin@logicalTable2Ref", "LogicalComplexJoin@multiplicity2",
-        "LogicalComplexJoin@isAggregate2",
-    },
-    "Variable": {
-        "Variable@mdsid", "Variable@name", "Variable@isSessionVar",
-        "Variable@initBlockRef", "Variable@securityMask",
-        "Expr", "Expr@mdsid", "Expr@name", "ExprText", "ExprTextDesc",
-        "ObjectRefList", "RefObject", "RefObject@objectRef", "RefObject@refId",
-        "RefObject@objectTypeId",
-    },
-    "InitBlock": {
-        "InitBlock@mdsid", "InitBlock@name", "InitBlock@refreshPeriod",
-        "InitBlock@isSessionVar", "InitBlock@isEnabled", "InitString",
-    },
-    "Group": {"Group@mdsid", "Group@name"},
-    "PrivilegePackage": {
-        "PrivilegePackage@mdsid", "PrivilegePackage@name",
-        "PrivilegePackage@roleRef", "PrivilegePackage@userRef",
-        "QueryPrivilegeMapping", "QueryPrivilegeMapping@databaseRef",
-        "QueryPrivilegeMapping@queryPrivilegeRef",
-    },
-    "ObjectPrivilege": {
-        "ObjectPrivilege@mdsid", "ObjectPrivilege@name", "ObjectPrivilege@type",
-        "ObjectPrivilege@privilegePackageRef",
-        "RefObjects", "RefObject", "RefObject@objectRef", "RefObject@refId",
-        "RefObject@objectTypeId",
-    },
-}
-
-
 def _audit_unread(
-    files: list[tuple[str, str, Path]], estate: Estate
+    trees: list[tuple[str, str, ET.Element]], estate: Estate
 ) -> None:
-    """Report source content present on parsed objects but never consumed.
+    """Report source content the parsers never took, observed rather than declared.
 
-    Whole-object honesty is not enough. An object can parse "successfully"
-    while attributes and child elements on it are discarded without a word —
-    which is precisely the silent omission NFR7 names as the primary failure
-    mode, one level below where AD-3 was watching.
+    Whole-object honesty is not enough. An object can parse "successfully" while
+    attributes, child elements and text on it are discarded without a word —
+    the silent omission NFR7 names as the primary failure mode, one level below
+    where AD-3 was watching.
 
-    Doubles as a format-drift detector: a repository from a different OBIEE
-    version carrying new attributes announces itself here instead of being
-    quietly dropped.
+    This used to compare each file against ``_CONSUMED``, a hand-written list of
+    what each parser was believed to read. That list was the audit's only source
+    of truth and nothing tied it to the code, so it could — and did — silence a
+    field no parser touched: ``PrivilegePackage@userRef`` was declared consumed
+    while the parser read only ``roleRef``, so three privilege grants to named
+    users were dropped and reported as fully understood.
+
+    So the audit no longer asks what the adapter *claims* to read. It watches
+    what the adapter *did* read, on this run, through `_Observed`. The list
+    cannot disagree with the code because it is no longer a list.
+
+    Reachability is computed over the real tree rather than by tag name, so a
+    tag that is read in one context is not assumed read in another. A container
+    element counts as traversed when anything beneath it was read — otherwise
+    every wrapper the parsers pass through would be reported as a gap.
+
+    Drift now fails safe in the only direction left: a branch this corpus never
+    exercises reports a gap that is merely noise, never silence.
     """
-    present: dict[tuple[str, str], collections.Counter] = {}
-    for rpd_id, object_type, path in files:
-        if object_type not in _CONSUMED:
+    gaps: dict[tuple[str, str, str], int] = collections.Counter()
+
+    def touched(element: ET.Element) -> bool:
+        if isinstance(element, _Observed):
+            return (
+                bool(element.attributes_read) or element.text_read or element.sought
+            )
+        return False
+
+    reached: dict[int, bool] = {}
+
+    def mark(element: ET.Element) -> bool:
+        """Was anything in this subtree read? Computed once, bottom-up."""
+        below = [mark(child) for child in element]
+        here = touched(element) or any(below)
+        reached[id(element)] = here
+        return here
+
+    def visit(rpd_id: str, object_type: str, element: ET.Element) -> None:
+        tag = _tag(element)
+        # An element nothing in the subtree touched is unhandled as a whole. A
+        # wrapper the parsers walked through is not, even though nothing was read
+        # off the wrapper itself.
+        if not reached[id(element)]:
+            gaps[(rpd_id, object_type, tag)] += 1
+        # Reported at every level regardless, including inside an unhandled
+        # subtree: rolling a branch up to its root hides what is in it, and
+        # ``Join@type`` is exactly the parity-critical detail that must not be
+        # summarised away.
+        present = set(dict.keys(element.attrib))
+        read = element.attributes_read if isinstance(element, _Observed) else set()
+        for attribute in sorted(present - read):
+            gaps[(rpd_id, object_type, f"{tag}@{attribute}")] += 1
+        text = element.text or ""
+        if text.strip() and isinstance(element, _Observed) and not element.text_read:
+            gaps[(rpd_id, object_type, f"{tag}#text")] += 1
+        for child in element:
+            visit(rpd_id, object_type, child)
+
+    for rpd_id, object_type, root in trees:
+        if object_type not in _HANDLED:
             continue  # unmodelled types are already reported whole
-        try:
-            root = ET.parse(path).getroot()
-        except ET.ParseError:
-            continue  # already reported as an error
-        counter = present.setdefault((rpd_id, object_type), collections.Counter())
-        for element in root.iter():
-            tag = _tag(element)
-            counter[tag] += 1
-            for attribute in element.attrib:
-                counter[f"{tag}@{attribute}"] += 1
+        mark(root)
+        visit(rpd_id, object_type, root)
 
-    for (rpd_id, object_type), counter in sorted(present.items()):
-        consumed = set(_CONSUMED[object_type])
-        # Declaring `Tag@attr` implies the element itself is consumed — we read
-        # its attributes, so it is not an unread element. Without this the root
-        # object of every file reports as a gap, which is noise, not signal.
-        consumed |= {item.split("@")[0] for item in consumed if "@" in item}
-        for item, occurrences in sorted(counter.items()):
-            if item in consumed:
-                continue
-            kind = "unread_attribute" if "@" in item else "unread_element"
-            estate.record_gap(rpd_id, kind, object_type, item, occurrences)
+    for (rpd_id, object_type, detail), occurrences in sorted(gaps.items()):
+        if "@" in detail:
+            kind = "unread_attribute"
+        elif detail.endswith("#text"):
+            kind = "unread_text"
+        else:
+            kind = "unread_element"
+        estate.record_gap(rpd_id, kind, object_type, detail, occurrences)
 
 
-#: Object types this adapter models today. Everything else is reported as an
+
 #: unparsed object type rather than passed over in silence (FR-5, AD-3).
 _HANDLED = {
     "PhysicalTable",
@@ -1110,7 +1181,8 @@ def load(corpus_root: Path | str, rpd_id: str | None = None) -> Estate:
     estate.rpd_ids = sorted({rpd_id for rpd_id, _, _ in files})
     for rpd_id, reason in unreadable:
         estate.record_error(rpd_id, "unreadable", str(corpus_root), "Directory", reason)
-    index = _build_index(files, estate)
+    trees = _parse_all(files, estate)
+    index = _build_index(trees)
 
     # Order matters: each pass resolves references into the identifiers the
     # previous pass bound. Physical before logical, Subject Areas before their
@@ -1130,13 +1202,8 @@ def load(corpus_root: Path | str, rpd_id: str | None = None) -> Estate:
         "ObjectPrivilege": _parse_object_privilege,
     }
     for wanted, handler in passes.items():
-        for rpd_id, object_type, path in files:
+        for rpd_id, object_type, root in trees:
             if object_type != wanted:
-                continue
-            try:
-                root = ET.parse(path).getroot()
-            except ET.ParseError as exc:
-                estate.record_error(rpd_id, "malformed_xml", path.name, object_type, str(exc))
                 continue
             handler(rpd_id, root, index, estate)
 
@@ -1144,7 +1211,10 @@ def load(corpus_root: Path | str, rpd_id: str | None = None) -> Estate:
     _flag_time_series(estate)
     _build_lineage(estate)
     _collect_row_filters(estate)
-    _audit_unread(files, estate)
+    # After every pass, so the audit sees the reads all of them made.
+    _audit_unread(trees, estate)
+    # Last, so it sees every row every pass produced, including lineage.
+    estate.check_identifier_uniqueness()
 
     for rpd_id, object_type, path in files:
         if object_type in _HANDLED:
