@@ -42,9 +42,6 @@ from tools.rpd_extract.core.model import (
     BmmJoin,
     time_series_used,
     is_credential_name,
-    RECOVERABLE_ELSEWHERE,
-    TARGET_NOT_IN_KB,
-    VALUE_NOT_CAPTURED,
 )
 
 NAMESPACE = "http://www.oracle.com/obis/repository"
@@ -1007,7 +1004,7 @@ def _flag_time_series(estate: Estate) -> None:
 
 
 def _audit_unread(
-    trees: list[tuple[str, str, ET.Element]], index: _Index, estate: Estate
+    trees: list[tuple[str, str, ET.Element]], estate: Estate
 ) -> None:
     """Report source content the parsers never took, observed rather than declared.
 
@@ -1036,9 +1033,6 @@ def _audit_unread(
     exercises reports a gap that is merely noise, never silence.
     """
     gaps: dict[tuple[str, str, str], int] = collections.Counter()
-    #: Every value seen for an unread attribute, so the cost of not reading it
-    #: can be derived from the data rather than judged by its name.
-    values: dict[tuple[str, str, str], list[str]] = collections.defaultdict(list)
 
     def touched(element: ET.Element) -> bool:
         if isinstance(element, _Observed):
@@ -1070,9 +1064,7 @@ def _audit_unread(
         present = set(dict.keys(element.attrib))
         read = element.attributes_read if isinstance(element, _Observed) else set()
         for attribute in sorted(present - read):
-            key = (rpd_id, object_type, f"{tag}@{attribute}")
-            gaps[key] += 1
-            values[key].append(dict.get(element.attrib, attribute, ""))
+            gaps[(rpd_id, object_type, f"{tag}@{attribute}")] += 1
         text = element.text or ""
         if text.strip() and isinstance(element, _Observed) and not element.text_read:
             gaps[(rpd_id, object_type, f"{tag}#text")] += 1
@@ -1085,35 +1077,14 @@ def _audit_unread(
         mark(root)
         visit(rpd_id, object_type, root)
 
-    def assess(key: tuple[str, str, str]) -> str:
-        """What does not reading this cost? Decided from the values, not the name.
-
-        A reference whose targets the Knowledge Base already identifies costs
-        nothing — the link is in the output by another path. A reference whose
-        target is absent costs the whole link, and is the case worth acting on.
-        Anything that is not a reference costs its own value.
-        """
-        seen = [v for v in values.get(key, []) if v]
-        if not seen:
-            return VALUE_NOT_CAPTURED
-        targets = [index.resolve_ref(v)[1] for v in seen]
-        if not all(targets):
-            return VALUE_NOT_CAPTURED  # not reference-shaped at all
-        # Conservative: one unresolvable target makes the whole attribute a loss.
-        # Reporting "recoverable" for a mixed case would understate it.
-        if all(index.identifier(mdsid) for mdsid in targets):
-            return RECOVERABLE_ELSEWHERE
-        return TARGET_NOT_IN_KB
-
     for (rpd_id, object_type, detail), occurrences in sorted(gaps.items()):
-        key = (rpd_id, object_type, detail)
         if "@" in detail:
-            kind, assessment = "unread_attribute", assess(key)
+            kind = "unread_attribute"
         elif detail.endswith("#text"):
-            kind, assessment = "unread_text", VALUE_NOT_CAPTURED
+            kind = "unread_text"
         else:
-            kind, assessment = "unread_element", VALUE_NOT_CAPTURED
-        estate.record_gap(rpd_id, kind, object_type, detail, occurrences, assessment)
+            kind = "unread_element"
+        estate.record_gap(rpd_id, kind, object_type, detail, occurrences)
 
 
 
@@ -1241,7 +1212,7 @@ def load(corpus_root: Path | str, rpd_id: str | None = None) -> Estate:
     _build_lineage(estate)
     _collect_row_filters(estate)
     # After every pass, so the audit sees the reads all of them made.
-    _audit_unread(trees, index, estate)
+    _audit_unread(trees, estate)
     # Last, so it sees every row every pass produced, including lineage.
     estate.check_identifier_uniqueness()
 

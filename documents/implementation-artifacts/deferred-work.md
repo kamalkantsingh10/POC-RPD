@@ -16,10 +16,22 @@ re-derivation from the source corpus to confirm.
     the only information they carry. Reading it properly also needs the `User`
     object type modelled — it is currently reported as `unmodelled_type`.
 
-- summary: nine further references are read by nothing, led by the foreign key counterpart
-  evidence: `unparsed.csv`, `assessment = target_not_in_kb`, 11 items / 278
-    occurrences total. Largest: `PhysicalForeignKey@counterPartKeyRef` (100),
-    `QueryPrivilegeMapping@databaseRef` (73),
+- summary: alias tables are not modelled, so an alias does not name what it aliases
+  evidence: `unparsed.csv` reports `PhysicalTable@sourceTableRef` (8) and
+    `PhysicalColumn@sourceColumnRef` (101) unread. `physical_tables.csv` has no
+    column for it, so nothing records that a table IS an alias or of what. In
+    OBIEE aliasing is how one physical table is joined several ways, so this is
+    a real physical-modelling gap, not bookkeeping.
+
+- summary: logical keys and LTS joins are not modelled
+  evidence: `unparsed.csv` reports `RefLogicalColumn@logicalColumnRef` (57,
+    inside `LogicalKey`) and `Join@physicalTable1Ref`/`2Ref` (36 each) unread.
+    No table carries either concept, so "these columns form the key" and the
+    source's own join specification are absent.
+
+- summary: further unread references worth reading, largest first
+  evidence: `unparsed.csv`, `unread_attribute`. `PhysicalForeignKey@counterPartKeyRef`
+    (100), `QueryPrivilegeMapping@databaseRef` (73),
     `RefPresentationHierarchy@presentationHierarchyRef` (58),
     `Join@physicalJoinRef` (38), `InitBlock@connectionPoolRef` (6).
 

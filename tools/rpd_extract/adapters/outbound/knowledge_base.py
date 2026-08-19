@@ -282,10 +282,9 @@ def write(
     # first — 200 unmodelled types would hide 31 broken references.
     emit(
         "unparsed",
-        ["rpd_id", "kind", "object_type", "detail", "occurrences", "assessment"],
+        ["rpd_id", "kind", "object_type", "detail", "occurrences"],
         sorted(
-            [[u.rpd_id, u.kind, u.object_type, u.detail, str(u.occurrences),
-              u.assessment]
+            [[u.rpd_id, u.kind, u.object_type, u.detail, str(u.occurrences)]
              for u in estate.unparsed]
         ),
         guard=("detail",),

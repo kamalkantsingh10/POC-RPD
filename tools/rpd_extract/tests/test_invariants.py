@@ -30,7 +30,6 @@ from dataclasses import replace
 from pathlib import Path
 
 from tools.rpd_extract.adapters.inbound import mds_xml
-from tools.rpd_extract.core import model
 from tools.rpd_extract.core.model import Estate
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -121,7 +120,7 @@ class UnreadAudit(unittest.TestCase):
             reader(root)
         estate = Estate()
         trees = [("test", "PhysicalTable", root)]
-        mds_xml._audit_unread(trees, mds_xml._build_index(trees), estate)
+        mds_xml._audit_unread(trees, estate)
         return {(g.kind, g.detail): g.occurrences for g in estate.unparsed}
 
     def test_an_attribute_nothing_reads_is_reported(self):
@@ -163,58 +162,6 @@ class UnreadAudit(unittest.TestCase):
         # ...but its unread attribute is still reported, at every level.
         self.assertIn(("unread_attribute", "UnknownChild@deep"), gaps)
 
-    def assess(self, xml, reader=None):
-        root = ET.fromstring(xml, parser=mds_xml._observing_parser())
-        if reader is not None:
-            reader(root)
-        estate = Estate()
-        trees = [("test", "PhysicalTable", root)]
-        mds_xml._audit_unread(trees, mds_xml._build_index(trees), estate)
-        return {g.detail: g.assessment for g in estate.unparsed}
-
-    def test_a_reference_whose_target_is_absent_is_a_real_loss(self):
-        """The userRef shape: points at an object the Knowledge Base has no id for."""
-        xml = (
-            '<PhysicalTable xmlns="http://www.oracle.com/obis/repository" mdsid="m1"'
-            ' ghostRef="/oracle/bi/server/base/User/u.xml#mu1"/>'
-        )
-        self.assertEqual(
-            self.assess(xml)["PhysicalTable@ghostRef"], model.TARGET_NOT_IN_KB
-        )
-
-    def test_a_reference_whose_target_is_known_costs_nothing(self):
-        """The presentationTableRef shape: the same link exists by another path."""
-        xml = (
-            '<PhysicalTable xmlns="http://www.oracle.com/obis/repository" mdsid="m1">'
-            '<Ref twinRef="/oracle/bi/server/base/PhysicalTable/t.xml#m2"/>'
-            '<Inner mdsid="m2"/>'
-            "</PhysicalTable>"
-        )
-        root = ET.fromstring(xml, parser=mds_xml._observing_parser())
-        trees = [("test", "PhysicalTable", root)]
-        index = mds_xml._build_index(trees)
-        index.bind("m2", "test::phys::already.identified")  # the target IS in the KB
-        estate = Estate()
-        mds_xml._audit_unread(trees, index, estate)
-        got = {g.detail: g.assessment for g in estate.unparsed}
-        self.assertEqual(got["Ref@twinRef"], model.RECOVERABLE_ELSEWHERE)
-
-    def test_a_plain_value_is_not_treated_as_a_reference(self):
-        xml = (
-            '<PhysicalTable xmlns="http://www.oracle.com/obis/repository" mdsid="m1"'
-            ' cardinality="many"/>'
-        )
-        self.assertEqual(
-            self.assess(xml)["PhysicalTable@cardinality"], model.VALUE_NOT_CAPTURED
-        )
-
-    def test_every_assessment_is_one_of_the_declared_values(self):
-        estate = mds_xml.load(FIXTURES)
-        for gap in estate.unparsed:
-            if gap.kind == "unmodelled_type":
-                continue
-            self.assertIn(gap.assessment, model.ASSESSMENTS, f"{gap.detail}")
-
     def test_reads_are_counted_per_element_not_per_tag_name(self):
         """Reading a tag in one place must not silence the same tag elsewhere.
 
@@ -232,7 +179,7 @@ class UnreadAudit(unittest.TestCase):
         mds_xml._first_child(mds_xml._first_child(root, "A"), "Ref").attrib.get("pick")
         estate = Estate()
         trees = [("test", "PhysicalTable", root)]
-        mds_xml._audit_unread(trees, mds_xml._build_index(trees), estate)
+        mds_xml._audit_unread(trees, estate)
         gaps = [g for g in estate.unparsed if g.detail == "Ref@pick"]
         self.assertEqual(
             [g.occurrences for g in gaps],

@@ -197,18 +197,6 @@ The last three matter more than they look. **An object can parse "successfully" 
 
 It is also the **format-drift detector**. A repository from a different OBIEE version carrying new attributes announces itself here instead of being quietly dropped — which is the honest answer to "will this work on my estate?"
 
-**The `assessment` column tells you which gaps cost anything.** 227 gaps with no triage is hard to act on: `RefObject@refId` at 9399 occurrences and `PrivilegePackage@userRef` at 3 look equally alarming, and only one of them loses information. Each gap is graded from the values actually present in the source:
-
-| `assessment` | Meaning | Act on it? |
-|---|---|---|
-| `target_not_in_kb` | A reference whose target has no Knowledge Base identifier. **Nothing else carries this link** | **Yes** |
-| `value_not_captured` | Not a reference. The value is in the source and absent from the output | Judge by what it is |
-| `recoverable_elsewhere` | A reference whose targets all have identifiers already. The link is in the output by another path | No — costs nothing |
-
-On the development corpus that is **11 items / 278 occurrences** to act on, out of 227 items / 25,985 occurrences total. Start there.
-
-The grade is **computed, never tabulated**. A hand-maintained table of "which gaps matter" would be the same construct as the declaration this audit replaced, and would drift the same way.
-
 **How the audit knows.** It does not consult a list of what the parsers are supposed to read. It **observes what they actually read**, during the run, and reports the difference against what the file contained. That distinction is not academic: the audit was previously driven by a hand-maintained declaration, and six of its entries had drifted from the code. One of them, `PrivilegePackage@userRef`, silenced three privilege grants made to named users — the file reported as fully understood while the data was dropped. A declaration records an intention and can disagree with the code; an observation cannot.
 
 The remaining failure mode is the harmless one: a branch your estate exercises and the development corpus never did may report a gap that turns out to be read after all. Noise, not silence.
