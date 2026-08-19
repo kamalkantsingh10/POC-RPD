@@ -51,16 +51,23 @@ NO_ROWS = "no_rows"
 def _profile(
     profiled: list[tuple[str, list[str], list[list[str]]]]
 ) -> list[list[str]]:
-    """Per column, how much of it is actually there — and what to do about it.
+    """How much of each column this estate actually populates.
 
-    A dev reading the Knowledge Base cannot tell a blank cell that means "OBIEE
-    never set this" from one that means "we failed to read it". Both are empty
-    strings. This report is the difference between data that is good — which it
-    measurably is — and data a dev can *know* is good without re-deriving it by
-    hand from the source corpus.
+    **This profiles the estate, not the extraction.** A column that is 6% full
+    is not evidence of a problem: OBIEE sets ``WhereClause`` on 6 of 92 sources,
+    and capturing exactly those 6 is correct. Only one question indicates an
+    extraction fault — did the source carry a value we failed to read — and that
+    is answered by ``unparsed.csv``, which observes what the parsers took. The
+    two are separate questions and this report deliberately answers only the
+    first.
 
-    Split by ``rpd_id`` where the table has one: a column can be complete in one
-    repository and absent in another, and an estate-wide average would hide it.
+    What it is for: knowing what an as-is can be built from. If ``display_name``
+    is empty across 1484 presentation columns, an as-is document organised around
+    display names has nothing to render, and it is better to learn that here than
+    halfway through writing one.
+
+    Split by ``rpd_id`` and by ``kind``: a column can be full in one repository
+    and absent in another, and an average would hide both facts.
     """
     out: list[list[str]] = []
     for name, header, rows in profiled:
@@ -94,12 +101,11 @@ def _profile(
                 elif filled == total:
                     verdict, note = COMPLETE, "every row carries a value"
                 elif filled:
-                    verdict, note = PARTIAL, "blank where the source object sets nothing"
-                else:
-                    verdict, note = NEVER, (
-                        "NO row in this estate carries a value. Confirm against "
-                        "unparsed.csv whether the source has it and we do not read it"
+                    verdict, note = PARTIAL, (
+                        "this estate sets it on some objects and not others"
                     )
+                else:
+                    verdict, note = NEVER, "this estate never sets it"
                 expected = _MEANINGFUL_BLANKS.get((name, column))
                 if expected and verdict in (PARTIAL, NEVER):
                     note = f"expected: {expected}"
@@ -430,9 +436,9 @@ def write(
     emit(
         "completeness",
         ["rpd_id", "table", "kind", "column", "rows", "populated", "blank",
-         "populated_pct", "verdict", "what_to_check"],
+         "populated_pct", "verdict", "note"],
         _profile(profiled),
-        guard=("what_to_check",),
+        guard=("note",),
     )
 
     stamp = timestamp or _timestamp()

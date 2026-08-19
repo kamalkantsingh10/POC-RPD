@@ -180,31 +180,29 @@ There is also a larger public corpus used to develop the tool — 1383 files acr
 | `errors` | 31 | **Things that went wrong** — kept separate on purpose |
 | `manifest` | — | Source, timestamp, extractor version |
 
-### `completeness.csv` — what to trust, and what to check
+### `completeness.csv` — what data this estate actually has
 
-An empty cell in the Knowledge Base means one of three completely different things, and nothing on the row says which:
+**This profiles the estate, not the extraction.** A column that is 6% full is not evidence of a problem: OBIEE sets `WhereClause` on 6 of 92 sources, and capturing exactly those 6 is correct.
 
-1. **OBIEE never set it** — correct, nothing to do
-2. **We failed to read it** — a real gap
-3. **The value lives in another table** — look elsewhere
+One row per `rpd_id` x table x kind x column, with how many rows carry a value:
 
-Establishing which meant re-parsing the source corpus by hand. `completeness.csv` does it for you: one row per `rpd_id` x table x kind x column, with a `verdict` and a `what_to_check`.
+| `verdict` | Meaning | Action |
+|---|---|---|
+| `complete` | every row carries a value | none |
+| `partly_populated` | this estate sets it on some objects and not others | none |
+| `never_populated` | this estate never sets it | none, unless you needed that column |
+| `no_rows` | the table extracted nothing for this rpd-id | none |
 
-| `verdict` | Meaning |
-|---|---|
-| `complete` | Every row carries a value. **Trust it without checking** |
-| `partly_populated` | Blank where the source object sets nothing |
-| `never_populated` | No row in the estate carries a value — **confirm this one** |
-| `no_rows` | The table extracted nothing for this rpd-id |
+**None of these is an error signal**, which is why there is no "what to check" column. Whether the source held a value the extractor failed to read is a *different question*, answered by `unparsed.csv` — see below. Conflating the two sends you checking columns your estate simply does not use.
 
-The report will not tell you a blank is harmless unless it can prove it:
+What this report is for: knowing what an as-is document can be built from. If `display_name` is empty across 1484 presentation columns, an as-is organised around display names has nothing to render — better learned here than halfway through writing one.
 
-- **Expected** — the blank is meaningful and documented. An empty LTS `priority` means the source records no priority, never "lowest"; inferring an order from document position would silently repoint a measure.
-- **Empty for one kind, populated for another** — reported as exactly that, and no further. It is tempting to call it "not applicable" and clear the row: for `physical_joins` that is right, because a foreign key has no join expression. For `security_rls` it is wrong, because a `row_filter` carrying no role is a genuine FR-4 shortfall. Same shape, opposite meaning, and nothing in the extractor can tell them apart without knowing what the column means — so it states the comparison and leaves the judgement to you.
+Two notes qualify a blank:
 
-On the development corpus: **186 complete, 42 partly populated, 52 never populated**. Four were checked against the source by hand and all four proved genuine absences in the estate, not extraction failures.
+- **Expected** — the blank is meaningful. An empty LTS `priority` means the source records no priority, never "lowest"; inferring an order from document position would silently repoint a measure.
+- **Empty for one kind, populated for another** — reported as exactly that, and no further. It is tempting to call it "not applicable": for `physical_joins` that is right, because a foreign key has no join expression. For `security_rls` it is wrong, because a `row_filter` carrying no role is a genuine FR-4 shortfall. Same shape, opposite meaning, and nothing in the extractor can tell them apart — so it states the comparison and leaves the judgement to you.
 
-Note the report profiles by `kind`, so a column can be `complete` for one kind and `never_populated` for another in the same table. That is the point: averaging them hides both facts.
+On the development corpus: **186 complete, 42 partly populated, 52 never populated.**
 
 ### `unparsed.csv` and `errors.csv` — read both, they answer different questions
 

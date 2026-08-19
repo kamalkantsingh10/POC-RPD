@@ -266,12 +266,19 @@ class CompletenessReport(unittest.TestCase):
                              [["1", "r", "x"], ["2", "r", "y"]])])
         self.assertEqual(got[("t", "", "a")][8], knowledge_base.COMPLETE)
 
-    def test_a_column_no_row_populates_is_flagged_for_checking(self):
+    def test_a_column_no_row_populates_is_reported_as_the_estate_not_a_fault(self):
+        """`never_populated` describes the estate. It is not an extraction defect.
+
+        Whether the source held a value we failed to read is a different question
+        entirely, answered by the observed audit in `unparsed.csv`. Implying it
+        here would send a dev checking 26 columns that are simply not used by
+        their estate.
+        """
         got = self.profile([("t", ["row_id", "rpd_id", "a"],
                              [["1", "r", ""], ["2", "r", ""]])])
         row = got[("t", "", "a")]
         self.assertEqual(row[8], knowledge_base.NEVER)
-        self.assertIn("unparsed.csv", row[9])
+        self.assertEqual(row[9], "this estate never sets it")
 
     def test_a_partly_populated_column_says_so(self):
         got = self.profile([("t", ["row_id", "rpd_id", "a"],
