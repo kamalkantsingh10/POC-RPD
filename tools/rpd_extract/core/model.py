@@ -342,10 +342,50 @@ class Unparsed:
     """
 
     rpd_id: str
-    kind: str  # "unmodelled_type" | "unread_attribute" | "unread_element"
+    kind: str  # "unmodelled_type" | "unread_attribute" | "unread_element" | "unread_text"
     object_type: str
     detail: str
     occurrences: int = 1
+    #: What the gap costs, DERIVED from the data — never hand-assigned. A gap
+    #: list with no triage is hard to act on: `RefObject@refId` at 9399
+    #: occurrences and `PrivilegePackage@userRef` at 3 look equally alarming,
+    #: and only one of them loses anything. See :data:`ASSESSMENTS`.
+    #:
+    #: Deliberately computed rather than tabulated. A hand-maintained table of
+    #: "which gaps matter" is the same construct as the declaration this audit
+    #: replaced, and would drift the same way.
+    assessment: str = ""
+
+
+#: The assessments :class:`Unparsed` can carry, worst first.
+#:
+#: Each is decided by looking at the values actually present in the source, not
+#: by anyone's opinion about the attribute's name:
+#:
+#: ``target_not_in_kb``
+#:     The unread value is a reference, and its target has no Knowledge Base
+#:     identifier. Nothing else carries this link — reading it is the only way
+#:     to have it. ``PrivilegePackage@userRef`` is this: it points at a ``User``
+#:     object the extractor does not model, so the grantee is unrecoverable.
+#:
+#: ``value_not_captured``
+#:     Not a reference. The value itself appears in no Knowledge Base column,
+#:     so it is present in the source and absent from the output.
+#:
+#: ``recoverable_elsewhere``
+#:     A reference whose every target already has a Knowledge Base identifier.
+#:     The link exists in the output by another path, so not reading this
+#:     attribute costs nothing. ``RefPresentationTable@presentationTableRef`` is
+#:     this: the same membership is carried by ``PresentationTable@containerRef``,
+#:     which is read.
+#:
+#: An empty assessment means the kind does not admit one — an unmodelled type is
+#: reported whole and has no single value to judge.
+TARGET_NOT_IN_KB = "target_not_in_kb"
+VALUE_NOT_CAPTURED = "value_not_captured"
+RECOVERABLE_ELSEWHERE = "recoverable_elsewhere"
+
+ASSESSMENTS = (TARGET_NOT_IN_KB, VALUE_NOT_CAPTURED, RECOVERABLE_ELSEWHERE)
 
 
 @dataclass(frozen=True)
@@ -403,10 +443,18 @@ class Estate:
         self.count(rpd_id, object_type, "skipped")
 
     def record_gap(
-        self, rpd_id: str, kind: str, object_type: str, detail: str, occurrences: int = 1
+        self,
+        rpd_id: str,
+        kind: str,
+        object_type: str,
+        detail: str,
+        occurrences: int = 1,
+        assessment: str = "",
     ) -> None:
         """A known gap. Not counted as skipped — the object itself parsed fine."""
-        self.unparsed.append(Unparsed(rpd_id, kind, object_type, detail, occurrences))
+        self.unparsed.append(
+            Unparsed(rpd_id, kind, object_type, detail, occurrences, assessment)
+        )
 
     def record_unmodelled(self, rpd_id: str, object_type: str, source_id: str) -> None:
         self.unparsed.append(
