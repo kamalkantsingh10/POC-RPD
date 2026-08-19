@@ -180,30 +180,6 @@ There is also a larger public corpus used to develop the tool — 1383 files acr
 | `errors` | 31 | **Things that went wrong** — kept separate on purpose |
 | `manifest` | — | Source, timestamp, extractor version |
 
-### `completeness.csv` — what data this estate actually has
-
-**This profiles the estate, not the extraction.** A column that is 6% full is not evidence of a problem: OBIEE sets `WhereClause` on 6 of 92 sources, and capturing exactly those 6 is correct.
-
-One row per `rpd_id` x table x kind x column, with how many rows carry a value:
-
-| `verdict` | Meaning | Action |
-|---|---|---|
-| `complete` | every row carries a value | none |
-| `partly_populated` | this estate sets it on some objects and not others | none |
-| `never_populated` | this estate never sets it | none, unless you needed that column |
-| `no_rows` | the table extracted nothing for this rpd-id | none |
-
-**None of these is an error signal**, which is why there is no "what to check" column. Whether the source held a value the extractor failed to read is a *different question*, answered by `unparsed.csv` — see below. Conflating the two sends you checking columns your estate simply does not use.
-
-What this report is for: knowing what an as-is document can be built from. If `display_name` is empty across 1484 presentation columns, an as-is organised around display names has nothing to render — better learned here than halfway through writing one.
-
-Two notes qualify a blank:
-
-- **Expected** — the blank is meaningful. An empty LTS `priority` means the source records no priority, never "lowest"; inferring an order from document position would silently repoint a measure.
-- **Empty for one kind, populated for another** — reported as exactly that, and no further. It is tempting to call it "not applicable": for `physical_joins` that is right, because a foreign key has no join expression. For `security_rls` it is wrong, because a `row_filter` carrying no role is a genuine FR-4 shortfall. Same shape, opposite meaning, and nothing in the extractor can tell them apart — so it states the comparison and leaves the judgement to you.
-
-On the development corpus: **186 complete, 42 partly populated, 52 never populated.**
-
 ### `unparsed.csv` and `errors.csv` — read both, they answer different questions
 
 **`errors.csv` is the one to read first.** Something that should have been captured was not: malformed XML, a reference that would not resolve, an object with no name, a directory that could not be read, or an identifier that names more than one row (`duplicate_identifier` — FR-8 requires an identifier cited from a Group Spec to resolve to exactly one row, and identifiers are built from names that OBIEE does not make unique). Each row names the source object, the kind, and the reason. **An empty `errors.csv` is the good outcome.** The CLI exits `3` when it is non-empty, so it is scriptable.

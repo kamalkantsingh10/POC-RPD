@@ -21,123 +21,6 @@ VERSION = "0.1.0"
 #: guardable value raises, which is the intended loud failure.
 _EXPR_COLUMNS = ("expr_text", "expr_text_desc", "expr_refs")
 
-#: Tables that report ON the extraction rather than carrying estate content.
-#: Profiling them would be meaningless — "how populated is errors.csv" answers
-#: nothing — and `completeness` profiling itself would be circular.
-REPORT_TABLES = frozenset(
-    {"coverage", "errors", "unparsed", "manifest", "completeness"}
-)
-
-#: Columns whose blankness carries meaning and must not be read as a gap. Each
-#: is a *deliberate* empty: the source records nothing, and the model says so
-#: rather than inventing a default. Named here so the completeness report can
-#: say "expected" instead of leaving a reader to guess.
-_MEANINGFUL_BLANKS = {
-    ("logical_table_sources", "priority"): (
-        "empty means the source records no priority — never 'lowest'. "
-        "Inferring an order from document position would silently repoint a measure"
-    ),
-    ("presentation_subject_areas", "implicit_fact_column_id"): (
-        "empty means the Subject Area declares no defaultFactColumnRef"
-    ),
-}
-
-COMPLETE = "complete"
-PARTIAL = "partly_populated"
-NEVER = "never_populated"
-NO_ROWS = "no_rows"
-
-
-def _profile(
-    profiled: list[tuple[str, list[str], list[list[str]]]]
-) -> list[list[str]]:
-    """How much of each column this estate actually populates.
-
-    **This profiles the estate, not the extraction.** A column that is 6% full
-    is not evidence of a problem: OBIEE sets ``WhereClause`` on 6 of 92 sources,
-    and capturing exactly those 6 is correct. Only one question indicates an
-    extraction fault — did the source carry a value we failed to read — and that
-    is answered by ``unparsed.csv``, which observes what the parsers took. The
-    two are separate questions and this report deliberately answers only the
-    first.
-
-    What it is for: knowing what an as-is can be built from. If ``display_name``
-    is empty across 1484 presentation columns, an as-is document organised around
-    display names has nothing to render, and it is better to learn that here than
-    halfway through writing one.
-
-    Split by ``rpd_id`` and by ``kind``: a column can be full in one repository
-    and absent in another, and an average would hide both facts.
-    """
-    out: list[list[str]] = []
-    for name, header, rows in profiled:
-        rpd_at = header.index("rpd_id") if "rpd_id" in header else None
-        # Where a table holds more than one kind of row, profile each kind
-        # separately. A foreign key carries no join expression and a complex
-        # join does; averaged together the column reads as "never populated",
-        # which a dev would fairly take for a failure to read it.
-        kind_at = header.index("kind") if "kind" in header else None
-        groups: dict[tuple[str, str], list[list[str]]] = {}
-        for row in rows:
-            key = (
-                row[rpd_at] if rpd_at is not None else "",
-                row[kind_at] if kind_at is not None else "",
-            )
-            groups.setdefault(key, []).append(row)
-        # A table that produced no rows must still appear. Omitting it makes an
-        # empty table indistinguishable from one nobody profiled, which is the
-        # silence this report exists to remove.
-        if not groups:
-            groups[("", "")] = []
-        for (rpd_id, kind), group in sorted(groups.items()):
-            for index, column in enumerate(header):
-                if column in ("rpd_id", "kind") or column.endswith("_guarded"):
-                    continue  # the guard flags describe the CSV, not the estate
-                filled = sum(1 for row in group if index < len(row) and row[index].strip())
-                total = len(group)
-                blank = total - filled
-                if not total:
-                    verdict, note = NO_ROWS, "no rows extracted for this rpd-id"
-                elif filled == total:
-                    verdict, note = COMPLETE, "every row carries a value"
-                elif filled:
-                    verdict, note = PARTIAL, (
-                        "this estate sets it on some objects and not others"
-                    )
-                else:
-                    verdict, note = NEVER, "this estate never sets it"
-                expected = _MEANINGFUL_BLANKS.get((name, column))
-                if expected and verdict in (PARTIAL, NEVER):
-                    note = f"expected: {expected}"
-                out.append([
-                    rpd_id, name, kind, column, str(total), str(filled), str(blank),
-                    f"{100 * filled / total:.1f}" if total else "0.0",
-                    verdict, note,
-                ])
-
-    # Where a column is empty for one kind and populated for another, say so —
-    # and stop there. It is tempting to call that "not applicable" and clear the
-    # row, and for `physical_joins` that is right: a foreign key has no join
-    # expression. For `security_rls` it is wrong: `row_filter` rows carry no
-    # role, and FR-4 requires row-level security filters per application role,
-    # so that blank is a genuine shortfall. Nothing here can tell the two apart
-    # without knowing what the column means, and a rule that guesses would bury
-    # the second case under a reassuring note. State the fact; let a human judge.
-    populated_for = {
-        (row[1], row[3]): row[2] for row in out if int(row[5]) and row[2]
-    }
-    for row in out:
-        table, kind, column, verdict = row[1], row[2], row[3], row[8]
-        other = populated_for.get((table, column))
-        if verdict == NEVER and other and other != kind:
-            row[9] = (
-                f"empty for kind '{kind}' but populated for kind '{other}'. "
-                f"Either it does not apply to this kind, or it is missing — "
-                f"the extractor cannot tell which"
-            )
-    return sorted(out)
-
-
 def _expr_cells(expression: Expression) -> list[str]:
     """All three forms, verbatim, in fixed order (AD-21)."""
     return [expression.text, expression.text_desc, " ".join(expression.refs)]
@@ -192,16 +75,10 @@ def write(
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     written: list[str] = []
-    profiled: list[tuple[str, list[str], list[list[str]]]] = []
 
     def emit(name, header, rows, guard=()):
         write_table(out_dir / f"{name}.csv", header, rows, guard_columns=guard)
         written.append(name)
-        # Every estate table profiles itself. Capturing here rather than from a
-        # declared list means a table added later is covered without anyone
-        # remembering to add it.
-        if name not in REPORT_TABLES:
-            profiled.append((name, list(header), rows))
 
     emit(
         "physical_tables",
@@ -431,14 +308,6 @@ def write(
             [[rpd_id, object_type, str(counts["parsed"]), str(counts["skipped"])]
              for (rpd_id, object_type), counts in estate.coverage.items()]
         ),
-    )
-
-    emit(
-        "completeness",
-        ["rpd_id", "table", "kind", "column", "rows", "populated", "blank",
-         "populated_pct", "verdict", "note"],
-        _profile(profiled),
-        guard=("note",),
     )
 
     stamp = timestamp or _timestamp()
