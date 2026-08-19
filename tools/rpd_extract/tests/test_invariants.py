@@ -30,6 +30,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from tools.rpd_extract.adapters.inbound import mds_xml
+from tools.rpd_extract.adapters.outbound import knowledge_base
 from tools.rpd_extract.core import model
 from tools.rpd_extract.core.model import Estate
 
@@ -243,3 +244,85 @@ class UnreadAudit(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CompletenessReport(unittest.TestCase):
+    """`completeness.csv` must let a dev tell a real gap from a real blank.
+
+    Without it, an empty cell means three different things — OBIEE never set it,
+    we failed to read it, or the value lives in another table — and nothing on
+    the row says which. Establishing that by hand means re-parsing the source
+    corpus, which is the work this report exists to remove.
+    """
+
+    def profile(self, tables):
+        return {
+            (r[1], r[2], r[3]): r
+            for r in knowledge_base._profile(tables)
+        }
+
+    def test_a_fully_populated_column_is_complete(self):
+        got = self.profile([("t", ["row_id", "rpd_id", "a"],
+                             [["1", "r", "x"], ["2", "r", "y"]])])
+        self.assertEqual(got[("t", "", "a")][8], knowledge_base.COMPLETE)
+
+    def test_a_column_no_row_populates_is_flagged_for_checking(self):
+        got = self.profile([("t", ["row_id", "rpd_id", "a"],
+                             [["1", "r", ""], ["2", "r", ""]])])
+        row = got[("t", "", "a")]
+        self.assertEqual(row[8], knowledge_base.NEVER)
+        self.assertIn("unparsed.csv", row[9])
+
+    def test_a_partly_populated_column_says_so(self):
+        got = self.profile([("t", ["row_id", "rpd_id", "a"],
+                             [["1", "r", "x"], ["2", "r", ""]])])
+        row = got[("t", "", "a")]
+        self.assertEqual(row[8], knowledge_base.PARTIAL)
+        self.assertEqual((row[4], row[5], row[6]), ("2", "1", "1"))
+
+    def test_each_rpd_id_is_profiled_separately(self):
+        """A column complete in one repository and absent in another must not average."""
+        rows = knowledge_base._profile([("t", ["row_id", "rpd_id", "a"],
+                                         [["1", "one", "x"], ["2", "two", ""]])])
+        by_rpd = {r[0]: r for r in rows if r[3] == "a"}
+        self.assertEqual(by_rpd["one"][8], knowledge_base.COMPLETE)
+        self.assertEqual(by_rpd["two"][8], knowledge_base.NEVER)
+
+    def test_kinds_are_profiled_separately(self):
+        """A foreign key carries no expression; a complex join does."""
+        got = self.profile([("physical_joins", ["row_id", "rpd_id", "kind", "expr_text"],
+                             [["1", "r", "foreign_key", ""],
+                              ["2", "r", "complex_join", "a=b"]])])
+        self.assertEqual(
+            got[("physical_joins", "complex_join", "expr_text")][8],
+            knowledge_base.COMPLETE,
+        )
+        self.assertEqual(
+            got[("physical_joins", "foreign_key", "expr_text")][8],
+            knowledge_base.NEVER,
+        )
+
+    def test_a_blank_explained_by_another_kind_is_not_sent_for_checking(self):
+        """Empty for one kind, populated for another: that is shape, not a gap."""
+        got = self.profile([("physical_joins", ["row_id", "rpd_id", "kind", "expr_text"],
+                             [["1", "r", "foreign_key", ""],
+                              ["2", "r", "complex_join", "a=b"]])])
+        note = got[("physical_joins", "foreign_key", "expr_text")][9]
+        self.assertIn("not applicable", note)
+        self.assertNotIn("unparsed.csv", note)
+
+    def test_report_tables_are_not_profiled(self):
+        """"How populated is errors.csv" answers nothing, and self-profiling loops."""
+        for name in ("errors", "unparsed", "coverage", "manifest", "completeness"):
+            self.assertIn(name, knowledge_base.REPORT_TABLES)
+
+    def test_the_written_report_covers_every_estate_table(self):
+        import tempfile, csv as _csv
+        estate = mds_xml.load(FIXTURES)
+        with tempfile.TemporaryDirectory() as d:
+            written = knowledge_base.write(estate, d, corpus_root=str(FIXTURES))
+            rows = list(_csv.DictReader(
+                open(Path(d) / "completeness.csv", newline='', encoding='utf-8')))
+        profiled = {r['table'] for r in rows}
+        expected = set(written) - knowledge_base.REPORT_TABLES
+        self.assertEqual(profiled, expected, "every estate table must be profiled")

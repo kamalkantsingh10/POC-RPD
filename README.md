@@ -180,6 +180,32 @@ There is also a larger public corpus used to develop the tool — 1383 files acr
 | `errors` | 31 | **Things that went wrong** — kept separate on purpose |
 | `manifest` | — | Source, timestamp, extractor version |
 
+### `completeness.csv` — what to trust, and what to check
+
+An empty cell in the Knowledge Base means one of three completely different things, and nothing on the row says which:
+
+1. **OBIEE never set it** — correct, nothing to do
+2. **We failed to read it** — a real gap
+3. **The value lives in another table** — look elsewhere
+
+Establishing which meant re-parsing the source corpus by hand. `completeness.csv` does it for you: one row per `rpd_id` x table x kind x column, with a `verdict` and a `what_to_check`.
+
+| `verdict` | Meaning |
+|---|---|
+| `complete` | Every row carries a value. **Trust it without checking** |
+| `partly_populated` | Blank where the source object sets nothing |
+| `never_populated` | No row in the estate carries a value — **confirm this one** |
+| `no_rows` | The table extracted nothing for this rpd-id |
+
+Two kinds of `never_populated` are *not* gaps, and the report says so rather than sending you to check:
+
+- **Structural** — the column is populated for a different `kind` in the same table. A `foreign_key` carries no join expression; a `complex_join` does. Derived by comparing kinds, so it stays true for kinds added later.
+- **Expected** — the blank is meaningful. An empty LTS `priority` means the source records no priority, never "lowest"; inferring an order from document position would silently repoint a measure.
+
+On the development corpus: **186 complete, 42 partly populated, 52 never populated** — of which 24 are structural and 4 expected, leaving **26 columns worth confirming**. Four were checked against the source by hand and all four proved genuine absences in the estate, not extraction failures.
+
+Note the report profiles by `kind`, so a column can be `complete` for one kind and `never_populated` for another in the same table. That is the point: averaging them hides both facts.
+
 ### `unparsed.csv` and `errors.csv` — read both, they answer different questions
 
 **`errors.csv` is the one to read first.** Something that should have been captured was not: malformed XML, a reference that would not resolve, an object with no name, a directory that could not be read, or an identifier that names more than one row (`duplicate_identifier` — FR-8 requires an identifier cited from a Group Spec to resolve to exactly one row, and identifiers are built from names that OBIEE does not make unique). Each row names the source object, the kind, and the reason. **An empty `errors.csv` is the good outcome.** The CLI exits `3` when it is non-empty, so it is scriptable.
