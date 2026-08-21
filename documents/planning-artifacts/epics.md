@@ -807,6 +807,8 @@ Epic 1's completion claim is *"correctness proven against recorded Ground Truth 
 
 Counts below come from parsing all 5371 fixture files, not from assumption. Stories cite them so a later reader can check.
 
+Each is a count of **root elements**, so a file counts once. Of the 5371 files, **4341 parse as XML and 1030 do not** — BI Publisher `.rtf` templates and `.png` previews inside `.xdo` folders, plus `.gitignore`. Catalog objects are extensionless, so those 1030 cannot be filtered out before parsing and must be classified rather than reported as failures (Story 2.7). The 4341 carry **59 distinct root element types**, of which this epic models four.
+
 | Object type | Count |
 |---|---|
 | `saw:report` (Analyses) | 1607 |
@@ -815,13 +817,20 @@ Counts below come from parsing all 5371 fixture files, not from assumption. Stor
 | `saw:action` | 115 |
 | `sawd:dashboard` | 111 |
 | `sawsf:savedFilterObject` | 96 |
-| `sawbsc:*`, `sawkpi:kpi` | 187 |
+| `sawbsc:*` | 216 |
+| `sawkpi:kpi` | 47 |
+
+*Read the `saw:view` row carefully — added 2026-08-21.* Like every row here it counts **root elements**, so 530 is the number of views saved as catalog objects in their own right, and all 530 are `saw:globalFilterPrompt`. It is **not** the view population: counting elements rather than files gives **11,409**, of which **10,879 are nested inside Analyses** and appear in `unparsed.csv` as `unread_element` rather than as an unmodelled type. Both figures are correct in their own frame and they reconcile exactly (10,879 + 530 = 11,409), but a reader who takes 530 as "how many visuals are unmodelled" is out by a factor of 21. Story 2.8 models the nested population; this note exists because the same frame confusion has already misreported shape on this project twice.
 
 **Two findings that shape the work:**
 
-**References are by path, not GUID.** `sawd:report[@path]` (1722) and `sawd:dashboardPageRef[@path]` (1041) name their targets by catalog path. Epic 1's resolution mechanic — index every `mdsid`, resolve `#fragment` references — **does not transfer**. Paths are URL-encoded in filenames (`%2e` for `.`, `+` for space), so resolution is string normalisation, not GUID lookup.
+**References are by path, not GUID.** `sawd:reportRef[@path]` (1722) and `sawd:dashboardPageRef[@path]` (1041) name their targets by catalog path. Epic 1's resolution mechanic — index every `mdsid`, resolve `#fragment` references — **does not transfer**. Filenames are percent-encoded with `+` for space, so resolution is string normalisation, not GUID lookup.
 
-**Styling would swamp the audit.** 94,796 attribute occurrences are formatting — `wrapText`, `padding*`, `border*`, `fmt` — across 35 distinct names, against 660 distinct non-styling attributes. FR-34 and §5 make visual identity an explicit non-goal, so styling must be **declared out of scope and excluded from the audit**, not reported as gaps. Otherwise `unparsed.csv` fills with noise and the real signal is lost.
+*Corrected 2026-08-20.* This paragraph and Story 2.4 both said `sawd:report[@path]`. **No element by that name exists** — the 1722 references are carried by `sawd:reportRef`, and `saw:reportRef` is a different element in another namespace (21 occurrences), so matching must use namespace plus local name. Two further measurements belong here: decoding is **general** percent-decoding, not a two-entry table — the fixture contains `co%6dponents`, where `%6d` is `m`; and normalisation is more than decoding. Of 4171 `@path` references, **11 resolve exactly and 2966 resolve only after case folding**, because the on-disk tree is lowercased while references keep display case. Resolution must also strip the `/shared` root and resolve relative references against the owning folder. Story 2.4 settles how a case-folded match is recorded, since folding case is a judgement AD-3 does not let the tool make in silence.
+
+**Styling would swamp the audit.** Formatting dominates the attribute population: `wrapText` alone occurs 14,060 times, `fmt` 12,124, `fontSize` 7,190, and the `padding*`, `border*`, font and colour families carry the total into six figures — against **618 distinct attribute names and 572,357 occurrences** in the whole fixture. FR-34 and §5 make visual identity an explicit non-goal, so styling must be **declared out of scope and excluded from the audit**, not reported as gaps. Otherwise `unparsed.csv` fills with noise and the real signal is lost.
+
+*Corrected 2026-08-20.* The earlier figure — 94,796 occurrences across 35 names, against 660 distinct non-styling attributes — did not record which attributes it counted as styling, and 35 + 660 exceeds the 618 that exist. A broader membership rule gives 60 names and 112,100 occurrences. Neither count is wrong so much as unstated: **Story 2.2 defines the membership rule before counting**, because an attribute excluded by a rule nobody wrote down is indistinguishable from one that was overlooked.
 
 ### Story 2.1: Acquire and Pin the Web Catalog Fixture
 
@@ -841,7 +850,7 @@ so that catalog extraction is developed against real content and every run is re
 **Given** the fixture is a *test fixture and not the product's target*
 **When** it is documented
 **Then** the record states plainly that the tool targets any OBIEE estate and this corpus is one sample
-**And** the four distinct `xmlVersion` values present in it are recorded as evidence that no single catalog schema exists
+**And** the `xmlVersion` spread is recorded — three values on roots (`201201160` 1504, `200810300` 1147, `201106170` 47), and **no version at all on 1643 roots** — as evidence that no single catalog schema exists
 
 **Given** the fixture is unlicensed and is Oracle SampleApp content
 **When** it is stored
@@ -866,7 +875,7 @@ so that the adapter is written against observed structure rather than assumed st
 **When** the fixture is parsed in full
 **Then** `estate/test-corpus/catalog-xml-schema.md` records element paths and attributes per object type, with occurrence counts
 
-**Given** four distinct `xmlVersion` values exist in one sample
+**Given** three `xmlVersion` values exist on roots in one sample, 38% of roots declare none, and a fourth value occurs once on a nested element only
 **When** the schema is recorded
 **Then** the version spread is recorded per object type
 **And** any element or attribute that appears under some versions but not others is identified
@@ -940,7 +949,7 @@ so that I can see what reports exist and what each one is built from.
 
 **Given** a page references Analyses by **path**, not by GUID
 **When** references are resolved
-**Then** each `sawd:report[@path]` is resolved to a catalog object identifier
+**Then** each `sawd:reportRef[@path]` is resolved to a catalog object identifier
 **And** a path resolving to no object is recorded in `errors.csv` as an unresolved reference (AD-3)
 
 **Given** tab and page ordering is migration-relevant
@@ -1017,7 +1026,7 @@ so that a rebuilt report restricts data the same way the original did.
 **And** the operator (`@op`) is recorded
 
 **Given** a filter may reference a saved filter by path
-**When** `sawx:savedFilter` is encountered
+**When** an expression of `xsi:type` `sawx:savedFilter` is encountered — **no element by that name exists**; the 417 references are `sawx:expr[@xsi:type="sawx:savedFilter"][@path]`
 **Then** the referenced path is resolved to a catalog object identifier
 **And** an unresolvable path is recorded in `errors.csv` (AD-3)
 
@@ -1043,13 +1052,14 @@ so that I can trust the output against an estate this tool has never encountered
 **When** catalog extraction runs
 **Then** catalog object types appear alongside RPD types, distinguishable by layer
 
-**Given** the fixture contains object types this epic does not model — `saw:view`, `saw:action`, `sawbsc:*`, `sawkpi:kpi`, `saw:ibot`
+**Given** the fixture contains 59 distinct root element types and this epic models four — the unmodelled remainder is led by `saw:view` (530), `sawbsc:*` (216), `saw:action` (115) and `sawkpi:kpi` (47), and also holds an entire second product (BI Publisher, 411 objects) and around thirty one-off roots
 **When** they are encountered
 **Then** each is recorded as `unmodelled_type` with a count, never skipped in silence
+**And** the list is derived by enumerating what was parsed, never from a fixed list of expected types, because a fixed list silently drops the fifty-fifth
 
 **Given** an estate may use a catalog version this tool has never seen
 **When** extraction runs
-**Then** `xmlVersion` is recorded per object
+**Then** `xmlVersion` is recorded per object, **its absence recorded as a value in its own right** — it is the most common state of all — 1643 roots against 1504 for the largest declared value — covering 38% of parseable roots
 **And** the version spread appears in the coverage report, so version drift is visible rather than latent
 
 **Given** styling is deliberately excluded
@@ -1060,6 +1070,76 @@ so that I can trust the output against an estate this tool has never encountered
 **When** the adapter is tested
 **Then** a test proves an unknown attribute on a parsed catalog object is reported
 **And** a test proves an unknown object type is reported
+
+
+### Story 2.8: Extract Analysis Views — What Each Report Renders As
+
+**Review intensity: Normal** — the population is large and countable, so an error in it announces itself against `unparsed.csv`. The judgement call is scope, not correctness.
+
+As a Migration Analyst,
+I want to know what each Analysis renders as — chart, pivot, table, gauge, map — and in what order,
+so that a Power BI target visual can be chosen from the Knowledge Base instead of by opening 1607 reports by hand.
+
+**Why it is not already covered.** Story 2.5 extracts what an Analysis *computes* — criteria, columns, formulas verbatim. Nothing extracts what it *displays*. `dashboard_contents` is the placement layer: its 3718 rows are `reportRef`, `dashboardPageRef`, `globalFilterView`, `scorecardViewRef` and `folderView` — pointers to objects, never visuals. The visuals live one level further in, under `saw:views` inside each Analysis, and no table carries them.
+
+**Measured 2026-08-21 — parse every file, count `<saw:view>` elements, not root elements.**
+
+The epic table above counts root elements, so it records `saw:view` at 530. That is the standalone population only. Counting elements rather than files:
+
+| Population | Count | Where it is today |
+|---|---|---|
+| `<saw:view>` elements, whole fixture | **11,409** | — |
+| ...nested inside `saw:report` | **10,879** | `unparsed.csv`, `unread_element` |
+| ...standalone root objects | **530** | `unparsed.csv`, `unmodelled_type` |
+
+The two recorded figures reconcile exactly against `unparsed.csv`: 10,879 + 530 = 11,409. **Nothing is silently dropped** — AD-3 is holding. This story moves a recorded gap into a table, it does not repair a leak.
+
+**Three findings that shape the work:**
+
+**Every view belongs to an Analysis or to nothing.** Zero `<saw:view>` elements appear inside `sawd:dashboard` or `sawd:dashboardPage`. The visual layer is entirely an Analysis-level concern, so the new table hangs off `analyses`, never off `dashboard_pages`.
+
+**All 530 standalone roots are `saw:globalFilterPrompt`** — dashboard prompts saved as catalog objects in their own right, not report visuals. They are a different thing that shares an element name, and merging them into an Analysis-view table would be a category error. This story decides where they go and says so.
+
+**1598 of 1607 Analyses carry at least one view; 26 distinct `xsi:type` values appear.** The type is what names the visual, and it is currently unread 10,879 times (`view@{…XMLSchema-instance}type`). The population is led by `dvtchart` (1739), `compoundView` (1581), `titleView` (1482), `pluginView` (1288), `tableView` (1207) and `pivotTableView` (1156). Note that `compoundView` is a layout container and `titleView` a caption — **not every view is a data visual**, and the table must let a reader tell them apart rather than implying 11,409 charts.
+
+**Acceptance Criteria:**
+
+**Given** an Analysis containing views
+**When** extraction runs
+**Then** each `<saw:view>` yields one row in a new `analysis_views` table, carrying its `analysis_id`, its position among its siblings, and its type
+**And** the row count for the fixture is **10,879**, reconciling against the `unread_element` figure it replaces
+
+**Given** `xsi:type` is what names the visual
+**When** it is recorded
+**Then** it is stored **verbatim** — `saw:pivotTableView`, not `Pivot Table` — because a friendly-name mapping is a judgement the tool does not get to make in silence, and a target-visual decision belongs to the Migration Analyst
+**And** a view carrying no `xsi:type` records that absence as a value, not as an empty cell indistinguishable from a parse failure
+
+**Given** `compoundView` is a layout container and `titleView` a caption, while `dvtchart` and `pivotTableView` carry data
+**When** the table is read
+**Then** container and non-data views are distinguishable from data-bearing ones without a lookup table the reader has to supply
+**And** the distinction is derived from what was parsed, never from a hardcoded list of the types this fixture happens to contain
+
+**Given** 530 standalone `saw:view` roots are all `saw:globalFilterPrompt` and are not Analysis views
+**When** they are encountered
+**Then** they are **not** merged into `analysis_views`
+**And** their handling is stated explicitly in the coverage report, so "not a report visual" is distinguishable from "not understood"
+
+**Given** an estate may use a view type this tool has never seen
+**When** extraction runs
+**Then** an unknown `xsi:type` produces a row rather than an error, because the type is recorded not interpreted
+**And** a test proves an unknown attribute on a parsed view is still reported to `unparsed.csv`
+
+**Given** the audit reported these views as gaps before this story
+**When** extraction runs after it
+**Then** the `unread_element` entry for `report/v1.1}view` and its 10,879 occurrences no longer appears
+**And** `coverage_summary` reflects the increase in modelled objects, so the gain is visible as a number rather than asserted
+
+**Given** the README documents the Knowledge Base for the Operator
+**When** this story lands
+**Then** `analysis_views` appears in the table list in **What you get**, with its row count
+**And** the `erDiagram` in **How the tables connect** gains `analyses ||--o{ analysis_views` with its measured resolution count, in the same `resolved/present` form as every other edge
+**And** **How much of a Web Catalog this understands** is updated, since the modelled share changes
+**And** the stated counts are re-derived from a run, not copied from this story — the same rule Story 2.1 AC #7 applies, because a number nobody re-measured is a number nobody measured
 
 
 ## Epic 3: As-Is Analysis — the Data Engineering Handoff

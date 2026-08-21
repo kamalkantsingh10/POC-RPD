@@ -117,3 +117,68 @@ python3 -m tools.rpd_extract.cli \
   --corpus estate/test-corpus/constructed-cases \
   --out <output>
 ```
+
+---
+
+## The constructed pair — `constructed-catalog/`
+
+**What it covers:** one estate whose *both* halves are present, so a single extraction run carries a repository and a Web Catalog into one Knowledge Base.
+
+**What it does not cover:** anything about how real OBIEE names things. Read the warning at the top of this file again before quoting it — this pair is authored, and both halves were authored by the same hand.
+
+### Why it exists
+
+Pairing was tested only as directory shape. `test_catalog.py` creates an empty `catalog/` beside a stub `<x/>` repository and asserts `is_paired()` — correct, and it says nothing about extraction. No test anywhere ran both adapters into one `Estate`.
+
+That gap mattered because the two real fixtures **are not a pair**. The catalog fixture asks for `"A - Sample Sales"`; the repository fixture defines `Sample Sales`, `Population` and `Densification - US Crime By State`. They are different SampleApp releases, so `analysis_criteria.subject_area` matches nothing — 0 of 1680. Pairing them proves the tool refuses to invent a link (AD-22), which is worth knowing, but it leaves the paired path itself unexercised.
+
+### What it is
+
+Four catalog objects under `constructed-catalog/constructed/`, authored against the presentation layer the constructed repository already defines in `PresentationCatalog/cc-sa.xml`:
+
+| Object | On disk | References |
+|---|---|---|
+| `sawd:dashboard` | `_portal/sales+overview/dashboard+layout` | `Page One` |
+| `sawd:dashboardPage` | `_portal/sales+overview/page+one` | the Analysis, and the saved filter |
+| `saw:report` | `revenue+by+month` | Subject Area `"Constructed SA"`, columns `"Sales Facts"."Amount"` and `"Sales Facts"."Rolling Amount 3M"` |
+| `sawsf:savedFilterObject` | `_filters/recent+periods` | Subject Area `"Constructed SA"` |
+
+Names are percent-encoded and lowercased on disk exactly as the real fixture's are, which is why every resolution below is `case_normalised` rather than `exact` — the same ratio the real catalog shows.
+
+### Expected extraction result
+
+`--corpus <estate-holding-both> --rpd-id constructed-pair`, where `rpd/` is a copy of `constructed/` and `catalog/` a copy of `constructed-catalog/`:
+
+| Table | Rows |
+|---|---|
+| `dashboards` / `dashboard_pages` | 1 / 1 |
+| `dashboard_contents` | 3 — all three resolved |
+| `analyses` / `analysis_criteria` / `analysis_columns` | 1 / 1 / 2 |
+| `analysis_filters` | 3 — one dashboard-scope, two analysis-scope |
+| `saved_filters` | 1 |
+| `presentation_subject_areas` / `presentation_columns` | 1 / 2 |
+| `errors` | **0** |
+
+**`errors.csv` empty is the point.** The real fixture cannot make that claim — 1583 of its references point into `/company_shared/`, a catalog root nobody has. Here every reference has a target that exists, so an error row is a regression signal rather than a known condition to be read past. `test_constructed_pair.py` asserts it, and breaking one reference path in the fixture turns the assertion red.
+
+### The one cross-half fact, stated exactly
+
+`analysis_criteria.subject_area` holds `"Constructed SA"` — **quotes included, as the catalog wrote it** — and `presentation_subject_areas.name` holds `Constructed SA`. Strip the quotes and they are equal.
+
+**That is a name matching a name, not a resolved key.** There is no `presentation_subject_area_id`; nothing in `catalog_xml.py` consults the presentation layer. FR-7 is unimplemented, `ARCHITECTURE-SPINE.md` records it as not verifiable against the fixture, and this pair does not change that. What it demonstrates is that the halves *can* be named consistently and land in one Knowledge Base — the mechanism, not the evidence.
+
+**This fixture must never be cited as evidence that real catalogs and real repositories agree.** Both halves were authored here, so agreement is a property of the author, not of OBIEE. That is the circularity FR-31 requires be kept separate, and it is why a matched pair from one service instance — a BAR archive, per `vdi-readiness-checklist.md` — remains the real unlock.
+
+### Rebuilding
+
+The catalog half is not an estate on its own: it declares no `rpd/` or `catalog/` and is not a repository tree, so the multi-estate command above skips it and still reports exactly one `rpd-id`, `constructed`. To assemble the pair, put the two halves under one folder:
+
+```sh
+mkdir -p /tmp/pair/constructed-pair
+cp -r estate/test-corpus/constructed-cases/constructed         /tmp/pair/constructed-pair/rpd
+cp -r estate/test-corpus/constructed-cases/constructed-catalog /tmp/pair/constructed-pair/catalog
+
+python3 -m tools.rpd_extract.cli --corpus /tmp/pair --out <output>
+```
+
+They are assembled at run time rather than committed as a third tree so that each half has exactly one copy and the two cannot drift apart.

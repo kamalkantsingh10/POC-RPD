@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<saw:view xmlns:saw="com.siebel.analytics.web/report/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="saw:globalFilterPrompt" name="">
+  <saw:prompts scope="dashboard" subjectArea="&quot;A - Sample Sales&quot;">
+    <saw:promptStep labelPosition="above">
+      <saw:individualPrompts>
+        <saw:prompt xsi:type="saw:currencySelectorPrompt" subjectArea="&quot;A - Sample Sales&quot;">
+          <saw:label>
+            <saw:caption captionID="kcap12832459_2084">
+              <saw:text>Currency</saw:text>
+            </saw:caption>
+          </saw:label>
+        </saw:prompt>
+      </saw:individualPrompts>
+      <saw:displayFormat>
+        <saw:formatSpec width="0" height="0" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" wrapText="true"/>
+      </saw:displayFormat>
+      <saw:title/>
+    </saw:promptStep>
+  </saw:prompts>
+</saw:view>

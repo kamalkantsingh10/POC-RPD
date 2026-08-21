@@ -342,7 +342,15 @@ class Unparsed:
     """
 
     rpd_id: str
-    kind: str  # "unmodelled_type" | "unread_attribute" | "unread_element" | "unread_text"
+    #: One of: unmodelled_type, unread_attribute, unread_element, unread_text,
+    #: undiscovered_file, not_a_catalog_object, excluded_by_scope.
+    #:
+    #: ``not_a_catalog_object`` and ``excluded_by_scope`` are not gaps in
+    #: understanding at all — the first is a file that was never a catalog
+    #: object, the second is content a scope decision put outside the product's
+    #: claim. Both are recorded here rather than dropped, because an exclusion
+    #: that leaves no trace cannot be told from an oversight.
+    kind: str
     object_type: str
     detail: str
     occurrences: int = 1
@@ -365,6 +373,278 @@ class ExtractionError:
     reason: str
 
 
+# --------------------------------------------------------------- Web Catalog
+#
+# The Web Catalog is a separate store read into the same Knowledge Base under
+# layer ``cat`` (AD-22). Its objects are addressed by decoded catalog path, not
+# by GUID, and it stores exactly ONE representation of an expression — the text
+# inside ``sawx:expr`` — where MDS XML stores three. AD-21 is satisfied by
+# capturing that one verbatim; synthesising the missing two would be
+# indistinguishable from a source that provided them, which is the lossy claim
+# the verbatim guarantee exists to refuse.
+#
+# Several collections below get their own table rather than a repeated field.
+# An Analysis can carry more than one ``saw:criteria`` (1680 against 1607
+# Analyses), a page can place many reports, and a filter can be one of many.
+# Folding any of those into a field drops the surplus, and each dropped item is
+# an entire query definition, placement or restriction.
+
+
+@dataclass(frozen=True)
+class CatalogObject:
+    """Fields every catalog object carries, whatever its type.
+
+    ``xml_version`` is the object's declared ``xmlVersion``, and **empty means
+    the object declared none** — which is the second most common state, 38% of
+    parseable roots. Recorded as a value in its own right rather than defaulted,
+    because a version spread that reports only declared values describes 62% of
+    an estate and reads as though it describes all of it.
+    """
+
+    row_id: str
+    rpd_id: str
+    name: str
+    catalog_path: str
+    xml_version: str = ""
+
+
+@dataclass(frozen=True)
+class Dashboard(CatalogObject):
+    page_count: int = 0
+
+
+@dataclass(frozen=True)
+class DashboardPage(CatalogObject):
+    """One page. ``position`` preserves page order within its Dashboard.
+
+    ``dashboard_id`` is empty for a page object that no Dashboard references —
+    a real state in the fixture, and a different thing from an unplaced page,
+    so it is left empty rather than filled with a guess.
+    """
+
+    dashboard_id: str = ""
+    position: int = 0
+
+
+#: How a ``@path`` reference resolved. ``case_normalised`` stays distinct from
+#: ``exact`` because folding case is a judgement (AD-3), and on an estate that
+#: distinguishes case it would join two different objects with nothing
+#: downstream able to detect it.
+RESOLVED_EXACT = "exact"
+RESOLVED_CASE = "case_normalised"
+RESOLVED_AMBIGUOUS = "ambiguous"
+RESOLVED_NONE = "unresolved"
+
+
+@dataclass(frozen=True)
+class DashboardContent:
+    """One reference placed on a Dashboard or page, and how it resolved.
+
+    Its own table because a page places many objects in a defined order, and a
+    repeated field would lose both the order and the per-reference resolution
+    outcome that AD-3 requires kept visible.
+
+    ``reference`` is the raw ``@path`` string, kept verbatim including anything
+    malformed in it — one reference in the fixture is
+    ``/shared/03. Mobile/.../m\\/d linking_mob``, an escaped separator inside a
+    name. Repairing it would hide that such names exist.
+    """
+
+    row_id: str
+    rpd_id: str
+    container_id: str
+    element: str
+    reference: str
+    position: int
+    resolution: str
+    target_id: str = ""
+    target_kind: str = ""
+    detail: str = ""
+
+
+@dataclass(frozen=True)
+class Analysis(CatalogObject):
+    criteria_count: int = 0
+    column_count: int = 0
+
+
+@dataclass(frozen=True)
+class AnalysisCriteria:
+    """One ``saw:criteria`` block — an entire query definition.
+
+    ``subject_area`` is captured **verbatim, unresolved**, quotes included: the
+    fixture writes ``"A - Sample Sales"``. Resolving it to a Knowledge Base
+    Subject Area is FR-7, which needs a matched pair (AD-22) and lands in
+    ``report_lineage.csv`` when one exists (AD-23) — never by extending this
+    table.
+    """
+
+    row_id: str
+    rpd_id: str
+    analysis_id: str
+    position: int
+    subject_area: str
+
+
+@dataclass(frozen=True)
+class AnalysisColumn:
+    """One column of an Analysis, with its formula verbatim.
+
+    ``formula_type`` is the ``xsi:type`` on the expression, and it is where the
+    meaning lives: ``saw:regularColumn`` is a bare reference to a semantic-layer
+    column, and everything else is a computation. That makes
+    ``is_computation`` derivable **without parsing the expression**, so the flag
+    is deterministic and carries no AD-3 exposure.
+
+    ``uses_eval`` marks ``sawx:eval`` — a direct database function call. The
+    calculation is not defined in OBIEE at all; it lives in the target schema,
+    so a rebuild must resolve it against the database. Flagged because no
+    artifact this tool produces can show the logic.
+
+    ``formula_construct`` names which element carried the expression.
+    ``saw:columnFormula`` is the common case; ``saw:paSimpleColumnFormula``
+    holds its text directly, appears only in Visual Analyzer projects, and is
+    invisible to any search for the first.
+    """
+
+    row_id: str
+    rpd_id: str
+    analysis_id: str
+    criteria_id: str
+    position: int
+    column_id: str
+    heading: str = ""
+    table_heading: str = ""
+    formula_construct: str = ""
+    formula_type: str = ""
+    formula: str = ""
+    is_computation: bool = False
+    uses_eval: bool = False
+
+
+#: Recorded when a view carries no ``xsi:type``. An empty string would be
+#: indistinguishable from a type the parser failed to read, and AD-3 requires
+#: those two states stay apart. No fixture view lacks one, which is exactly why
+#: the sentinel matters: the first estate that does must not read as a bug.
+NO_VIEW_TYPE = "(no xsi:type)"
+
+
+@dataclass(frozen=True)
+class AnalysisView:
+    """One ``saw:view`` inside an Analysis — what the report renders as.
+
+    ``view_type`` is the ``xsi:type`` **verbatim**: ``saw:pivotTableView``,
+    never ``Pivot Table`` and never a Power BI visual name. Choosing a target
+    visual is a migration judgement belonging to whoever reads the Knowledge
+    Base; a friendly-name column would also drift silently the first time an
+    estate carries a type this fixture never held.
+
+    ``references_views`` and ``bound_column_count`` exist so a reader can tell a
+    layout container from a data visual **without supplying a list of type
+    names**. Both are counted from structure the source states: a
+    ``compoundView`` arranges other views by name, and a table, pivot or chart
+    binds columns. On the fixture that separates cleanly — 1580 of 1581
+    ``compoundView`` reference views and bind nothing, while ``titleView``,
+    ``htmlview`` and ``narrativeView`` bind nothing and reference nothing.
+    Deriving it beats a hardcoded list, which would misclassify the twenty-
+    seventh type the day it appears.
+
+    ``display_type`` and ``display_subtype`` carry ``saw:display``'s own words —
+    ``bar`` / ``stacked``. Only the ``dvt*`` family states them, and it is the
+    single most useful fact for choosing a target visual, so it is not folded
+    into the type.
+    """
+
+    row_id: str
+    rpd_id: str
+    analysis_id: str
+    position: int
+    view_type: str
+    name: str = ""
+    references_views: int = 0
+    bound_column_count: int = 0
+    display_type: str = ""
+    display_subtype: str = ""
+
+
+#: Filter scope. Sourced from which construct the filter came from, never from
+#: a judgement: a dashboard-level filter applies to every Analysis on the page,
+#: so folding the two populations into one would misstate what each report
+#: restricts.
+SCOPE_ANALYSIS = "analysis"
+SCOPE_DASHBOARD = "dashboard"
+
+
+@dataclass(frozen=True)
+class AnalysisFilter:
+    """One filter expression, with its operator and type.
+
+    ``op`` is captured, never validated against a closed list: ``multiply``,
+    ``union`` and the arithmetic operators appear in the same attribute, so it
+    is a general expression operator rather than a filter-specific enum.
+
+    ``prompted`` is the most common operator of all, and a prompted filter has
+    **no value in the artifact** — the value arrives at runtime from a dashboard
+    prompt. It is recorded as prompted; recording it as an empty comparison
+    would read as *filters on blank*, which is wrong in a way that changes
+    numbers.
+    """
+
+    row_id: str
+    rpd_id: str
+    scope: str
+    owner_id: str
+    position: int
+    op: str = ""
+    expr_type: str = ""
+    expr_text: str = ""
+    uses_eval: bool = False
+    reference: str = ""
+    target_id: str = ""
+    resolution: str = ""
+    #: A ``sawx:eval`` anywhere in this filter's expression tree — a direct
+    #: database function call. Measured, this is where the construct actually
+    #: lives: 297 of the fixture's occurrences are in Analysis filters and 4 in
+    #: saved filters, and **none is inside a column formula**.
+    uses_eval: bool = False
+
+
+@dataclass(frozen=True)
+class AnalysisPrompt:
+    """One prompt, the column it binds to, and any variable it sets.
+
+    ``set_variable`` matters beyond the column binding: a prompt that sets a
+    presentation variable creates a dependency between the prompt and a column
+    formula elsewhere in the report, and that dependency is invisible if only
+    the binding is captured.
+    """
+
+    row_id: str
+    rpd_id: str
+    analysis_id: str
+    position: int
+    prompt_type: str = ""
+    column_formula: str = ""
+    column_type: str = ""
+    set_variable: str = ""
+    operator: str = ""
+    ui_control: str = ""
+
+
+@dataclass(frozen=True)
+class SavedFilter(CatalogObject):
+    """A ``sawsf:savedFilterObject`` root — a filter stored for reuse.
+
+    96 objects carry the 417 references to them, so saved filters are reused
+    heavily, which is the point of them.
+    """
+
+    op: str = ""
+    expr_type: str = ""
+    expr_text: str = ""
+    uses_eval: bool = False
+
+
 @dataclass
 class Estate:
     """Everything extracted from one corpus, across every ``rpd-id``."""
@@ -385,22 +665,60 @@ class Estate:
     variables: list[Variable] = field(default_factory=list)
     init_blocks: list[InitBlock] = field(default_factory=list)
     security_rules: list[SecurityRule] = field(default_factory=list)
+    #: Web Catalog (AD-22). Every list here is layer ``cat``.
+    dashboards: list[Dashboard] = field(default_factory=list)
+    dashboard_pages: list[DashboardPage] = field(default_factory=list)
+    dashboard_contents: list[DashboardContent] = field(default_factory=list)
+    analyses: list[Analysis] = field(default_factory=list)
+    analysis_criteria: list[AnalysisCriteria] = field(default_factory=list)
+    analysis_columns: list[AnalysisColumn] = field(default_factory=list)
+    analysis_filters: list[AnalysisFilter] = field(default_factory=list)
+    analysis_prompts: list[AnalysisPrompt] = field(default_factory=list)
+    analysis_views: list[AnalysisView] = field(default_factory=list)
+    saved_filters: list[SavedFilter] = field(default_factory=list)
     unparsed: list[Unparsed] = field(default_factory=list)
     errors: list[ExtractionError] = field(default_factory=list)
-    #: (rpd_id, object_type) -> {"parsed": n, "skipped": n}
-    coverage: dict[tuple[str, str], dict[str, int]] = field(default_factory=dict)
+    #: (rpd_id, layer, object_type) -> {"parsed": n, "skipped": n}
+    #:
+    #: Layer-qualified since Epic 2: a Knowledge Base now holds two stores, and
+    #: a coverage table that cannot tell an RPD object type from a catalog one
+    #: makes the proportion figures unreadable.
+    coverage: dict[tuple[str, str, str], dict[str, int]] = field(default_factory=dict)
+    #: (rpd_id, object_type, xml_version) -> objects. Absence is a value.
+    catalog_versions: dict[tuple[str, str, str], int] = field(default_factory=dict)
+    #: (rpd_id, measure) -> count, for the modelled-proportion report.
+    input_census: dict[tuple[str, str], int] = field(default_factory=dict)
+    #: rpd_id -> the halves the Operator supplied, e.g. ["rpd", "catalog"].
+    halves_present: dict[str, list[str]] = field(default_factory=dict)
     rpd_ids: list[str] = field(default_factory=list)
 
-    def count(self, rpd_id: str, object_type: str, outcome: str, n: int = 1) -> None:
-        bucket = self.coverage.setdefault((rpd_id, object_type), {"parsed": 0, "skipped": 0})
+    def count(
+        self, rpd_id: str, object_type: str, outcome: str, n: int = 1,
+        layer: str = "rpd",
+    ) -> None:
+        bucket = self.coverage.setdefault(
+            (rpd_id, layer, object_type), {"parsed": 0, "skipped": 0}
+        )
         bucket[outcome] += n
 
+    def census(self, rpd_id: str, measure: str, n: int = 1) -> None:
+        """Count one input file against a population, for AC-7's proportions."""
+        self.input_census[(rpd_id, measure)] = (
+            self.input_census.get((rpd_id, measure), 0) + n
+        )
+
+    def record_version(self, rpd_id: str, object_type: str, version: str) -> None:
+        """Record one object's ``xmlVersion``. Empty is a value, not a default."""
+        key = (rpd_id, object_type, version)
+        self.catalog_versions[key] = self.catalog_versions.get(key, 0) + 1
+
     def record_error(
-        self, rpd_id: str, kind: str, source_id: str, object_type: str, reason: str
+        self, rpd_id: str, kind: str, source_id: str, object_type: str, reason: str,
+        layer: str = "rpd",
     ) -> None:
         """Something broke. Always counted as skipped so coverage stays honest."""
         self.errors.append(ExtractionError(rpd_id, kind, source_id, object_type, reason))
-        self.count(rpd_id, object_type, "skipped")
+        self.count(rpd_id, object_type, "skipped", layer=layer)
 
     def record_gap(
         self, rpd_id: str, kind: str, object_type: str, detail: str, occurrences: int = 1
@@ -408,11 +726,44 @@ class Estate:
         """A known gap. Not counted as skipped — the object itself parsed fine."""
         self.unparsed.append(Unparsed(rpd_id, kind, object_type, detail, occurrences))
 
-    def record_unmodelled(self, rpd_id: str, object_type: str, source_id: str) -> None:
+    def record_unmodelled(
+        self, rpd_id: str, object_type: str, source_id: str, layer: str = "rpd"
+    ) -> None:
         self.unparsed.append(
             Unparsed(rpd_id, "unmodelled_type", object_type, source_id)
         )
-        self.count(rpd_id, object_type, "skipped")
+        self.count(rpd_id, object_type, "skipped", layer=layer)
+
+    def merge(self, other: "Estate") -> None:
+        """Absorb another Estate's rows and counters. Additive only.
+
+        An estate folder holds two halves, and each is read by its own adapter
+        into its own Estate before being merged here. The alternative — letting
+        both adapters append to one shared Estate — re-runs each adapter's
+        post-passes over rows the other already contributed, which duplicated
+        every lineage and security row and reported 1507 false
+        ``duplicate_identifier`` errors on a corpus that has none.
+
+        ``rpd_ids`` is deliberately not merged: the caller knows every estate it
+        was asked for, including one whose half turned out to be empty, and a
+        list assembled from what happened to parse would quietly drop it.
+        """
+        for name, rows in vars(other).items():
+            if name == "rpd_ids":
+                continue
+            mine = getattr(self, name)
+            if isinstance(rows, list):
+                mine.extend(rows)
+            elif isinstance(rows, dict) and name == "coverage":
+                for key, counts in rows.items():
+                    bucket = mine.setdefault(key, {"parsed": 0, "skipped": 0})
+                    for outcome, value in counts.items():
+                        bucket[outcome] = bucket.get(outcome, 0) + value
+            elif isinstance(rows, dict) and name == "halves_present":
+                mine.update(rows)
+            elif isinstance(rows, dict):
+                for key, value in rows.items():
+                    mine[key] = mine.get(key, 0) + value
 
     def check_identifier_uniqueness(self) -> None:
         """FR-8: an identifier must name exactly one row, in every table.

@@ -14,14 +14,20 @@ import re
 
 SEPARATOR = "::"
 
-#: The three RPD layers, plus two groupings for objects that belong to none.
+#: The three RPD layers, plus two groupings for objects that belong to none,
+#: plus the Web Catalog (AD-22). A catalog is a separate store read into the
+#: same Knowledge Base; ``rpd-id`` on a catalog object reads as *the estate this
+#: catalog belongs to*.
 PHYSICAL = "phys"
 BUSINESS_MODEL = "bmm"
 PRESENTATION = "pres"
 SECURITY = "sec"
 VARIABLE = "var"
+CATALOG = "cat"
 
-LAYERS = frozenset({PHYSICAL, BUSINESS_MODEL, PRESENTATION, SECURITY, VARIABLE})
+LAYERS = frozenset(
+    {PHYSICAL, BUSINESS_MODEL, PRESENTATION, SECURITY, VARIABLE, CATALOG}
+)
 
 _RPD_ID = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
@@ -49,6 +55,18 @@ def make_id(rpd_id: str, layer: str, *parts: str) -> str:
     then member. Empty parts are refused rather than silently collapsed: a
     missing container would produce an identifier that looks valid and points
     nowhere.
+
+    **A catalog object passes its whole decoded path as ONE part.** Catalog
+    names contain literal ``.`` — ``05. Published Reporting``, ``1.00 general
+    index`` — and are ``/``-separated, so splitting them into parts and joining
+    on ``.`` would make two different objects share an identifier and leave
+    :func:`parse_id` unable to recover the segments. Passed whole, the ``/``
+    separators survive and the object path round-trips exactly.
+
+    A part containing ``::`` is refused for the same reason, in every layer: the
+    separator is what :func:`parse_id` splits on, so a part carrying one would
+    produce an identifier that parses into the wrong pieces or refuses to parse
+    at all.
     """
     validate_rpd_id(rpd_id)
     if layer not in LAYERS:
@@ -61,6 +79,13 @@ def make_id(rpd_id: str, layer: str, *parts: str) -> str:
                 f"{rpd_id}::{layer}:: object path part {index} is empty; "
                 f"parts={parts!r}. Refusing to build an identifier that resolves "
                 f"to nothing."
+            )
+        if SEPARATOR in part:
+            raise IdentifierError(
+                f"{rpd_id}::{layer}:: object path part {index} contains "
+                f"{SEPARATOR!r}: {part!r}. That is the identifier separator, so "
+                f"the result would not parse back into the parts it was built "
+                f"from."
             )
     return f"{rpd_id}{SEPARATOR}{layer}{SEPARATOR}{'.'.join(parts)}"
 

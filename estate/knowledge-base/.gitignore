@@ -1,7 +1,19 @@
-# The Knowledge Base is derived from two UNLICENSED corpus repositories and
-# carries verbatim names and formulas from them, including personal names.
-# Committing it inherits the same open legal question recorded in PRD §16.
+# The Knowledge Base is derived from UNLICENSED corpus repositories and carries
+# verbatim names and formulas from them, including personal names. Committing it
+# inherits the same open legal question recorded in PRD §16.
 # Regenerate instead:
-#   python3 -m tools.rpd_extract.cli --corpus <corpus>/clean --out estate/knowledge-base
+#   python3 -m tools.rpd_extract.cli --corpus <corpus>/clean --out estate/knowledge-base --clean
+#
+# The catalog tables come out EMPTY unless <corpus>/clean declares a catalog half.
+# A repository tree alone is layout 2, and layout 2 has no catalog — so dashboards,
+# analyses and saved filters are legitimately zero and the manifest says why. The
+# catalog fixture is a different SampleApp release from the sampleapp RPD (0 of 1680
+# Subject Area names match), so it is declared as its OWN estate rather than paired:
+#   <corpus>/clean/sampleapp-v607/catalog -> the catalog tree
+# Pairing it with sampleapp/ would put a false provenance claim in manifest.csv,
+# which is exactly what AD-22 makes a human declaration in order to prevent.
+#
+# Exit code 3 is expected: 1583 references point into /company_shared/, a second
+# catalog root this fixture does not contain. See estate/test-corpus/catalog-xml-schema.md.
 # Revisit when the licensing question is settled (PRD §15 Open Question 15).
 *.csv

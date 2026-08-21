@@ -14,7 +14,7 @@ from pathlib import Path
 from tools.rpd_extract.adapters.outbound.csv_writer import write_table
 from tools.rpd_extract.core.model import Estate, Expression
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 #: Columns that can carry expression text or identifier-like values. Declaring
 #: them lets the writer guard values a spreadsheet would corrupt; an undeclared
@@ -24,6 +24,44 @@ _EXPR_COLUMNS = ("expr_text", "expr_text_desc", "expr_refs")
 def _expr_cells(expression: Expression) -> list[str]:
     """All three forms, verbatim, in fixed order (AD-21)."""
     return [expression.text, expression.text_desc, " ".join(expression.refs)]
+
+
+def _summary_rows(estate: Estate) -> list[list[str]]:
+    """Modelled-proportion rows, one per population, per rpd-id."""
+    seen: dict[str, int] = {}
+    for (rpd_id, measure), count in estate.input_census.items():
+        if measure == "files_seen":
+            seen[rpd_id] = count
+    rows = []
+    for (rpd_id, measure), count in estate.input_census.items():
+        total = seen.get(rpd_id, 0)
+        percent = f"{round(100 * count / total)}%" if total else "n/a"
+        rows.append([rpd_id, measure, str(count), str(total), percent])
+    return rows
+
+
+def _halves_rows(estate: Estate) -> list[list[str]]:
+    """Which halves the Operator supplied, and whether that is a declared pair.
+
+    Recorded because *"no dashboards"* and *"dashboards not extracted"* are
+    different facts, and a reader holding the Knowledge Base cannot otherwise
+    tell them apart. AD-22 makes pairing a **human declaration**, so what is
+    recorded is the act — the Operator put both halves in one estate folder
+    under one rpd-id — never an inference from matching Subject Area names.
+    """
+    rows = []
+    for rpd_id in sorted(estate.halves_present):
+        halves = estate.halves_present[rpd_id]
+        rows.append([f"halves_present:{rpd_id}", " ".join(halves) or "none"])
+        rows.append([
+            f"pairing:{rpd_id}",
+            "declared by the Operator: both halves supplied in one estate "
+            "folder under one rpd-id (AD-22). Never inferred."
+            if len(halves) > 1 else
+            f"not paired: only the {halves[0]} half was supplied"
+            if halves else "not paired: no half was supplied",
+        ])
+    return rows
 
 
 def _timestamp() -> str:
@@ -277,6 +315,136 @@ def write(
         guard=("role", "detail", *_EXPR_COLUMNS),
     )
 
+    # ------------------------------------------------------------ Web Catalog
+
+    emit(
+        "dashboards",
+        ["row_id", "rpd_id", "name", "catalog_path", "xml_version", "page_count"],
+        sorted(
+            [[d.row_id, d.rpd_id, d.name, d.catalog_path, d.xml_version,
+              str(d.page_count)]
+             for d in estate.dashboards]
+        ),
+        guard=("name", "catalog_path"),
+    )
+
+    emit(
+        "dashboard_pages",
+        ["row_id", "rpd_id", "dashboard_id", "position", "name", "catalog_path",
+         "xml_version"],
+        sorted(
+            [[p.row_id, p.rpd_id, p.dashboard_id, str(p.position), p.name,
+              p.catalog_path, p.xml_version]
+             for p in estate.dashboard_pages]
+        ),
+        guard=("name", "catalog_path"),
+    )
+
+    emit(
+        "dashboard_contents",
+        ["row_id", "rpd_id", "container_id", "position", "element", "reference",
+         "resolution", "target_id", "target_kind", "detail"],
+        sorted(
+            [[c.row_id, c.rpd_id, c.container_id, str(c.position), c.element,
+              c.reference, c.resolution, c.target_id, c.target_kind, c.detail]
+             for c in estate.dashboard_contents]
+        ),
+        guard=("element", "reference", "detail"),
+    )
+
+    emit(
+        "analyses",
+        ["row_id", "rpd_id", "name", "catalog_path", "xml_version",
+         "criteria_count", "column_count"],
+        sorted(
+            [[a.row_id, a.rpd_id, a.name, a.catalog_path, a.xml_version,
+              str(a.criteria_count), str(a.column_count)]
+             for a in estate.analyses]
+        ),
+        guard=("name", "catalog_path"),
+    )
+
+    emit(
+        "analysis_criteria",
+        ["row_id", "rpd_id", "analysis_id", "position", "subject_area"],
+        sorted(
+            [[c.row_id, c.rpd_id, c.analysis_id, str(c.position), c.subject_area]
+             for c in estate.analysis_criteria]
+        ),
+        guard=("subject_area",),
+    )
+
+    emit(
+        "analysis_columns",
+        ["row_id", "rpd_id", "analysis_id", "criteria_id", "position",
+         "column_id", "heading", "table_heading", "formula_construct",
+         "formula_type", "formula", "is_computation", "uses_eval"],
+        sorted(
+            [[c.row_id, c.rpd_id, c.analysis_id, c.criteria_id, str(c.position),
+              c.column_id, c.heading, c.table_heading, c.formula_construct,
+              c.formula_type, c.formula,
+              "true" if c.is_computation else "false",
+              "true" if c.uses_eval else "false"]
+             for c in estate.analysis_columns]
+        ),
+        guard=("heading", "table_heading", "formula_construct", "formula_type",
+               "formula", "column_id"),
+    )
+
+    emit(
+        "analysis_views",
+        ["row_id", "rpd_id", "analysis_id", "position", "view_type", "name",
+         "references_views", "bound_column_count", "display_type",
+         "display_subtype"],
+        sorted(
+            [[v.row_id, v.rpd_id, v.analysis_id, str(v.position), v.view_type,
+              v.name, str(v.references_views), str(v.bound_column_count),
+              v.display_type, v.display_subtype]
+             for v in estate.analysis_views]
+        ),
+        guard=("view_type", "name", "display_type", "display_subtype"),
+    )
+
+    emit(
+        "analysis_filters",
+        ["row_id", "rpd_id", "scope", "owner_id", "position", "op", "expr_type",
+         "expr_text", "reference", "target_id", "resolution", "uses_eval"],
+        sorted(
+            [[f.row_id, f.rpd_id, f.scope, f.owner_id, str(f.position), f.op,
+              f.expr_type, f.expr_text, f.reference, f.target_id, f.resolution,
+              "true" if f.uses_eval else "false"]
+             for f in estate.analysis_filters]
+        ),
+        guard=("op", "expr_type", "expr_text", "reference"),
+    )
+
+    emit(
+        "analysis_prompts",
+        ["row_id", "rpd_id", "analysis_id", "position", "prompt_type",
+         "column_type", "column_formula", "set_variable", "operator",
+         "ui_control"],
+        sorted(
+            [[p.row_id, p.rpd_id, p.analysis_id, str(p.position), p.prompt_type,
+              p.column_type, p.column_formula, p.set_variable, p.operator,
+              p.ui_control]
+             for p in estate.analysis_prompts]
+        ),
+        guard=("prompt_type", "column_type", "column_formula", "set_variable",
+               "operator", "ui_control"),
+    )
+
+    emit(
+        "saved_filters",
+        ["row_id", "rpd_id", "name", "catalog_path", "xml_version", "op",
+         "expr_type", "expr_text", "uses_eval"],
+        sorted(
+            [[f.row_id, f.rpd_id, f.name, f.catalog_path, f.xml_version, f.op,
+              f.expr_type, f.expr_text, "true" if f.uses_eval else "false"]
+             for f in estate.saved_filters]
+        ),
+        guard=("name", "catalog_path", "op", "expr_type", "expr_text"),
+    )
+
     # Two files, deliberately. "We have not built this" and "this went wrong"
     # are different questions, and conflating them buries the second in the
     # first — 200 unmodelled types would hide 31 broken references.
@@ -287,6 +455,11 @@ def write(
             [[u.rpd_id, u.kind, u.object_type, u.detail, str(u.occurrences)]
              for u in estate.unparsed]
         ),
+        # ``object_type`` is deliberately NOT guarded. Catalog object types are
+        # ``{namespace}local`` names, which no spreadsheet reinterprets, so
+        # declaring a guard here would add a companion column to every existing
+        # Knowledge Base for a value that can never need one. A type that did
+        # need guarding raises loudly, which is the intended failure.
         guard=("detail",),
     )
 
@@ -300,13 +473,45 @@ def write(
         guard=("source_id", "reason"),
     )
 
+    # ``layer`` since Epic 2: a Knowledge Base now holds two stores, and a
+    # coverage table that cannot tell an RPD object type from a catalog one
+    # makes the proportion figures below unreadable.
     emit(
         "coverage",
-        ["rpd_id", "object_type", "parsed", "skipped"],
+        ["rpd_id", "layer", "object_type", "parsed", "skipped"],
         sorted(
-            [[rpd_id, object_type, str(counts["parsed"]), str(counts["skipped"])]
-             for (rpd_id, object_type), counts in estate.coverage.items()]
+            [[rpd_id, layer, object_type,
+              str(counts["parsed"]), str(counts["skipped"])]
+             for (rpd_id, layer, object_type), counts in estate.coverage.items()]
         ),
+        guard=("object_type",),
+    )
+
+    # Absence is a value in its own right, written as "(none)" rather than left
+    # empty: 38% of parseable roots declare no version, and a spread reporting
+    # only declared values describes 62% of an estate while reading as though it
+    # describes all of it.
+    emit(
+        "catalog_versions",
+        ["rpd_id", "object_type", "xml_version", "objects"],
+        sorted(
+            [[rpd_id, object_type, version or "(none)", str(count)]
+             for (rpd_id, object_type, version), count in
+             estate.catalog_versions.items()]
+        ),
+        guard=("object_type",),
+    )
+
+    # What proportion of the input the extraction models, in whole numbers a
+    # reader can check by adding them up. The failure this exists to prevent is
+    # specific and quiet: counting what the adapter modelled, dividing by what
+    # the adapter attempted, and reporting 100% — both numbers true, and 2521
+    # files unmentioned.
+    emit(
+        "coverage_summary",
+        ["rpd_id", "measure", "count", "of_files_seen", "percent"],
+        sorted(_summary_rows(estate)),
+        guard=("percent",),
     )
 
     stamp = timestamp or _timestamp()
@@ -318,6 +523,7 @@ def write(
             ["extracted_at", stamp],
             ["corpus_root", corpus_root],
             ["rpd_ids", " ".join(estate.rpd_ids)],
+            *_halves_rows(estate),
             ["tables", " ".join(sorted(written))],
         ],
         guard=("value",),

@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 08-16-2026 00:00
-last_updated: 08-18-2026 00:00
+last_updated: 08-21-2026 18:20
 project: POC-RPD
 project_key: NOKEY
 tracking_system: file-system
@@ -48,14 +48,15 @@ development_status:
   1-10-capture-parity-critical-metadata: review
   epic-1-retrospective: optional
 
-  epic-2: backlog
-  2-1-acquire-and-pin-the-web-catalog-fixture: backlog
-  2-2-derive-the-observed-catalog-schema: backlog
-  2-3-accept-an-estate-folder-with-either-half-optional: backlog
-  2-4-extract-dashboards-and-pages: backlog
-  2-5-extract-analyses-and-report-level-logic: backlog
-  2-6-extract-filters-prompts-and-saved-filters: backlog
-  2-7-report-catalog-coverage-honestly: backlog
+  epic-2: in-progress
+  2-1-acquire-and-pin-the-web-catalog-fixture: review
+  2-2-derive-the-observed-catalog-schema: review
+  2-3-accept-an-estate-folder-with-either-half-optional: review
+  2-4-extract-dashboards-and-pages: review
+  2-5-extract-analyses-and-report-level-logic: review
+  2-6-extract-filters-prompts-and-saved-filters: review
+  2-7-report-catalog-coverage-honestly: review
+  2-8-extract-analysis-views: review
   epic-2-retrospective: optional
 
   epic-3: backlog

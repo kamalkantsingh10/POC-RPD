@@ -20,6 +20,7 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass, replace
 from pathlib import Path
 
+from tools.rpd_extract.adapters.inbound import observing
 from tools.rpd_extract.core import identifiers as ids
 from tools.rpd_extract.core.model import (
     AggregationRule,
@@ -84,66 +85,12 @@ def _tag(element: ET.Element) -> str:
     return element.tag.split("}")[-1]
 
 
-def _text(element: ET.Element | None) -> str:
-    """Verbatim text. No stripping — FR-2 forbids reformatting anywhere.
-
-    The single chokepoint for text access, which is what lets the audit observe
-    it: every parser reads element text through here.
-    """
-    if element is None:
-        return ""
-    # Marked before the empty check: asking an element for text that turns out to
-    # be absent is still a read. Marking only non-empty text would report every
-    # empty <ExprText/> as content we ignored.
-    if isinstance(element, _Observed):
-        element.text_read = True
-    if element.text is None:
-        return ""
-    return element.text
-
-
-class _RecordingAttrib(dict):
-    """An attribute map that remembers which keys the parsers asked for.
-
-    Only the two accessors a parser uses record. ``keys``/``items``/iteration
-    stay silent so the audit can inspect what is *present* without that
-    inspection counting as a read.
-    """
-
-    __slots__ = ("owner",)
-
-    def __init__(self, source, owner: "_Observed") -> None:
-        super().__init__(source)
-        self.owner = owner
-
-    def get(self, key, default=None):
-        self.owner.attributes_read.add(key)
-        return super().get(key, default)
-
-    def __getitem__(self, key):
-        self.owner.attributes_read.add(key)
-        return super().__getitem__(key)
-
-
-class _Observed(ET.Element):
-    """An element that records what the parsers actually took from it.
-
-    This is the mechanism that replaces a hand-written declaration of what the
-    adapter reads. A declaration states an intention and drifts from the code
-    silently; this states what the code demonstrably did on this very run, so
-    the audit cannot claim a field was consumed when nothing consumed it.
-    """
-
-    def __init__(self, tag, attrib):
-        super().__init__(tag, {})
-        self.attributes_read: set[str] = set()
-        self.text_read = False
-        self.sought = False
-        self.attrib = _RecordingAttrib(attrib, self)
-
-
-def _observing_parser() -> ET.XMLParser:
-    return ET.XMLParser(target=ET.TreeBuilder(element_factory=_Observed))
+#: Verbatim text access, and the parse tree that observes every read. Shared
+#: with the catalog adapter so both are audited by one mechanism rather than two
+#: that can disagree (see ``observing.py``).
+_text = observing.read_text
+_Observed = observing.Observed
+_observing_parser = observing.observing_parser
 
 
 @dataclass(frozen=True)
@@ -400,17 +347,7 @@ def _read_expression(
     return Expression(text=text, text_desc=text_desc, refs=tuple(refs))
 
 
-def _sought(element: ET.Element) -> ET.Element:
-    """Mark an element as one a parser deliberately went looking for.
-
-    Traversal is consumption too. A wrapper the parser walks through on purpose —
-    ``RefColumns``, ``ObjectRefList`` — has been handled even though nothing is
-    read off the wrapper itself, and reporting it as a gap would bury the real
-    findings in noise.
-    """
-    if isinstance(element, _Observed):
-        element.sought = True
-    return element
+_sought = observing.sought
 
 
 def _first_child(element: ET.Element, name: str) -> ET.Element | None:
@@ -1038,86 +975,13 @@ def _flag_time_series(estate: Estate) -> None:
 def _audit_unread(
     trees: list[tuple[str, str, ET.Element]], estate: Estate
 ) -> None:
-    """Report source content the parsers never took, observed rather than declared.
+    """Report MDS XML content the parsers never took. See ``observing.py``.
 
-    Whole-object honesty is not enough. An object can parse "successfully" while
-    attributes, child elements and text on it are discarded without a word —
-    the silent omission NFR7 names as the primary failure mode, one level below
-    where AD-3 was watching.
-
-    This used to compare each file against ``_CONSUMED``, a hand-written list of
-    what each parser was believed to read. That list was the audit's only source
-    of truth and nothing tied it to the code, so it could — and did — silence a
-    field no parser touched: ``PrivilegePackage@userRef`` was declared consumed
-    while the parser read only ``roleRef``, so three privilege grants to named
-    users were dropped and reported as fully understood.
-
-    So the audit no longer asks what the adapter *claims* to read. It watches
-    what the adapter *did* read, on this run, through `_Observed`. The list
-    cannot disagree with the code because it is no longer a list.
-
-    Reachability is computed over the real tree rather than by tag name, so a
-    tag that is read in one context is not assumed read in another. A container
-    element counts as traversed when anything beneath it was read — otherwise
-    every wrapper the parsers pass through would be reported as a gap.
-
-    Drift now fails safe in the only direction left: a branch this corpus never
-    exercises reports a gap that is merely noise, never silence.
+    Nothing is out of scope here: every attribute the RPD carries is either read
+    or reported. The styling exclusion FR-34 permits exists only on the catalog
+    side, where formatting is 97,498 attribute occurrences.
     """
-    gaps: dict[tuple[str, str, str], int] = collections.Counter()
-
-    def touched(element: ET.Element) -> bool:
-        if isinstance(element, _Observed):
-            return (
-                bool(element.attributes_read) or element.text_read or element.sought
-            )
-        return False
-
-    reached: dict[int, bool] = {}
-
-    def mark(element: ET.Element) -> bool:
-        """Was anything in this subtree read? Computed once, bottom-up."""
-        below = [mark(child) for child in element]
-        here = touched(element) or any(below)
-        reached[id(element)] = here
-        return here
-
-    def visit(rpd_id: str, object_type: str, element: ET.Element) -> None:
-        tag = _tag(element)
-        # An element nothing in the subtree touched is unhandled as a whole. A
-        # wrapper the parsers walked through is not, even though nothing was read
-        # off the wrapper itself.
-        if not reached[id(element)]:
-            gaps[(rpd_id, object_type, tag)] += 1
-        # Reported at every level regardless, including inside an unhandled
-        # subtree: rolling a branch up to its root hides what is in it, and
-        # ``Join@type`` is exactly the parity-critical detail that must not be
-        # summarised away.
-        present = set(dict.keys(element.attrib))
-        read = element.attributes_read if isinstance(element, _Observed) else set()
-        for attribute in sorted(present - read):
-            gaps[(rpd_id, object_type, f"{tag}@{attribute}")] += 1
-        text = element.text or ""
-        if text.strip() and isinstance(element, _Observed) and not element.text_read:
-            gaps[(rpd_id, object_type, f"{tag}#text")] += 1
-        for child in element:
-            visit(rpd_id, object_type, child)
-
-    for rpd_id, object_type, root in trees:
-        if object_type not in _HANDLED:
-            continue  # unmodelled types are already reported whole
-        mark(root)
-        visit(rpd_id, object_type, root)
-
-    for (rpd_id, object_type, detail), occurrences in sorted(gaps.items()):
-        if "@" in detail:
-            kind = "unread_attribute"
-        elif detail.endswith("#text"):
-            kind = "unread_text"
-        else:
-            kind = "unread_element"
-        estate.record_gap(rpd_id, kind, object_type, detail, occurrences)
-
+    observing.audit_unread(trees, estate, _HANDLED, tag_of=_tag)
 
 
 #: unparsed object type rather than passed over in silence (FR-5, AD-3).
@@ -1246,8 +1110,6 @@ def load(corpus_root: Path | str, rpd_id: str | None = None) -> Estate:
     _collect_row_filters(estate)
     # After every pass, so the audit sees the reads all of them made.
     _audit_unread(trees, estate)
-    # Last, so it sees every row every pass produced, including lineage.
-    estate.check_identifier_uniqueness()
 
     for rpd_id, object_type, path in files:
         if object_type in _HANDLED:

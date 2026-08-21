@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sawd:dashboard xmlns:saw="com.siebel.analytics.web/report/v1.1"
+ xmlns:sawd="com.siebel.analytics.web/dashboard/v1.1" xmlVersion="200810300">
+ <sawd:dashboardPageRef path="Page One" type="catalog"/>
+</sawd:dashboard>

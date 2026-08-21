@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sawsf:savedFilterObject xmlns:sawsf="com.siebel.analytics.web/savedfilter/v1.1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sawx="com.siebel.analytics.web/expression/v1.1" subjectArea="&quot;Y13 - Sports Demo&quot;"><saw:filter xmlns:saw="com.siebel.analytics.web/report/v1.1"><sawx:expr xsi:type="sawx:savedFilter" path="/company_shared/Common Objects/_filters/PC1/All Direct and Star Dims" name="All Direct and Star Dims"/></saw:filter></sawsf:savedFilterObject>

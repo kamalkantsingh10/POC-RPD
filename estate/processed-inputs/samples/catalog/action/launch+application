@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<saw:action xmlns:saw="com.siebel.analytics.web/report/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><saw:parameters allowExtraParameters="true"/><saw:assignments/><saw:implementation xsi:type="saw:URLActionType" executeOnClient="true"><saw:url aliasedLocation="false">www.google.com</saw:url><saw:request>GET</saw:request></saw:implementation><saw:clientImplementation><saw:customisation invokeConfirmation="false"/></saw:clientImplementation></saw:action>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<saw:report xmlns:saw="com.siebel.analytics.web/report/v1.1"
+ xmlns:sawx="com.siebel.analytics.web/expression/v1.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlVersion="201201160">
+ <saw:criteria xsi:type="saw:simpleCriteria" subjectArea="&quot;Constructed SA&quot;">
+  <saw:columns>
+   <saw:column xsi:type="saw:regularColumn" columnID="c1">
+    <saw:columnFormula>
+     <sawx:expr xsi:type="sawx:sqlExpression">"Sales Facts"."Amount"</sawx:expr>
+    </saw:columnFormula>
+    <saw:columnHeading><saw:caption><saw:text>Amount</saw:text></saw:caption></saw:columnHeading>
+   </saw:column>
+   <saw:column xsi:type="saw:regularColumn" columnID="c2">
+    <saw:columnFormula>
+     <sawx:expr xsi:type="sawx:sqlExpression">"Sales Facts"."Rolling Amount 3M"</sawx:expr>
+    </saw:columnFormula>
+    <saw:columnHeading><saw:caption><saw:text>Rolling Amount 3M</saw:text></saw:caption></saw:columnHeading>
+   </saw:column>
+  </saw:columns>
+  <saw:filter>
+   <sawx:expr xsi:type="sawx:logical" op="and">
+    <sawx:expr xsi:type="sawx:savedFilter" path="/shared/Constructed/_filters/Recent Periods"/>
+   </sawx:expr>
+  </saw:filter>
+ </saw:criteria>
+</saw:report>

@@ -4,7 +4,7 @@ A deterministic Python extractor that reads an OBIEE repository and produces the
 
 **No LLM participates in extraction.** Identical input produces byte-identical output.
 
-This repository currently contains **Epic 1: extraction**. Downstream migration (Migration Spine, Group Spec, Power BI generation, parity validation) is not built yet.
+This repository currently contains **Epic 1 (repository extraction)** and **Epic 2 (Web Catalog extraction)** — the semantic layer and the report layer. Downstream migration (Migration Spine, Group Spec, Power BI generation, parity validation) is not built yet.
 
 ---
 
@@ -21,6 +21,40 @@ Nothing to install: no `pip install`, no virtualenv, no build step, no service. 
 ---
 
 ## What input it needs
+
+An **estate** — a repository, a Web Catalog, or both. Put each half in a folder named for what it is:
+
+```
+your-estate/
+  rpd/       oracle/bi/server/base/…      the repository, as MDS XML
+  catalog/   00. va projects/ …           the Web Catalog, copied as-is
+```
+
+```sh
+python3 -m tools.rpd_extract.cli --corpus your-estate --rpd-id my-estate --out /tmp/kb
+```
+
+**Either half may be absent**, and the manifest records which were present — so *"this estate has no dashboards"* and
+*"dashboards were not extracted"* stay distinguishable. Both halves under one `rpd-id` is how you **declare** they belong to
+the same estate; the tool never infers that from matching Subject Area names (AD-22).
+
+A bare repository tree still works exactly as before — see *Run it on your repository* below.
+
+### If you have a BAR archive
+
+A BAR is a zip, and **it is not a ready pair**. Unzip it, then:
+
+| From the BAR | Goes to | Note |
+|---|---|---|
+| `content/catalog/` | `your-estate/catalog/` | usable as-is |
+| `datamodel/rpd/default.rpd` | `your-estate/rpd/` | **binary — convert it first** |
+
+The `.rpd` inside a BAR is Oracle's proprietary binary format, which this tool does not read. Convert it to MDS XML with
+`biserverxmlgen` (below) and put the result in `rpd/`. There is deliberately **no BAR code path**: a BAR is an unpacking step
+in front of the two formats already understood, and modelling it as a third would be building for a format nobody asked us to
+read.
+
+### The repository half
 
 **MDS XML** — OBIEE's exploded repository format, one XML file per object:
 
@@ -152,8 +186,10 @@ column -s, -t < /tmp/demo/aggregation_rules.csv | cut -c1-120
 Expect `parsed: 21`, `skipped: 0`. Run the test suite too:
 
 ```sh
-python3 -m unittest discover -s tools/rpd_extract/tests -t .   # Ran 79 tests … OK
+python3 -m unittest discover -s tools/rpd_extract/tests -t .   # Ran 168 tests … OK
 ```
+
+Tests that need the large development corpora **skip** when those are absent, rather than passing quietly on missing input.
 
 There is also a larger public corpus used to develop the tool — 1383 files across two real repositories. Setup is in `estate/test-corpus/corpus.md`; you do not need it to use the extractor on your own estate.
 
@@ -161,7 +197,8 @@ There is also a larger public corpus used to develop the tool — 1383 files acr
 
 ## What you get
 
-`--out` receives one CSV per concern. Row counts below are from the 1383-file development corpus, to give a sense of scale:
+`--out` receives one CSV per concern. Row counts below are from the development corpus — a 1383-file repository half and a
+5371-file Web Catalog half — to give a sense of scale:
 
 | Table | Rows | What it holds |
 |---|---|---|
@@ -175,9 +212,19 @@ There is also a larger public corpus used to develop the tool — 1383 files acr
 | `bmm_joins` | 84 | Join types, inner vs outer |
 | `variables` / `init_blocks` | 345 / 154 | Session and repository variables |
 | `security_rls` | 198 | Roles, privileges, row-level predicates |
-| `coverage` | — | Objects parsed and skipped, per type |
-| `unparsed` | 336 | **Known gaps** — content not modelled, and how much of it |
-| `errors` | 31 | **Things that went wrong** — kept separate on purpose |
+| `dashboards` / `dashboard_pages` | 111 / 1036 | Dashboards and their pages, in order |
+| `dashboard_contents` | 3718 | What is placed on each page, **and how each reference resolved** |
+| `analyses` / `analysis_criteria` | 1607 / 1789 | Reports, and every query block in them |
+| `analysis_columns` | 11143 | Report columns, **formulas verbatim** — 10340 carry one |
+| `analysis_views` | 10879 | **What each report renders as** — chart, pivot, table, gauge, map — in order |
+| `analysis_filters` | 7135 | Filter expressions, dashboard- and Analysis-scope |
+| `analysis_prompts` | 4 | Prompts and the variables they set — **see the note below** |
+| `saved_filters` | 96 | Filters stored for reuse |
+| `catalog_versions` | — | `xmlVersion` per object type, **absence counted as a value** |
+| `coverage` | — | Objects parsed and skipped, per type **and layer** |
+| `coverage_summary` | — | **What share of the input was modelled**, in whole numbers |
+| `unparsed` | 1478 | **Known gaps** — content not modelled, and how much of it |
+| `errors` | 1583 | **Things that went wrong** — kept separate on purpose. **All 1583 are unresolved references**, 1521 of them into `/company_shared/`, a catalog root this fixture does not contain |
 | `manifest` | — | Source, timestamp, extractor version |
 
 ### `unparsed.csv` and `errors.csv` — read both, they answer different questions
@@ -193,8 +240,10 @@ There is also a larger public corpus used to develop the tool — 1383 files acr
 | `unread_attribute` | An attribute present on an object we *did* parse, that no column carries |
 | `unread_element` | Same, for a child element |
 | `unread_text` | Same, for an element's text content |
+| `not_a_catalog_object` | A file in the catalog tree that was never a catalog object — a PNG, an RTF template, a PDF. **Catalog objects are extensionless, so every file must be attempted**; classifying these is what keeps 1030 of them out of `errors.csv` |
+| `excluded_by_scope` | Styling and formatting attributes, out of scope per FR-34. **Recorded rather than dropped**, because an exclusion that leaves no trace cannot be told from an oversight |
 
-The last three matter more than they look. **An object can parse "successfully" while attributes, elements and text on it are discarded silently** — the same failure NFR7 names as primary, one level below where AD-3 was watching. On the development corpus that is **227 distinct items across 25,985 occurrences**, including the SQL that defines `select`-type views.
+The last three matter more than they look. **An object can parse "successfully" while attributes, elements and text on it are discarded silently** — the same failure NFR7 names as primary, one level below where AD-3 was watching. On the development corpus that is **1100 distinct items across 418,322 occurrences**, including the SQL that defines `select`-type views.
 
 It is also the **format-drift detector**. A repository from a different OBIEE version carrying new attributes announces itself here instead of being quietly dropped — which is the honest answer to "will this work on my estate?"
 
@@ -236,6 +285,24 @@ erDiagram
     physical_columns      ||--o{ lineage : "physical_column_id (1573/1573)"
 
     init_blocks ||--o{ variables : "init_block_id (272/272)"
+
+    dashboards      ||--o{ dashboard_pages    : "dashboard_id (1030/1030)"
+    dashboards      ||--o{ dashboard_contents : "container_id, pages (1041)"
+    dashboard_pages ||--o{ dashboard_contents : "container_id, placements (2677)"
+
+    analyses          ||--o{ analysis_criteria : "analysis_id (1789/1789)"
+    analyses          ||--o{ analysis_columns  : "analysis_id (11143/11143)"
+    analysis_criteria ||--o{ analysis_columns  : "criteria_id (11143/11143)"
+    analyses          ||--o{ analysis_prompts  : "analysis_id (4/4)"
+    analyses          ||--o{ analysis_views    : "analysis_id (10879/10879)"
+
+    analyses        ||--o{ analysis_filters : "owner_id, scope=analysis (6248)"
+    dashboard_pages ||--o{ analysis_filters : "owner_id, scope=dashboard (887)"
+
+    analyses      |o--o{ dashboard_contents : "target_id (2161/2728)"
+    saved_filters |o--o{ dashboard_contents : "target_id (same key)"
+
+    presentation_subject_areas |o..o{ analysis_criteria : "subject_area, BY NAME (0/1680)"
 ```
 
 ### Reading it
@@ -268,6 +335,53 @@ presentation_subject_areas → presentation_tables → presentation_columns
 - **`security_rls.subject_id` resolves 6 of 196.** It is polymorphic by nature: `row_filter`
   rows point at a logical table, while `object_privilege` and `query_privilege` rows point
   at privileges. Read `kind` before joining on it.
+
+**The catalog half joins downward the same way**, from a dashboard to what is on its
+pages, and from an Analysis to the columns and filters inside it:
+
+```
+dashboards → dashboard_pages → dashboard_contents ──target_id──▶ analyses
+                                                              │  saved_filters
+analyses → analysis_criteria → analysis_columns               │
+        └→ analysis_filters   (scope=analysis)                │
+        └→ analysis_prompts                                   │
+dashboard_pages → analysis_filters (scope=dashboard) ─────────┘
+```
+
+**Three catalog relationships are partial, for reasons worth knowing:**
+
+- **`dashboard_contents.container_id` is polymorphic and always resolves** — 2677 rows are
+  placements on a page and point at `dashboard_pages`; 1041 are a dashboard listing its own
+  pages and point at `dashboards`. Read `element` before joining on it.
+- **`dashboard_contents.target_id` resolves 2161 of 2728 present.** The 990 unresolved rows
+  carry `resolution = unresolved`, and most name `/company_shared/` — a second catalog root
+  this fixture does not contain. **A partial catalog export is a normal state**, so these are
+  recorded rather than repaired. Note also that 2717 of the resolutions are `case_normalised`,
+  not `exact`: catalog references do not reliably match the stored object's case.
+- **`analysis_filters.target_id` resolves 165 of 666 present.** The other 5907 filters are
+  literal expressions that reference no catalog object at all, so the key is empty by design,
+  not missing.
+
+**`analysis_views` says what a report looks like, and the type is the source's own word.**
+`view_type` holds `saw:pivotTableView`, never "Pivot Table" and never a Power BI visual name —
+picking a target visual is your judgement, not the extractor's. Two counted columns let you tell
+a layout container from a real visual **without a list of type names**: `references_views > 0`
+is a `compoundView` arranging other views (1580 rows), `bound_column_count > 0` is something
+bound to data (6239 rows), and neither is chrome — titles, HTML, narrative text (3060 rows).
+For the `dvt*` family, `display_type` and `display_subtype` carry the actual chart kind
+(`bar` / `stacked`, `line` / `default`), which is the single most useful field here.
+A view carrying no `xsi:type` records `(no xsi:type)` rather than an empty cell, so "absent"
+stays distinguishable from "not read".
+
+**The two halves are joined by a name, not a key — and only when they are truly one estate.**
+`analysis_criteria.subject_area` carries the subject-area name as the catalog wrote it,
+**including OBIEE's surrounding double quotes**, and there is no `presentation_subject_area_id`
+to join on. On the development corpus it resolves **0 of 1680**, because the catalog fixture
+and the repository fixture come from different SampleApp releases: the catalog asks for
+`"A - Sample Sales"` and the repository defines `Sample Sales`. That zero is the honest
+answer, not a defect — the tool never infers a pairing (AD-22), so pairing two halves that
+do not belong together produces a Knowledge Base that visibly fails to join. **On a genuine
+estate, strip the quotes and match on `presentation_subject_areas.name`.**
 
 **Four tables carry no keys at all** — `manifest`, `coverage`, `unparsed`, `errors`. They
 describe the extraction run rather than the estate, and they are joined by nothing because
@@ -341,12 +455,46 @@ Read the `evidence` column: `corpus` means your real content proves it; `constru
 
 ---
 
+## How much of a Web Catalog this understands
+
+`coverage_summary.csv` answers this per estate, in numbers that add up. On the development catalog — 5371 files:
+
+| Population | Files | Share |
+|---|---:|---:|
+| **Modelled** — Dashboards, pages, Analyses, saved filters | 2850 | **53%** |
+| Parsed, object type not modelled — standalone view objects, scorecards, KPIs, actions, and a whole second product | 1491 | 28% |
+| Not a catalog object — images, RTF templates, PDFs, Office documents | 1030 | 19% |
+
+**A little over half.** That is not a failing — the rest is a different product, raw data, or object types deliberately
+excluded — but a coverage report that did not say it would invite you to assume the other 47% was understood.
+
+**Views inside an Analysis are modelled; views saved as objects in their own right are not.** The 10,879 `saw:view`
+elements nested in Analyses are in `analysis_views.csv`. The 530 that are top-level catalog objects are a different
+population — every one of them a `saw:globalFilterPrompt` — and they stay in the unmodelled row above. The two counts
+differ by a factor of 21, so check which one a figure means before quoting it.
+
+**55 of the 59 root element types present are unmodelled**, and every one is enumerated by parsing rather than read from a
+list, so the fifty-fourth cannot be dropped in silence.
+
+### Two things to know before reading the catalog tables
+
+**Prompts are nearly all somewhere this does not look.** 991 of the fixture's 995 column prompts live in `saw:view` objects,
+which are not modelled; only 4 sit inside an Analysis. So `analysis_prompts.csv` being almost empty means *not extracted*,
+not *not present*. `prompted` is the most common filter operator in the whole catalog, so this matters.
+
+**Path references mostly resolve only after folding case.** The on-disk tree is lowercased while references keep display
+case, so exact matching resolves 11 of 4171 references and case-insensitive resolves 2999. Both outcomes are recorded per
+reference in `dashboard_contents.resolution`, because folding case is a judgement (AD-3) and on a case-sensitive estate it
+could join two different objects. **Check that column before trusting a resolution.**
+
+---
+
 ## What this does **not** do yet
 
-- **No Web Catalog.** No Dashboards or Analyses — the report layer parser is not built.
 - **No parity checking.** No migrated number has been compared to a legacy one. This is the product's central claim and it is **unproven**.
+- **No catalog-to-semantic-layer resolution.** `saw:criteria[@subjectArea]` is captured verbatim and resolved to nothing (FR-7): it needs a repository and catalog from the *same* estate, and no such pair has been found.
 - **No Power BI output.** No Group Spec, no Migration Spine, no PBIP/TMDL.
-- **Only MDS XML input**, as above.
+- **Only MDS XML** for the repository half, as above.
 
 ---
 
@@ -371,16 +519,20 @@ Read the `evidence` column: `corpus` means your real content proves it; `constru
 tools/rpd_extract/
   core/          Estate model and identifiers — no I/O, no file-format concepts
   adapters/
-    inbound/     mds_xml.py — the only place OBIEE's format is understood
+    inbound/     mds_xml.py, catalog_xml.py — the only places OBIEE's formats
+                 are understood; observing.py is the shared read-audit
     outbound/    csv_writer.py, knowledge_base.py
   tests/         stdlib unittest + fixtures with recorded Ground Truth
+  layout.py      which halves of an estate the Operator supplied
   cli.py         extraction entry point
   verify.py      per-construct accuracy report
+tools/catalog_survey.py   measures a catalog tree; every catalog figure in the
+                          documents is re-derivable by running it
 
 estate/test-corpus/   corpus docs, benchmark set, Constructed Cases
 documents/            PRD, Architecture Spine, decisions, stories
 ```
 
-`estate/test-corpus/mds-xml-schema.md` documents the input format, derived by parsing 1383 real files — Oracle publishes no schema for it, so it is the only specification that exists.
+`estate/test-corpus/mds-xml-schema.md` and `catalog-xml-schema.md` document the two input formats, derived by parsing 1383 and 5371 real files. Oracle publishes no schema for either, so they are the only specifications that exist.
 
 **Note on output:** `estate/knowledge-base/` is gitignored here, because our development corpus is unlicensed and contains personal names. Your own output is yours — decide separately whether it belongs in version control.
