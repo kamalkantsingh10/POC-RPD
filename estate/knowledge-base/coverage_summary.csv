@@ -1,0 +1,6 @@
+"rpd_id","measure","count","of_files_seen","percent","percent_guarded"
+"sampleapp-v607","files_seen","5371","5371","100%","false"
+"sampleapp-v607","modelled_object","2850","5371","53%","false"
+"sampleapp-v607","not_a_catalog_object","1030","5371","19%","false"
+"sampleapp-v607","parsed_as_xml","4341","5371","81%","false"
+"sampleapp-v607","unmodelled_object","1491","5371","28%","false"

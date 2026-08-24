@@ -20,9 +20,11 @@ __pycache__/
 /corpus/
 /obiee-corpus/
 
-# Derived Knowledge Base and Oracle sample data carry their own .gitignore
-# files, each recording why that content is withheld. Do not consolidate them
-# here — the reason belongs next to the thing it withholds.
+# The Knowledge Base is now COMMITTED — see estate/knowledge-base/README.md for
+# what it contains and the licensing position accepted in publishing it. The
+# Oracle sample data is still withheld and carries its own .gitignore recording
+# why. Do not consolidate that here — the reason belongs next to the thing it
+# withholds.
 
 # --- Generated analysis ------------------------------------------------------
 # Documents derived from the Knowledge Base inherit its licensing position: they

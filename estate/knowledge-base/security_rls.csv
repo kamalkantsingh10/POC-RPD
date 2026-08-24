@@ -1,0 +1,357 @@
+"row_id","rpd_id","kind","role","role_guarded","subject_id","detail","detail_guarded","expr_text","expr_text_guarded","expr_text_desc","expr_text_desc_guarded","expr_refs","expr_refs_guarded"
+"bi-analytics-2013::bmm::Anton_Tserakhau.Restaurants.src.LTS Restaurants - Locations#filter","bi-analytics-2013","row_filter","","false","bi-analytics-2013::bmm::Anton_Tserakhau.Restaurants","LTS Restaurants - Locations","false","(
+Position(';Anton_Tserakhau_role_Africa;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""%1"" = '484'
+)
+or
+(
+Position(';Anton_Tserakhau_role_Oceania;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""%1"" = '485'
+)
+or
+(
+Position(';Anton_Tserakhau_role_North_America;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""%1"" = '486'
+)
+or
+(
+Position(';Anton_Tserakhau_role_Asia;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""%1"" = '487'
+)
+or
+(
+Position(';Anton_Tserakhau_role_Europe;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""%1"" = '488'
+)
+or
+(
+Position(';Anton_Tserakhau_role_Lat_America;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""%1"" = '489'
+)
+or
+(
+Position(';Anton_Tserakhau_role_Admin;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""%1"" in ('484', '485', '486', '487', '488', '489')
+)","false","(
+Position(';Anton_Tserakhau_role_Africa;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""Anton_Tserakhau_DW""."""".""ANTON_TSERAKHAU_DW"".""Locations"".""PART_GEO_ID"" = '484'
+)
+or
+(
+Position(';Anton_Tserakhau_role_Oceania;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""Anton_Tserakhau_DW""."""".""ANTON_TSERAKHAU_DW"".""Locations"".""PART_GEO_ID"" = '485'
+)
+or
+(
+Position(';Anton_Tserakhau_role_North_America;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""Anton_Tserakhau_DW""."""".""ANTON_TSERAKHAU_DW"".""Locations"".""PART_GEO_ID"" = '486'
+)
+or
+(
+Position(';Anton_Tserakhau_role_Asia;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""Anton_Tserakhau_DW""."""".""ANTON_TSERAKHAU_DW"".""Locations"".""PART_GEO_ID"" = '487'
+)
+or
+(
+Position(';Anton_Tserakhau_role_Europe;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""Anton_Tserakhau_DW""."""".""ANTON_TSERAKHAU_DW"".""Locations"".""PART_GEO_ID"" = '488'
+)
+or
+(
+Position(';Anton_Tserakhau_role_Lat_America;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""Anton_Tserakhau_DW""."""".""ANTON_TSERAKHAU_DW"".""Locations"".""PART_GEO_ID"" = '489'
+)
+or
+(
+Position(';Anton_Tserakhau_role_Admin;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+and
+""Anton_Tserakhau_DW""."""".""ANTON_TSERAKHAU_DW"".""Locations"".""PART_GEO_ID"" in ('484', '485', '486', '487', '488', '489')
+)","false","bi-analytics-2013::phys::Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Locations.PART_GEO_ID","false"
+"bi-analytics-2013::bmm::Iryna_Bradzetskaya_MT_Row-level_Security.FCT_TRANSACTIONS_ACTUAL.src.FCT_TRANSACTIONS_ACTUAL#filter","bi-analytics-2013","row_filter","","false","bi-analytics-2013::bmm::Iryna_Bradzetskaya_MT_Row-level_Security.FCT_TRANSACTIONS_ACTUAL","FCT_TRANSACTIONS_ACTUAL","false","(
+Position (';MT_User_A;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 and  ""%1""   in (12,10,15,11)
+)
+or
+(
+Position (';MT_User_F;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 and ""%1""  in (13,14, 16,17)
+)","false","(
+Position (';MT_User_A;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 and  ""Iryna_Bradzetskaya_MT""."""".""U_SAL"".""FCT_TRANSACTIONS_ACTUAL"".""CURRENCY_SUR_ID""   in (12,10,15,11)
+)
+or
+(
+Position (';MT_User_F;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 and ""Iryna_Bradzetskaya_MT""."""".""U_SAL"".""FCT_TRANSACTIONS_ACTUAL"".""CURRENCY_SUR_ID""  in (13,14, 16,17)
+)","false","bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_ACTUAL.CURRENCY_SUR_ID","false"
+"bi-analytics-2013::bmm::Iryna_Bradzetskaya_MT_Row-level_Security.TRANSACTIONS_DAILY.src.FCT_TRANSACTIONS_DAILY#filter","bi-analytics-2013","row_filter","","false","bi-analytics-2013::bmm::Iryna_Bradzetskaya_MT_Row-level_Security.TRANSACTIONS_DAILY","FCT_TRANSACTIONS_DAILY","false","(
+Position (';Role_MT_A;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 and  ""%1""   in (12,10,15,11)
+)
+or
+(
+Position (';Role_MT_F;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 and ""%1""  in (13,14, 16,17)
+)","false","(
+Position (';Role_MT_A;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 and  ""Iryna_Bradzetskaya_MT""."""".""U_SAL"".""FCT_TRANSACTIONS_DAILY"".""CURRENCY_SUR_ID""   in (12,10,15,11)
+)
+or
+(
+Position (';Role_MT_F;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 and ""Iryna_Bradzetskaya_MT""."""".""U_SAL"".""FCT_TRANSACTIONS_DAILY"".""CURRENCY_SUR_ID""  in (13,14, 16,17)
+)","false","bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_DAILY.CURRENCY_SUR_ID","false"
+"bi-analytics-2013::bmm::Uladzislau_Dodu_BM.FCT_TRANS_MONTHLY.src.FCT_TRANS_MONTHLY#filter","bi-analytics-2013","row_filter","","false","bi-analytics-2013::bmm::Uladzislau_Dodu_BM.FCT_TRANS_MONTHLY","FCT_TRANS_MONTHLY","false","(
+position (';OnlyActualUser;' in ';'||VALUEOF(NQ_SESSION.ROLEGUIDS)||';') >0 and
+extract (year from ""%1"") = '2012')
+or 
+(
+position (';AllDataUser;' in ';'||VALUEOF(NQ_SESSION.ROLEGUIDS)||';') >0 and
+extract (year from ""%1"") in ('2008','2009','2010', '2011', '2012','2013'))","false","(
+position (';OnlyActualUser;' in ';'||VALUEOF(NQ_SESSION.ROLEGUIDS)||';') >0 and
+extract (year from ""Uladzislau_Dodu_star_schema""."""".""DW_STAR"".""FCT_TRANS_MONTHLY"".""EVENT_DT"") = '2012')
+or 
+(
+position (';AllDataUser;' in ';'||VALUEOF(NQ_SESSION.ROLEGUIDS)||';') >0 and
+extract (year from ""Uladzislau_Dodu_star_schema""."""".""DW_STAR"".""FCT_TRANS_MONTHLY"".""EVENT_DT"") in ('2008','2009','2010', '2011', '2012','2013'))","false","bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.FCT_TRANS_MONTHLY.EVENT_DT","false"
+"bi-analytics-2013::bmm::VASILI_KORZUN_DW.DIM_TIMES.src.DIM_TIMES#filter","bi-analytics-2013","row_filter","","false","bi-analytics-2013::bmm::VASILI_KORZUN_DW.DIM_TIMES","DIM_TIMES","false","(
+ Position(';AllYearsDW;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';')>0
+and ""%1"" in ('2010', '2011', '2012', '2013')
+)
+or 
+(
+ Position(';CurrentYearDW;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';')>0
+and ""%1"" =  Year( Current_Date )
+)
+or
+(
+ Position(';BIAdministrator;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';')>0
+)","false","(
+ Position(';AllYearsDW;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';')>0
+and ""Vasili_Korzun_DW""."""".""VASILI_KORZUN_DW"".""DIM_TIMES"".""CALENDAR_YEAR"" in ('2010', '2011', '2012', '2013')
+)
+or 
+(
+ Position(';CurrentYearDW;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';')>0
+and ""Vasili_Korzun_DW""."""".""VASILI_KORZUN_DW"".""DIM_TIMES"".""CALENDAR_YEAR"" =  Year( Current_Date )
+)
+or
+(
+ Position(';BIAdministrator;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';')>0
+)","false","bi-analytics-2013::phys::Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_TIMES.CALENDAR_YEAR","false"
+"bi-analytics-2013::bmm::Vera_Yakimovich_VY.Daily Actual Income Facts.src.FCT_EUROPEAN_INCOME_PRODUCTS_DAILY#filter","bi-analytics-2013","row_filter","","false","bi-analytics-2013::bmm::Vera_Yakimovich_VY.Daily Actual Income Facts","FCT_EUROPEAN_INCOME_PRODUCTS_DAILY","false","(
+Position (';Role_DW_Admin;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+)
+or
+(
+Position (';Role_DW_EM;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 and  
+""%1""  = 150 
+)
+ 
+","false","(
+Position (';Role_DW_Admin;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 
+)
+or
+(
+Position (';Role_DW_EM;' in ';' || valueof(NQ_SESSION.ROLEGUIDS) || ';') > 0 and  
+""Vera_Yakimovich_DW""."""".""VY"".""FCT_ACTUAL_INCOME_PRODUCTS_DAILY"".""PART_ID""  = 150 
+)
+ 
+","false","bi-analytics-2013::phys::Vera_Yakimovich_DW.VY.FCT_ACTUAL_INCOME_PRODUCTS_DAILY.PART_ID","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:3723951381075662.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Vasili_Korzun_DW","read via bi-analytics-2013::sec::pkg.PrivPack_4209:3723931381075662","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:3723991381075671.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Vasili_Korzun_DW_current_year","read via bi-analytics-2013::sec::pkg.PrivPack_4209:3723971381075671","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:3724001381075671.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Vasili_Korzun_DW_current_year","write via bi-analytics-2013::sec::pkg.PrivPack_4209:3723971381075671","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:3724011381076035.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Vasili_Korzun_DW_current_year","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3723931381075662","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:3724021381076046.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Vasili_Korzun_DW","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3723971381075671","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:3724041381076245.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Vasili_Korzun_DW","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3724031381076245","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:3724041381076245.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Vasili_Korzun_DW_current_year","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3724031381076245","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:3724071381076245.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Vasili_Korzun_DW","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3004421290473935","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:3724071381076245.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Vasili_Korzun_DW_current_year","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3004421290473935","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:3724111381076245.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Vasili_Korzun_DW","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3724101381076245","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:3724111381076245.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Vasili_Korzun_DW_current_year","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3724101381076245","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067621381061079.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4067611381061079","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067621381061079.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY.DIM_TIMES","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4067611381061079","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067661381061093.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4067651381061093","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067711381061877.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4067651381061093","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067721381061877.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","write via bi-analytics-2013::sec::pkg.PrivPack_4209:4067651381061093","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067731381061877.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3972111372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067731381061877.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3972111372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067771381061877.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4067761381061877","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067771381061877.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4067761381061877","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067801381061877.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3971841372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067801381061877.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3971841372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067831381061877.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3004421290473935","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067831381061877.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3004421290473935","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067861381061877.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3982131372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067861381061877.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3982131372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4067991381061899.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4067611381061079","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4068001381061899.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","write via bi-analytics-2013::sec::pkg.PrivPack_4209:4067611381061079","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076381381133858.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Actual","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3972111372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076381381133858.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Full","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3972111372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076381381133858.o2","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3972111372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076381381133858.o3","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3972111372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076381381133858.o4","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY-Actual","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3972111372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076381381133858.o5","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3972111372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076401381133858.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Actual","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4076391381133858","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076401381133858.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Full","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4076391381133858","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076401381133858.o2","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4076391381133858","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076401381133858.o3","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4076391381133858","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076401381133858.o4","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY-Actual","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4076391381133858","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076401381133858.o5","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4076391381133858","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076431381133859.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Actual","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3971841372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076431381133859.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Full","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3971841372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076431381133859.o2","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3971841372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076431381133859.o3","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3971841372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076431381133859.o4","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3971841372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076431381133859.o5","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3971841372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076431381133859.o6","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY-Actual","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3971841372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076431381133859.o7","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3971841372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076441381133859.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Actual","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3004421290473935","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076441381133859.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Full","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3004421290473935","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076441381133859.o2","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3004421290473935","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076441381133859.o3","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3004421290473935","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076441381133859.o4","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3004421290473935","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076441381133859.o5","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3004421290473935","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076441381133859.o6","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY-Actual","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3004421290473935","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076441381133859.o7","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3004421290473935","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076451381133859.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Actual","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3982131372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076451381133859.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Full","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3982131372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076451381133859.o2","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3982131372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076451381133859.o3","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3982131372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076451381133859.o4","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY-Actual","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3982131372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076451381133859.o5","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:3982131372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076481381133859.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Actual","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4076461381133859","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4076511381133859.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Actual","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4076501381133859","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4078151381133945.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Full","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4076461381133859","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4078171381133945.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Iryna_Bradzetskaya_MT_Full","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4076501381133859","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4116751381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY-Actual","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4116681381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4116751381160259.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4116681381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4116761381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY-Actual","write via bi-analytics-2013::sec::pkg.PrivPack_4209:4116681381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4116761381160259.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY","write via bi-analytics-2013::sec::pkg.PrivPack_4209:4116681381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4116841381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY-Actual","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4116771381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4116851381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY-Actual","write via bi-analytics-2013::sec::pkg.PrivPack_4209:4116771381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4116861381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::VY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4116771381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4116941381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4116871381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4116951381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","write via bi-analytics-2013::sec::pkg.PrivPack_4209:4116871381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4116961381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4116871381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4116961381160259.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY.DIM_TIMES","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4116871381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117041381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4116971381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117051381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY","write via bi-analytics-2013::sec::pkg.PrivPack_4209:4116971381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117061381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4116971381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117141381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4117071381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117151381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","write via bi-analytics-2013::sec::pkg.PrivPack_4209:4117071381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117161381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4117071381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117241381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4117171381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117251381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4117171381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117331381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4117261381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117341381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4117261381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117421381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4117351381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117431381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4117351381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117511381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4117441381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117521381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4117441381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117601381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4117531381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117611381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4117531381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117691381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4117621381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117701381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","none via bi-analytics-2013::sec::pkg.PrivPack_4209:4117621381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117781381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4117711381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117781381160259.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4117711381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117791381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","write via bi-analytics-2013::sec::pkg.PrivPack_4209:4117711381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4117791381160259.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","write via bi-analytics-2013::sec::pkg.PrivPack_4209:4117711381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4118541381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","read via bi-analytics-2013::sec::pkg.PrivPack_4209:3972111372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4118541381160259.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","read via bi-analytics-2013::sec::pkg.PrivPack_4209:3972111372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4118551381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","write via bi-analytics-2013::sec::pkg.PrivPack_4209:3972111372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4118551381160259.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","write via bi-analytics-2013::sec::pkg.PrivPack_4209:3972111372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4118561381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","read via bi-analytics-2013::sec::pkg.PrivPack_4209:3982131372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4118561381160259.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","read via bi-analytics-2013::sec::pkg.PrivPack_4209:3982131372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4118571381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","write via bi-analytics-2013::sec::pkg.PrivPack_4209:3982131372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4118571381160259.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","write via bi-analytics-2013::sec::pkg.PrivPack_4209:3982131372324906","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4118581381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4076391381133858","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4118581381160259.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","read via bi-analytics-2013::sec::pkg.PrivPack_4209:4076391381133858","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4118591381160259.o0","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau_demo","write via bi-analytics-2013::sec::pkg.PrivPack_4209:4076391381133858","false","","false","","false","","false"
+"bi-analytics-2013::sec::obj.ObjPriv_1500:4118591381160259.o1","bi-analytics-2013","object_privilege","","false","bi-analytics-2013::pres::Anton_Tserakhau","write via bi-analytics-2013::sec::pkg.PrivPack_4209:4076391381133858","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116681381160259.q0","bi-analytics-2013","query_privilege","Role_DW_Admin","false","QueryPriv_4204:4116741381160259","PrivPack_4209:4116681381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116681381160259.q1","bi-analytics-2013","query_privilege","Role_DW_Admin","false","QueryPriv_4204:4116731381160259","PrivPack_4209:4116681381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116681381160259.q2","bi-analytics-2013","query_privilege","Role_DW_Admin","false","QueryPriv_4204:4116701381160259","PrivPack_4209:4116681381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116681381160259.q3","bi-analytics-2013","query_privilege","Role_DW_Admin","false","QueryPriv_4204:4116711381160259","PrivPack_4209:4116681381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116681381160259.q4","bi-analytics-2013","query_privilege","Role_DW_Admin","false","QueryPriv_4204:4116691381160259","PrivPack_4209:4116681381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116681381160259.q5","bi-analytics-2013","query_privilege","Role_DW_Admin","false","QueryPriv_4204:4116721381160259","PrivPack_4209:4116681381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116771381160259.q0","bi-analytics-2013","query_privilege","Role_DW_EM","false","QueryPriv_4204:4116831381160259","PrivPack_4209:4116771381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116771381160259.q1","bi-analytics-2013","query_privilege","Role_DW_EM","false","QueryPriv_4204:4116821381160259","PrivPack_4209:4116771381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116771381160259.q2","bi-analytics-2013","query_privilege","Role_DW_EM","false","QueryPriv_4204:4116791381160259","PrivPack_4209:4116771381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116771381160259.q3","bi-analytics-2013","query_privilege","Role_DW_EM","false","QueryPriv_4204:4116801381160259","PrivPack_4209:4116771381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116771381160259.q4","bi-analytics-2013","query_privilege","Role_DW_EM","false","QueryPriv_4204:4116781381160259","PrivPack_4209:4116771381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116771381160259.q5","bi-analytics-2013","query_privilege","Role_DW_EM","false","QueryPriv_4204:4116811381160259","PrivPack_4209:4116771381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116871381160259.q0","bi-analytics-2013","query_privilege","OnlyActualUser","false","QueryPriv_4204:4116931381160259","PrivPack_4209:4116871381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116871381160259.q1","bi-analytics-2013","query_privilege","OnlyActualUser","false","QueryPriv_4204:4116921381160259","PrivPack_4209:4116871381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116871381160259.q2","bi-analytics-2013","query_privilege","OnlyActualUser","false","QueryPriv_4204:4116891381160259","PrivPack_4209:4116871381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116871381160259.q3","bi-analytics-2013","query_privilege","OnlyActualUser","false","QueryPriv_4204:4116901381160259","PrivPack_4209:4116871381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116871381160259.q4","bi-analytics-2013","query_privilege","OnlyActualUser","false","QueryPriv_4204:4116881381160259","PrivPack_4209:4116871381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116871381160259.q5","bi-analytics-2013","query_privilege","OnlyActualUser","false","QueryPriv_4204:4116911381160259","PrivPack_4209:4116871381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116971381160259.q0","bi-analytics-2013","query_privilege","AllDataUser","false","QueryPriv_4204:4117031381160259","PrivPack_4209:4116971381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116971381160259.q1","bi-analytics-2013","query_privilege","AllDataUser","false","QueryPriv_4204:4117021381160259","PrivPack_4209:4116971381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116971381160259.q2","bi-analytics-2013","query_privilege","AllDataUser","false","QueryPriv_4204:4116991381160259","PrivPack_4209:4116971381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116971381160259.q3","bi-analytics-2013","query_privilege","AllDataUser","false","QueryPriv_4204:4117001381160259","PrivPack_4209:4116971381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116971381160259.q4","bi-analytics-2013","query_privilege","AllDataUser","false","QueryPriv_4204:4116981381160259","PrivPack_4209:4116971381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4116971381160259.q5","bi-analytics-2013","query_privilege","AllDataUser","false","QueryPriv_4204:4117011381160259","PrivPack_4209:4116971381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117071381160259.q0","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Test","false","QueryPriv_4204:4117131381160259","PrivPack_4209:4117071381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117071381160259.q1","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Test","false","QueryPriv_4204:4117121381160259","PrivPack_4209:4117071381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117071381160259.q2","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Test","false","QueryPriv_4204:4117091381160259","PrivPack_4209:4117071381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117071381160259.q3","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Test","false","QueryPriv_4204:4117101381160259","PrivPack_4209:4117071381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117071381160259.q4","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Test","false","QueryPriv_4204:4117081381160259","PrivPack_4209:4117071381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117071381160259.q5","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Test","false","QueryPriv_4204:4117111381160259","PrivPack_4209:4117071381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117171381160259.q0","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Oceania","false","QueryPriv_4204:4117231381160259","PrivPack_4209:4117171381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117171381160259.q1","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Oceania","false","QueryPriv_4204:4117221381160259","PrivPack_4209:4117171381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117171381160259.q2","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Oceania","false","QueryPriv_4204:4117191381160259","PrivPack_4209:4117171381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117171381160259.q3","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Oceania","false","QueryPriv_4204:4117201381160259","PrivPack_4209:4117171381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117171381160259.q4","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Oceania","false","QueryPriv_4204:4117181381160259","PrivPack_4209:4117171381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117171381160259.q5","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Oceania","false","QueryPriv_4204:4117211381160259","PrivPack_4209:4117171381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117261381160259.q0","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_North_America","false","QueryPriv_4204:4117321381160259","PrivPack_4209:4117261381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117261381160259.q1","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_North_America","false","QueryPriv_4204:4117311381160259","PrivPack_4209:4117261381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117261381160259.q2","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_North_America","false","QueryPriv_4204:4117281381160259","PrivPack_4209:4117261381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117261381160259.q3","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_North_America","false","QueryPriv_4204:4117291381160259","PrivPack_4209:4117261381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117261381160259.q4","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_North_America","false","QueryPriv_4204:4117271381160259","PrivPack_4209:4117261381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117261381160259.q5","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_North_America","false","QueryPriv_4204:4117301381160259","PrivPack_4209:4117261381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117351381160259.q0","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Lat_America","false","QueryPriv_4204:4117411381160259","PrivPack_4209:4117351381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117351381160259.q1","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Lat_America","false","QueryPriv_4204:4117401381160259","PrivPack_4209:4117351381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117351381160259.q2","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Lat_America","false","QueryPriv_4204:4117371381160259","PrivPack_4209:4117351381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117351381160259.q3","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Lat_America","false","QueryPriv_4204:4117381381160259","PrivPack_4209:4117351381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117351381160259.q4","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Lat_America","false","QueryPriv_4204:4117361381160259","PrivPack_4209:4117351381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117351381160259.q5","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Lat_America","false","QueryPriv_4204:4117391381160259","PrivPack_4209:4117351381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117441381160259.q0","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Europe","false","QueryPriv_4204:4117501381160259","PrivPack_4209:4117441381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117441381160259.q1","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Europe","false","QueryPriv_4204:4117491381160259","PrivPack_4209:4117441381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117441381160259.q2","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Europe","false","QueryPriv_4204:4117461381160259","PrivPack_4209:4117441381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117441381160259.q3","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Europe","false","QueryPriv_4204:4117471381160259","PrivPack_4209:4117441381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117441381160259.q4","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Europe","false","QueryPriv_4204:4117451381160259","PrivPack_4209:4117441381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117441381160259.q5","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Europe","false","QueryPriv_4204:4117481381160259","PrivPack_4209:4117441381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117531381160259.q0","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Asia","false","QueryPriv_4204:4117591381160259","PrivPack_4209:4117531381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117531381160259.q1","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Asia","false","QueryPriv_4204:4117581381160259","PrivPack_4209:4117531381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117531381160259.q2","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Asia","false","QueryPriv_4204:4117551381160259","PrivPack_4209:4117531381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117531381160259.q3","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Asia","false","QueryPriv_4204:4117561381160259","PrivPack_4209:4117531381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117531381160259.q4","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Asia","false","QueryPriv_4204:4117541381160259","PrivPack_4209:4117531381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117531381160259.q5","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Asia","false","QueryPriv_4204:4117571381160259","PrivPack_4209:4117531381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117621381160259.q0","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Africa","false","QueryPriv_4204:4117681381160259","PrivPack_4209:4117621381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117621381160259.q1","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Africa","false","QueryPriv_4204:4117671381160259","PrivPack_4209:4117621381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117621381160259.q2","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Africa","false","QueryPriv_4204:4117641381160259","PrivPack_4209:4117621381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117621381160259.q3","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Africa","false","QueryPriv_4204:4117651381160259","PrivPack_4209:4117621381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117621381160259.q4","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Africa","false","QueryPriv_4204:4117631381160259","PrivPack_4209:4117621381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117621381160259.q5","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Africa","false","QueryPriv_4204:4117661381160259","PrivPack_4209:4117621381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117711381160259.q0","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Admin","false","QueryPriv_4204:4117771381160259","PrivPack_4209:4117711381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117711381160259.q1","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Admin","false","QueryPriv_4204:4117761381160259","PrivPack_4209:4117711381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117711381160259.q2","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Admin","false","QueryPriv_4204:4117731381160259","PrivPack_4209:4117711381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117711381160259.q3","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Admin","false","QueryPriv_4204:4117741381160259","PrivPack_4209:4117711381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117711381160259.q4","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Admin","false","QueryPriv_4204:4117721381160259","PrivPack_4209:4117711381160259","false","","false","","false","","false"
+"bi-analytics-2013::sec::pkg.PrivPack_4209:4117711381160259.q5","bi-analytics-2013","query_privilege","Anton_Tserakhau_role_Admin","false","QueryPriv_4204:4117751381160259","PrivPack_4209:4117711381160259","false","","false","","false","","false"
+"sampleapp::sec::obj.ObjPriv_1500:18131355661677.o0","sampleapp","object_privilege","","false","sampleapp::pres::Sample Sales.Fact Target.Revenue","write via sampleapp::sec::pkg.PrivPack_4209:18101355661677","false","","false","","false","","false"
+"sampleapp::sec::obj.ObjPriv_1500:18131355661677.o1","sampleapp","object_privilege","","false","sampleapp::pres::Sample Sales.Fact Target.Units","write via sampleapp::sec::pkg.PrivPack_4209:18101355661677","false","","false","","false","","false"
+"sampleapp::sec::obj.ObjPriv_1500:18161355661677.o0","sampleapp","object_privilege","","false","sampleapp::pres::Sample Sales.Fact Target.Revenue","read via sampleapp::sec::pkg.PrivPack_4209:18141355661677","false","","false","","false","","false"
+"sampleapp::sec::obj.ObjPriv_1500:18161355661677.o1","sampleapp","object_privilege","","false","sampleapp::pres::Sample Sales.Fact Target.Units","read via sampleapp::sec::pkg.PrivPack_4209:18141355661677","false","","false","","false","","false"
+"sampleapp::sec::obj.ObjPriv_1500:18201355661677.o0","sampleapp","object_privilege","","false","sampleapp::pres::Sample Sales.Fact Target.Revenue","read via sampleapp::sec::pkg.PrivPack_4209:18181355661677","false","","false","","false","","false"
+"sampleapp::sec::obj.ObjPriv_1500:18211355661677.o0","sampleapp","object_privilege","","false","sampleapp::pres::Sample Sales.Fact Target.Revenue","write via sampleapp::sec::pkg.PrivPack_4209:18181355661677","false","","false","","false","","false"
+"sampleapp::sec::obj.ObjPriv_1500:23701393146062.o0","sampleapp","object_privilege","","false","","read via sampleapp::sec::pkg.PrivPack_4209:23681393146062","false","","false","","false","","false"
+"sampleapp::sec::obj.ObjPriv_1500:23751393146062.o0","sampleapp","object_privilege","","false","","read via sampleapp::sec::pkg.PrivPack_4209:23731393146062","false","","false","","false","","false"
+"sampleapp::sec::pkg.PrivPack_4209:18101355661677.q0","sampleapp","query_privilege","6D7874D30FD9EC2E7C15CF8DD0C61529AF3BDCAD955E5AD1372E6D902B14F0A9 3FA146A018E99435FCE83B3F7BDDBF5A30BAF7BEF918C3AFAA354A94E310F903","false","QueryPriv_4204:18331355753308","PrivPack_4209:18101355661677","false","","false","","false","","false"

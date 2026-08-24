@@ -1,0 +1,830 @@
+"row_id","rpd_id","name","name_guarded","refresh_period","is_session","is_enabled","init_string","init_string_guarded"
+"bi-analytics-2013::var::init.AP Aging Latest Snapshot Date","bi-analytics-2013","AP Aging Latest Snapshot Date","false","86400","true","","SELECT MAX(SNAPSHOT_DT_WID) FROM VALUEOF(OLAPTBO).W_AP_AGING_SUPPLIER_A","false"
+"bi-analytics-2013::var::init.AR Aging Latest Snapshot Date","bi-analytics-2013","AR Aging Latest Snapshot Date","false","86400","true","","SELECT MAX(SNAPSHOT_DT_WID) FROM VALUEOF(OLAPTBO).W_AR_AGING_CUSTOMER_A","false"
+"bi-analytics-2013::var::init.ASSIGN_SERVER_IP","bi-analytics-2013","ASSIGN_SERVER_IP","false","86400","true","","SELECT UTL_INADDR.GET_HOST_ADDRESS IPAddress FROM dual","false"
+"bi-analytics-2013::var::init.ActualYear","bi-analytics-2013","ActualYear","false","5184000","","","SELECT max(calendar_year) FROM dim_times","false"
+"bi-analytics-2013::var::init.Anton_Tserakhau_Init_Blok_months","bi-analytics-2013","Anton_Tserakhau_Init_Blok_months","false","86400","","","Select extract(Month from Sysdate) from dual","false"
+"bi-analytics-2013::var::init.Authentication","bi-analytics-2013","Authentication","false","86400","true","false","Select ':USER' from  VALUEOF(TBO).S_USER U WHERE U.LOGIN=':USER'","false"
+"bi-analytics-2013::var::init.Authorization","bi-analytics-2013","Authorization","false","86400","true","false","Select 'GROUP',  R.NAME
+from VALUEOF(TBO).S_RESP R, VALUEOF(TBO).S_PER_RESP P, VALUEOF(TBO).S_USER U 
+where U.LOGIN=Upper(':USER') and U.ROW_ID=P.PER_ID and P.RESP_ID=R.ROW_ID
+UNION
+select 'GROUP', CASE VALUEOF(NQ_SESSION.HIER_LEVEL)
+ WHEN 0  THEN 'Hierarchy Level (Base)'
+ when 1 then 'Hierarchy Level 1'
+ when 2 then 'Hierarchy Level 2'
+ when 3 then 'Hierarchy Level 3'
+ when 4 then 'Hierarchy Level 4'
+ when 5 then 'Hierarchy Level 5'
+ when 6 then 'Hierarchy Level 6'
+ when 7 then 'Hierarchy Level 7'
+ when 8 then 'Hierarchy Level 8'
+ When 9 then 'Hierarchy Level (Top)'
+  ELSE 'NOGROUP' END from VALUEOF(TBO).S_DUAL","false"
+"bi-analytics-2013::var::init.BI_IB","bi-analytics-2013","BI_IB","false","3600","","","SELECT MAX(EXTRACT (YEAR from EVENT_DT )) FROM FCT_TRANSACTIONS_DAILY","false"
+"bi-analytics-2013::var::init.Business Groups","bi-analytics-2013","Business Groups","false","86400","true","false","SELECT 
+DISTINCT 'BUSINESS_GROUP', 
+TO_CHAR(FND_PROFILE.VALUE_SPECIFIC('PER_BUSINESS_GROUP_ID', USER_ID, RESPONSIBILITY_ID, RESPONSIBILITY_APPLICATION_ID))       
+FROM
+(SELECT 
+USER_ID, 
+RESPONSIBILITY_ID, 
+RESPONSIBILITY_APPLICATION_ID
+FROM 
+FND_USER_RESP_GROUPS
+WHERE 
+START_DATE < SYSDATE
+AND (CASE WHEN END_DATE IS NULL THEN SYSDATE ELSE TO_DATE(END_DATE) END) >= SYSDATE
+AND USER_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_USER_ID) ELSE (SELECT USER_ID FROM FND_USER WHERE USER_NAME = ':USER') END)
+AND RESPONSIBILITY_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_ID) ELSE RESPONSIBILITY_ID END)
+AND RESPONSIBILITY_APPLICATION_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_APPL_ID) ELSE RESPONSIBILITY_APPLICATION_ID END)) 
+","false"
+"bi-analytics-2013::var::init.CD_FCST_LINK_TYPE_ITEM","bi-analytics-2013","CD_FCST_LINK_TYPE_ITEM","false","86400","","","select VAL
+from VALUEOF(TBO).S_LST_OF_VAL
+where LANG_ID = 'VALUEOF(OLTP_LANG_ID)' 
+          and TYPE = 'FCST_FCSTITEM_LINK_TYPE' 
+          and NAME = 'Item'
+","false"
+"bi-analytics-2013::var::init.CD_FCST_LINK_TYPE_OWN_ITEM","bi-analytics-2013","CD_FCST_LINK_TYPE_OWN_ITEM","false","86400","","","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_FCST_FCSTITEM' and C.NAME = 'LINK_TYPE_CD' and C.TBL_ID = T.ROW_ID
+and V.TYPE = 'FCST_FCSTITEM_LINK_TYPE' 
+          and V.NAME = 'Own Item'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CD_FCST_LINK_TYPE_OWN_SUMMARY","bi-analytics-2013","CD_FCST_LINK_TYPE_OWN_SUMMARY","false","86400","","","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_FCST_FCSTITEM' and C.NAME = 'LINK_TYPE_CD' and C.TBL_ID = T.ROW_ID
+and V.TYPE = 'FCST_FCSTITEM_LINK_TYPE' 
+          and V.NAME = 'Own Summary'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CD_FCST_VISIBILITY_TYPE_INDIRECT_SALES","bi-analytics-2013","CD_FCST_VISIBILITY_TYPE_INDIRECT_SALES","false","3600","","","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_FCSTSER' and C.NAME = 'FCST_VIEW_MODE_CD' and C.TBL_ID = T.ROW_ID
+and V.TYPE = 'FCST_VISIBILITY_TYPE' 
+          and V.NAME = 'My Revenues - Indirect Sales'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CD_FINS_TXN_DEPOSIT","bi-analytics-2013","CD_FINS_TXN_DEPOSIT","false","86400","","","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_FN_ACCNT_TXN' and C.NAME = 'ITEM_TYPE_CD' and C.TBL_ID = T.ROW_ID
+and  V.TYPE = 'FINCORP_ACCOUNT_TXN_ITEM_TYPE'  and V.NAME = 'Deposit'
+and (
+    (V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'AND 
+                    EXISTS (SELECT LV.TRANSLATE_FLG FROM VALUEOF(TBO).S_LST_OF_VAL LV
+                                    WHERE LV.TYPE = 'FINCORP_ACCOUNT_TXN_ITEM_TYPE'
+                                    AND LV.NAME =  'Deposit'
+                                    and LV.TRANSLATE_FLG = 'Y' 
+                                    AND LV.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'))
+    OR V.LANG_ID = 'ENU') ","false"
+"bi-analytics-2013::var::init.CD_FINS_TXN_WITHDRAW","bi-analytics-2013","CD_FINS_TXN_WITHDRAW","false","86400","","","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_FN_ACCNT_TXN' and C.NAME = 'ITEM_TYPE_CD' and C.TBL_ID = T.ROW_ID
+and  V.TYPE = 'FINCORP_ACCOUNT_TXN_ITEM_TYPE'  and V.NAME = 'Payment'
+and (
+    (V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'AND 
+                    EXISTS (SELECT LV.TRANSLATE_FLG FROM VALUEOF(TBO).S_LST_OF_VAL LV
+                                    WHERE LV.TYPE = 'FINCORP_ACCOUNT_TXN_ITEM_TYPE' 
+                                    AND LV.NAME = 'Payment'
+                                    and LV.TRANSLATE_FLG = 'Y' 
+                                    AND LV.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'))
+    OR V.LANG_ID = 'ENU')","false"
+"bi-analytics-2013::var::init.CD_IC_HIER_VER_STATUS_Approved","bi-analytics-2013","CD_IC_HIER_VER_STATUS_Approved","false","86400","","false","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_SLS_HIER_VER' and C.NAME = 'STATUS_CD' and C.TBL_ID = T.ROW_ID
+and   V.TYPE = 'SH_HIER_VER_STATUS' 
+          and V.NAME = 'Approved'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CD_IC_HIER_VER_STATUS_Submitted For Expiration","bi-analytics-2013","CD_IC_HIER_VER_STATUS_Submitted For Expiration","false","86400","","false","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_SLS_HIER_VER' and C.NAME = 'STATUS_CD' and C.TBL_ID = T.ROW_ID
+and   V.TYPE = 'SH_HIER_VER_STATUS' 
+          and V.NAME = 'Submitted for Expiration'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CD_IC_TERR_POSTN_Approved","bi-analytics-2013","CD_IC_TERR_POSTN_Approved","false","86400","","","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_SLSTERR_POSTN' and C.NAME = 'STATUS_CD' and C.TBL_ID = T.ROW_ID
+and V.TYPE = 'SH_APPROVAL_STATUS' 
+          and V.NAME = 'Approved'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CD_IC_TERR_POSTN_ROLE_Other","bi-analytics-2013","CD_IC_TERR_POSTN_ROLE_Other","false","86400","","","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_SLSTERR_POSTN' and C.NAME = 'ROLE_CD' and C.TBL_ID = T.ROW_ID
+and  V.TYPE = 'SH_TERR_POSTN_ROLE' 
+          and V.NAME = 'Other'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CD_IC_TERR_POSTN_ROLE_Owner","bi-analytics-2013","CD_IC_TERR_POSTN_ROLE_Owner","false","86400","","","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_SLSTERR_POSTN' and C.NAME = 'ROLE_CD' and C.TBL_ID = T.ROW_ID
+and  V.TYPE = 'SH_TERR_POSTN_ROLE' 
+          and V.NAME = 'Owner'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CD_OPTY_STATUS_ACCEPTED","bi-analytics-2013","CD_OPTY_STATUS_ACCEPTED","false","86400","","false","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_OPTY' and C.NAME = 'STATUS_CD' and C.TBL_ID = T.ROW_ID
+and V.TYPE = 'OPTY_STATUS' and V.NAME = 'Accepted'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CD_OPTY_STATUS_REJECTED","bi-analytics-2013","CD_OPTY_STATUS_REJECTED","false","86400","","","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_OPTY' and C.NAME = 'STATUS_CD' and C.TBL_ID = T.ROW_ID
+and  V.TYPE = 'OPTY_STATUS' and V.NAME = 'Rejected'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CD_SALES_STAGE_LOST","bi-analytics-2013","CD_SALES_STAGE_LOST","false","86400","","false","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_STG' and C.NAME = 'STAGE_STATUS_CD' and C.TBL_ID = T.ROW_ID
+and V.TYPE = 'SALES_STAGE_STATUS' and V.NAME = 'Lost'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CD_SALES_STAGE_WON","bi-analytics-2013","CD_SALES_STAGE_WON","false","86400","","false","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_STG' and C.NAME = 'STAGE_STATUS_CD' and C.TBL_ID = T.ROW_ID
+and V.TYPE = 'SALES_STAGE_STATUS' and V.NAME = 'Won'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CD_SR_SEV_CRITICAL","bi-analytics-2013","CD_SR_SEV_CRITICAL","false","86400","","","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_SRV_REQ' and C.NAME = 'SR_SEV_CD' and C.TBL_ID = T.ROW_ID
+and V.TYPE = 'SR_SEVERITY' and V.NAME = '1-Critical'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CD_SR_STATUS_OPEN","bi-analytics-2013","CD_SR_STATUS_OPEN","false","86400","","false","select case when C.TRANS_TABLE_ID is null then V.VAL else V.NAME end
+from VALUEOF(TBO).S_LST_OF_VAL V,
+VALUEOF(TBO).S_COLUMN C, VALUEOF(TBO).S_TABLE T 
+where T.NAME = 'S_SRV_REQ' and C.NAME = 'SR_STAT_ID' and C.TBL_ID = T.ROW_ID
+and V.TYPE = 'SR_STATUS' and V.NAME = 'Open'
+and V.LANG_ID = 'VALUEOF(OLTP_LANG_ID)'","false"
+"bi-analytics-2013::var::init.CURRENT_FCST_DATE","bi-analytics-2013","CURRENT_FCST_DATE","false","86400","true","","SELECT
+CASE WHEN  'VALUEOF(NQ_SESSION.PRIMARY_POSTN_ID)' = 'N/A'
+THEN
+(SELECT MAX(FSD.FCST_DT) FROM VALUEOF(TBO).S_FCSTSER_DATE FSD WHERE FSD.FCST_DT < SYSDATE)
+ELSE
+(SELECT MAX(FSD.FCST_DT) FROM VALUEOF(TBO).S_FCSTSER_DATE FSD WHERE FSD.ROW_ID IN 
+(SELECT F.FCSTSER_DATE_ID FROM VALUEOF(TBO).S_FCST F WHERE F.OWNER_POSTN_ID = 'VALUEOF(NQ_SESSION.PRIMARY_POSTN_ID)') 
+AND FSD.FCST_DT < SYSDATE)
+END 
+FROM VALUEOF(TBO).S_DUAL","false"
+"bi-analytics-2013::var::init.Companies","bi-analytics-2013","Companies","false","86400","true","false","SELECT DISTINCT
+'COMPANY',
+C.BUSINESS_UNIT
+FROM
+PSOPRDEFN A, PS_SCRTY_TBL_DEPT B, PS_BU_DEPT_VW C, PS_BUS_UNIT_TBL_GL D
+WHERE
+A.ROWSECCLASS = B.ROWSECCLASS AND
+B.ACCESS_CD = 'Y' AND
+B.DEPTID = C.DEPTID AND
+C.BUSINESS_UNIT = D.BUSINESS_UNIT AND
+A.OPRID = ':USER'","false"
+"bi-analytics-2013::var::init.Current Date Variables","bi-analytics-2013","Current Date Variables","false","3600","","","select JULIAN_DAY_NUM, YEAR_AGO_DT, ROW_WID from VALUEOF(OLAPTBO).W_DAY_D  WHERE date(DAY_DT)=date(current date)
+","false"
+"bi-analytics-2013::var::init.Current Enterprise Date Variables","bi-analytics-2013","Current Enterprise Date Variables","false","3600","","","select PER_NAME_FSCL_WEEK, PER_NAME_FSCL_MNTH, PER_NAME_FSCL_QTR, PER_NAME_FSCL_YEAR from  VALUEOF(OLAPTBO).W_DAY_D WHERE date(DAY_DT)=date(current date)
+","false"
+"bi-analytics-2013::var::init.Current Fiscal Variables","bi-analytics-2013","Current Fiscal Variables","false","86400","true","","select C.MCAL_PERIOD_NAME as MCAL_PERIOD_NAME
+,C.MCAL_PERIOD as MCAL_PERIOD
+,C.MCAL_PER_NAME_QTR as MCAL_QTR_NAME
+,C.MCAL_PER_NAME_YEAR as MCAL_YEAR_NAME
+,PAGO.MCAL_PERIOD_NAME as MCAL_PERIOD_AGO
+,QAGO.MCAL_PER_NAME_QTR as MCAL_QTR_AGO
+ from 
+  VALUEOF(OLAPTBO).W_MCAL_PERIOD_D C
+ ,VALUEOF(OLAPTBO).W_MCAL_PERIOD_D PAGO
+ ,VALUEOF(OLAPTBO).W_MCAL_QTR_D QAGO
+ where C.adjustment_period_flg = 'N' 
+ and C.W_CURRENT_MCAL_PERIOD_CODE = 'Current'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID)
+and C.mcal_period_ago_wid= pago.row_wid
+and C.mcal_qtr_ago_wid=qago.row_wid
+and c.mcal_cal_wid= pago.mcal_cal_wid
+ and c.mcal_cal_wid=qago.mcal_cal_wid","false"
+"bi-analytics-2013::var::init.Current Project Variables","bi-analytics-2013","Current Project Variables","false","86400","true","","select C.MCAL_PERIOD_NAME as MCAL_PERIOD_NAME
+,C.MCAL_PERIOD as MCAL_PERIOD
+,C.MCAL_PER_NAME_QTR as MCAL_QTR_NAME
+,C.MCAL_PER_NAME_YEAR as MCAL_YEAR_NAME
+,PAGO.MCAL_PERIOD_NAME as MCAL_PERIOD_AGO
+,QAGO.MCAL_PER_NAME_QTR as MCAL_QTR_AGO
+ from 
+  VALUEOF(OLAPTBO).W_MCAL_PERIOD_D C
+ ,VALUEOF(OLAPTBO).W_MCAL_PERIOD_D PAGO
+ ,VALUEOF(OLAPTBO).W_MCAL_QTR_D QAGO
+ where C.adjustment_period_flg = 'N' 
+ and C.W_CURRENT_MCAL_PERIOD_CODE = 'Current'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID_PROJ)
+and C.mcal_period_ago_wid= pago.row_wid
+and C.mcal_qtr_ago_wid=qago.row_wid
+and c.mcal_cal_wid= pago.mcal_cal_wid
+ and c.mcal_cal_wid=qago.mcal_cal_wid","false"
+"bi-analytics-2013::var::init.Current Snapshot","bi-analytics-2013","Current Snapshot","false","3600","","","SELECT D.DAY_DT FROM VALUEOF(OLAPTBO).W_DAY_D D WHERE D.ROW_WID = (SELECT MAX(P.SNAPSHOT_DT_WID) FROM VALUEOF(OLAPTBO).W_PIPELINE_F P)","false"
+"bi-analytics-2013::var::init.Current Usage Accelerator Refresh Date","bi-analytics-2013","Current Usage Accelerator Refresh Date","false","3600","","","SELECT DAY_DT,  PER_NAME_WEEK, PER_NAME_MONTH, JULIAN_MONTH_NUM, 
+PER_NAME_QTR FROM VALUEOF(OLAPTBO).W_DAY_D WHERE W_CURRENT_CAL_DAY_CODE ='Current' ","false"
+"bi-analytics-2013::var::init.Custom Visibility Pres Layer","bi-analytics-2013","Custom Visibility Pres Layer","false","86400","true","","SELECT
+case when 'GKENDAL'=upper(':USER') THEN 1 ELSE 0 END FROM  DUAL
+","false"
+"bi-analytics-2013::var::init.DB_FREQITEM_MTH","bi-analytics-2013","DB_FREQITEM_MTH","false","86400","true","","SELECT 201012 FROM DUAL","false"
+"bi-analytics-2013::var::init.DB_FRQITEM_LO","bi-analytics-2013","DB_FRQITEM_LO","false","86400","true","","SELECT 2 FROM DUAL","false"
+"bi-analytics-2013::var::init.DB_MODEL_ARG","bi-analytics-2013","DB_MODEL_ARG","false","86400","true","","select 0.05 from dual","false"
+"bi-analytics-2013::var::init.DUAL ADDRESS VALUE = FIXED ADDRESS","bi-analytics-2013","DUAL ADDRESS VALUE = FIXED ADDRESS","false","86400","true","","select '747 Howard St, San Francisco, CA 94103, US' from Dual","false"
+"bi-analytics-2013::var::init.DUAL Currency (=USD)","bi-analytics-2013","DUAL Currency (=USD)","false","86400","true","","Select 'USD' From Dual","false"
+"bi-analytics-2013::var::init.DUAL GENERIC NUM VALUE =3","bi-analytics-2013","DUAL GENERIC NUM VALUE =3","false","86400","true","","Select 3 From Dual","false"
+"bi-analytics-2013::var::init.DUAL OGS CATEGORY VALUE ='PHARMACY'","bi-analytics-2013","DUAL OGS CATEGORY VALUE ='PHARMACY'","false","86400","true","","Select 'PHARMACY' From Dual","false"
+"bi-analytics-2013::var::init.DUAL OGS POSTCODE VALUE ='94102'","bi-analytics-2013","DUAL OGS POSTCODE VALUE ='94102'","false","86400","true","","Select '94102' From Dual","false"
+"bi-analytics-2013::var::init.DUAL Prod Table","bi-analytics-2013","DUAL Prod Table","false","86400","true","","Select 'SAMP_PRODUCTS_D' From Dual","false"
+"bi-analytics-2013::var::init.DYNAMIC_VAR_EXAMPLE","bi-analytics-2013","DYNAMIC_VAR_EXAMPLE","false","86400","true","","SELECT 'Hi there!' from dual","false"
+"bi-analytics-2013::var::init.Dashboard Currency","bi-analytics-2013","Dashboard Currency","false","86400","true","","select 'Local Currency' FROM DUAL","false"
+"bi-analytics-2013::var::init.Default System Language ID","bi-analytics-2013","Default System Language ID","false","86400","","false","select DFLT_LANG  from VALUEOF(TBO).S_ETL_PARAM","false"
+"bi-analytics-2013::var::init.EBS Single Sign-on Integration","bi-analytics-2013","EBS Single Sign-on Integration","false","86400","true","","select
+case when 
+   'VALUEOF(NQ_SESSION.ICX_SESSION_COOKIE)' is null then 'Not Integrated'
+else 'Integrated'
+end
+from dual","false"
+"bi-analytics-2013::var::init.ESS_ALIAS","bi-analytics-2013","ESS_ALIAS","false","86400","true","","SELECT 'Default' from dual","false"
+"bi-analytics-2013::var::init.ETL Base Exchange Currency","bi-analytics-2013","ETL Base Exchange Currency","false","86400","","false","select BASE_EXCH_CURCY  from VALUEOF(TBO).S_ETL_PARAM","false"
+"bi-analytics-2013::var::init.ETL Default Currency","bi-analytics-2013","ETL Default Currency","false","86400","","false","select DFLT_CURCY  from VALUEOF(TBO).S_ETL_PARAM","false"
+"bi-analytics-2013::var::init.ETL Run Date","bi-analytics-2013","ETL Run Date","false","3600","","","select DAY_DT, DAY_DT - 180 from VALUEOF(OLAPTBO).W_DAY_D  WHERE W_CURRENT_CAL_DAY_CODE ='Current' ","false"
+"bi-analytics-2013::var::init.ETL Unknown Exchange Rate","bi-analytics-2013","ETL Unknown Exchange Rate","false","86400","","false","select CAST( DFLT_EXCH_RATE AS FLOAT ) from VALUEOF(TBO).S_ETL_PARAM","false"
+"bi-analytics-2013::var::init.FRAGM_DATE_DW","bi-analytics-2013","FRAGM_DATE_DW","false","86400","true","","SELECT '20-DEC-2012' FROM DUAL","false"
+"bi-analytics-2013::var::init.FRAGM_DATE_RT","bi-analytics-2013","FRAGM_DATE_RT","false","86400","true","","SELECT '15-DEC-2012' FROM DUAL","false"
+"bi-analytics-2013::var::init.Global Currency Code Identification","bi-analytics-2013","Global Currency Code Identification","false","86400","true","","select distinct case when 'VALUEOF(NQ_SESSION.TENANT_ID)' is null then 'None Assigned' 
+else (select max(global1_curr_code) from w_global_curr_g where tenant_id='VALUEOF(NQ_SESSION.TENANT_ID)') end 
+from w_dual_g","false"
+"bi-analytics-2013::var::init.HR Organizations","bi-analytics-2013","HR Organizations","false","86400","true","false","SELECT DISTINCT 'HR_ORG', 
+  TO_CHAR(PER_ORGANIZATION_LIST.ORGANIZATION_ID) 
+FROM PER_ORGANIZATION_LIST, 
+    (SELECT FND_PROFILE.VALUE_SPECIFIC(  'PER_SECURITY_PROFILE_ID'
+                                       , USER_ID
+                                       , RESPONSIBILITY_ID
+                                       , RESPONSIBILITY_APPLICATION_ID) PROFILE_ID 
+     FROM 
+       (SELECT  USER_ID, RESPONSIBILITY_ID, RESPONSIBILITY_APPLICATION_ID 
+        FROM    FND_USER_RESP_GROUPS 
+        WHERE   START_DATE < SYSDATE 
+        AND     ( CASE WHEN END_DATE IS NULL THEN SYSDATE ELSE TO_DATE(END_DATE) END) >= SYSDATE 
+                        AND USER_ID = 
+                            ( CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+                                   THEN VALUEOF(NQ_SESSION.OLTP_EBS_USER_ID) 
+                                   ELSE (SELECT USER_ID FROM FND_USER WHERE USER_NAME = ':USER') 
+                              END )
+                        AND RESPONSIBILITY_ID = 
+                             ( CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+                                    THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_ID) ELSE RESPONSIBILITY_ID 
+                               END)
+                        AND RESPONSIBILITY_APPLICATION_ID = 
+                             ( CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+                                    THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_APPL_ID) ELSE RESPONSIBILITY_APPLICATION_ID 
+                               END)
+       )
+    )
+WHERE
+PER_ORGANIZATION_LIST.SECURITY_PROFILE_ID = PROFILE_ID","false"
+"bi-analytics-2013::var::init.HR_DAYS_TO_MONTHS_FACTOR","bi-analytics-2013","HR_DAYS_TO_MONTHS_FACTOR","false","3600","","","SELECT 0.0328549112000 FROM W_DUAL_G","false"
+"bi-analytics-2013::var::init.HR_DAYS_TO_YEARS_FACTOR","bi-analytics-2013","HR_DAYS_TO_YEARS_FACTOR","false","3600","","","SELECT 0.002737909 FROM W_DUAL_G","false"
+"bi-analytics-2013::var::init.HR_WRKFC_MAX_EFFECTIVE_DT","bi-analytics-2013","HR_WRKFC_MAX_EFFECTIVE_DT","false","86400","true","","","false"
+"bi-analytics-2013::var::init.HR_WRKFC_SNAPSHOT_DT","bi-analytics-2013","HR_WRKFC_SNAPSHOT_DT","false","3600","","","","false"
+"bi-analytics-2013::var::init.High","bi-analytics-2013","High","false","3600","","","select 1.05 from dual;","false"
+"bi-analytics-2013::var::init.Inventory Organizations","bi-analytics-2013","Inventory Organizations","false","86400","true","false","SELECT
+DISTINCT 'INV_ORG', BIS_ORGANIZATIONS_V.ID 
+FROM FND_USER_RESP_GROUPS, BIS_ORGANIZATIONS_V 
+WHERE FND_USER_RESP_GROUPS.RESPONSIBILITY_ID = BIS_ORGANIZATIONS_V.RESPONSIBILITY_ID 
+AND FND_USER_RESP_GROUPS.START_DATE < SYSDATE 
+AND (CASE WHEN FND_USER_RESP_GROUPS.END_DATE IS NULL THEN SYSDATE ELSE TO_DATE(FND_USER_RESP_GROUPS.END_DATE) END) >= SYSDATE 
+AND FND_USER_RESP_GROUPS.USER_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_USER_ID) ELSE (SELECT USER_ID FROM FND_USER WHERE USER_NAME = ':USER') END)
+AND FND_USER_RESP_GROUPS.RESPONSIBILITY_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_ID) ELSE FND_USER_RESP_GROUPS.RESPONSIBILITY_ID END)
+AND FND_USER_RESP_GROUPS.RESPONSIBILITY_APPLICATION_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_APPL_ID) ELSE FND_USER_RESP_GROUPS.RESPONSIBILITY_APPLICATION_ID END)","false"
+"bi-analytics-2013::var::init.Iryna_Bradzetskaya_CurrentPeriods","bi-analytics-2013","Iryna_Bradzetskaya_CurrentPeriods","false","3600","","","SELECT MAX(EXTRACT (YEAR from EVENT_DT )) FROM FCT_TRANSACTIONS_DAILY","false"
+"bi-analytics-2013::var::init.LAST_CALL_ACCNT_DATES","bi-analytics-2013","LAST_CALL_ACCNT_DATES","false","3600","","","select 
+max(D.DAY_DT), 
+year(max(D.DAY_DT)), 
+month(max(D.DAY_DT)),
+(month(max(D.DAY_DT))-1)/4 + 1,
+(month(max(D.DAY_DT))-1)/3 + 1
+from 
+VALUEOF(OLAPTBO).W_DAY_D D, 
+VALUEOF(OLAPTBO).W_CALL_ACCNT_F C
+where 
+C.PERIOD_DAY_WID = D.ROW_WID","false"
+"bi-analytics-2013::var::init.LAST_CALL_ATTND_DATES","bi-analytics-2013","LAST_CALL_ATTND_DATES","false","3600","","","select 
+max(D.DAY_DT), 
+year(max(D.DAY_DT)), 
+month(max(D.DAY_DT)),
+(month(max(D.DAY_DT))-1)/4 + 1,
+(month(max(D.DAY_DT))-1)/3 + 1
+from 
+VALUEOF(OLAPTBO).W_DAY_D D, 
+VALUEOF(OLAPTBO).W_CALL_ATTND_F C
+where 
+C.PERIOD_DAY_WID = D.ROW_WID
+","false"
+"bi-analytics-2013::var::init.LAST_CALL_CON_DATES","bi-analytics-2013","LAST_CALL_CON_DATES","false","3600","","","select 
+max(D.DAY_DT), 
+year(max(D.DAY_DT)), 
+month(max(D.DAY_DT)),
+(month(max(D.DAY_DT))-1)/4 + 1,
+(month(max(D.DAY_DT))-1)/3 + 1
+from 
+VALUEOF(OLAPTBO).W_DAY_D D, 
+VALUEOF(OLAPTBO).W_CALL_CON_F C
+where 
+C.PERIOD_DAY_WID = D.ROW_WID
+","false"
+"bi-analytics-2013::var::init.LAST_REFRESH_DT","bi-analytics-2013","LAST_REFRESH_DT","false","86400","true","","SELECT max(BILL_DAY_DT) FROM samp_revenue_f","false"
+"bi-analytics-2013::var::init.LAST_SYND_DS_DATES","bi-analytics-2013","LAST_SYND_DS_DATES","false","3600","","","select 
+max(D.DAY_DT), 
+year(max(D.DAY_DT)), 
+month(max(D.DAY_DT)),
+(month(max(D.DAY_DT))-1)/4 + 1,
+(month(max(D.DAY_DT))-1)/3 + 1,
+max(D.JULIAN_DAY_NUM)
+from 
+VALUEOF(OLAPTBO).W_DAY_D D, 
+VALUEOF(OLAPTBO).W_SYND_DS_T_F S
+where 
+S.PERIOD_DAY_WID = D.ROW_WID","false"
+"bi-analytics-2013::var::init.LAST_SYND_DS_YTD_QTD","bi-analytics-2013","LAST_SYND_DS_YTD_QTD","false","3600","","","SELECT
+  10000*CAL_YEAR + 100,
+  10000*CAL_YEAR + 100*CAL_MONTH + 32,
+  10000*CAL_YEAR + 100*(CAL_QTR*3 - 2),
+  10000*CAL_YEAR + 100*10000*CAL_MONTH + 32,
+  10000*(CAL_YEAR - 1) + 100,
+  10000*(CAL_YEAR - 1) + 100*CAL_MONTH + 32,
+  10000*(CAL_YEAR - 1) + 100*(CAL_QTR*3 - 2),
+  10000*(CAL_YEAR - 1) + 100*CAL_MONTH + 32
+FROM VALUEOF(OLAPTBO).W_DAY_D
+WHERE JULIAN_DAY_NUM = VALUEOF(LAST_SYND_DS_JULIAN_DAY_NUM)","false"
+"bi-analytics-2013::var::init.LAST_SYND_IDS_DATES","bi-analytics-2013","LAST_SYND_IDS_DATES","false","3600","","","select 
+max(D.DAY_DT), 
+year(max(D.DAY_DT)), 
+month(max(D.DAY_DT)),
+(month(max(D.DAY_DT))-1)/4 + 1,
+(month(max(D.DAY_DT))-1)/3 + 1,
+Max(D.JULIAN_DAY_NUM)
+from 
+VALUEOF(OLAPTBO).W_DAY_D D, 
+VALUEOF(OLAPTBO).W_SYND_IDS_T_F S
+where 
+S.PERIOD_DAY_WID = D.ROW_WID
+","false"
+"bi-analytics-2013::var::init.LAST_SYND_IDS_YTD_QTD","bi-analytics-2013","LAST_SYND_IDS_YTD_QTD","false","3600","","","SELECT
+  10000*CAL_YEAR + 100,
+  10000*CAL_YEAR + 100*CAL_MONTH + 32,
+  10000*CAL_YEAR + 100*(CAL_QTR*3 - 2),
+  10000*CAL_YEAR + 100*CAL_MONTH + 32,
+  10000*(CAL_YEAR - 1) + 100,
+  10000*(CAL_YEAR - 1) + 100*CAL_MONTH + 32,
+  10000*(CAL_YEAR - 1) + 100*(CAL_QTR*3 - 2),
+  10000*(CAL_YEAR - 1) + 100*CAL_MONTH + 32
+FROM VALUEOF(OLAPTBO).W_DAY_D
+WHERE JULIAN_DAY_NUM = VALUEOF(LAST_SYND_IDS_JULIAN_DAY_NUM)","false"
+"bi-analytics-2013::var::init.LAST_SYND_PT_DATES","bi-analytics-2013","LAST_SYND_PT_DATES","false","3600","","","select 
+max(D.DAY_DT), 
+year(max(D.DAY_DT)), 
+month(max(D.DAY_DT)),
+(month(max(D.DAY_DT))-1)/4 + 1,
+(month(max(D.DAY_DT))-1)/3 + 1,
+max(D.JULIAN_DAY_NUM)
+from 
+VALUEOF(OLAPTBO).W_DAY_D D, 
+VALUEOF(OLAPTBO).W_SYND_PT_T_F S
+where 
+S.PERIOD_DAY_WID = D.ROW_WID","false"
+"bi-analytics-2013::var::init.LAST_SYND_RX_DATES","bi-analytics-2013","LAST_SYND_RX_DATES","false","3600","","","select 
+max(D.DAY_DT), 
+year(max(D.DAY_DT)), 
+month(max(D.DAY_DT)),
+(month(max(D.DAY_DT))-1)/4 + 1,
+(month(max(D.DAY_DT))-1)/3 + 1,
+max(D.JULIAN_DAY_NUM)
+from 
+VALUEOF(OLAPTBO).W_DAY_D D, 
+VALUEOF(OLAPTBO).W_SYND_RX_T_F S
+where 
+S.PERIOD_DAY_WID = D.ROW_WID","false"
+"bi-analytics-2013::var::init.LAST_SYND_RX_YTD_QTD","bi-analytics-2013","LAST_SYND_RX_YTD_QTD","false","3600","","","SELECT
+  10000*CAL_YEAR + 100,
+  10000*CAL_YEAR + 100*CAL_MONTH + 32,
+  10000*CAL_YEAR + 100*(CAL_QTR*3 - 2),
+  10000*CAL_YEAR + 100*CAL_MONTH + 32,
+  10000*(CAL_YEAR - 1) + 100,
+  10000*(CAL_YEAR - 1) + 100*CAL_MONTH + 32,
+  10000*(CAL_YEAR - 1) + 100*(CAL_QTR*3 - 2),
+  10000*(CAL_YEAR - 1) + 100*CAL_MONTH + 32
+FROM VALUEOF(OLAPTBO).W_DAY_D
+WHERE JULIAN_DAY_NUM = VALUEOF(LAST_SYND_RX_JULIAN_DAY_NUM)","false"
+"bi-analytics-2013::var::init.LAST_SYND_W_DATES","bi-analytics-2013","LAST_SYND_W_DATES","false","3600","","","select 
+max(D.DAY_DT), 
+year(max(D.DAY_DT)), 
+month(max(D.DAY_DT)),
+(month(max(D.DAY_DT))-1)/4 + 1,
+(month(max(D.DAY_DT))-1)/3 + 1,
+max(D.JULIAN_DAY_NUM)
+from 
+VALUEOF(OLAPTBO).W_DAY_D D, 
+VALUEOF(OLAPTBO).W_SYND_W_T_F S
+where 
+S.PERIOD_DAY_WID = D.ROW_WID","false"
+"bi-analytics-2013::var::init.LAST_SYND_XPT_DATES","bi-analytics-2013","LAST_SYND_XPT_DATES","false","3600","","","select 
+max(D.DAY_DT), 
+year(max(D.DAY_DT)), 
+month(max(D.DAY_DT)),
+(month(max(D.DAY_DT))-1)/4 + 1,
+(month(max(D.DAY_DT))-1)/3 + 1,
+max(D.JULIAN_DAY_NUM)
+from 
+VALUEOF(OLAPTBO).W_DAY_D D, 
+VALUEOF(OLAPTBO).W_SYND_XPT_T_F S
+where 
+S.PERIOD_DAY_WID = D.ROW_WID","false"
+"bi-analytics-2013::var::init.LATEST FCST DT","bi-analytics-2013","LATEST FCST DT","false","3600","","","select max(FCST_DT) from VALUEOF(TBO).S_FCSTSER_DATE where FCST_DT <= CURRENT_TIMESTAMP
+","false"
+"bi-analytics-2013::var::init.LATEST_ARCHIVED_FCST_DT","bi-analytics-2013","LATEST_ARCHIVED_FCST_DT","false","3600","","","select max(FCST_DT) from VALUEOF(TBO).S_FCSTSER_DATE where ARCHIVE_TS is not null and FCST_DT <= CURRENT_TIMESTAMP","false"
+"bi-analytics-2013::var::init.LOCALE","bi-analytics-2013","LOCALE","false","86400","true","false","select 'VALUEOF(NQ_SESSION.WEBLANGUAGE)' from VALUEOF(TBO).S_DUAL","false"
+"bi-analytics-2013::var::init.LOGIN Properties","bi-analytics-2013","LOGIN Properties","false","86400","true","false","Select P.NAME, 0
+from VALUEOF(TBO).S_PARTY P, VALUEOF(TBO).S_USER U 
+WHERE U.LOGIN=':USER' AND U.PAR_ROW_ID=P.ROW_ID","false"
+"bi-analytics-2013::var::init.LSQL_VAR_INIT_BLOCK","bi-analytics-2013","LSQL_VAR_INIT_BLOCK","false","86400","true","","select '-' from dual;","false"
+"bi-analytics-2013::var::init.LTS_FILTER_PROD_KEY","bi-analytics-2013","LTS_FILTER_PROD_KEY","false","86400","true","","SELECT 10 FROM DUAL","false"
+"bi-analytics-2013::var::init.Last Visible IC Calc Run","bi-analytics-2013","Last Visible IC Calc Run","false","3600","","","select max(START_DT)
+from VALUEOF(TBO).S_IC_CALC_RUN
+where VISIBLE_FLG = 'Y'","false"
+"bi-analytics-2013::var::init.Ledgers","bi-analytics-2013","Ledgers","false","86400","true","false","SELECT DISTINCT 'LEDGER', TO_CHAR(GAL.LEDGER_ID)
+FROM GL_ACCESS_SET_LEDGERS GAL,
+(SELECT FND_PROFILE.VALUE_SPECIFIC('GL_ACCESS_SET_ID', USER_ID, RESPONSIBILITY_ID, RESPONSIBILITY_APPLICATION_ID)  
+PROFILE_VALUE
+FROM 
+  (SELECT USER_ID, RESPONSIBILITY_ID, RESPONSIBILITY_APPLICATION_ID 
+  FROM FND_USER_RESP_GROUPS 
+  WHERE START_DATE < SYSDATE 
+   AND (CASE WHEN END_DATE IS NULL THEN SYSDATE ELSE TO_DATE(END_DATE) END) >= SYSDATE 
+   AND USER_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+   THEN VALUEOF(NQ_SESSION.OLTP_EBS_USER_ID) ELSE (SELECT USER_ID FROM FND_USER WHERE USER_NAME = ':USER') END)
+   AND RESPONSIBILITY_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+   THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_ID) ELSE RESPONSIBILITY_ID END)
+   AND RESPONSIBILITY_APPLICATION_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+   THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_APPL_ID) ELSE RESPONSIBILITY_APPLICATION_ID END)
+)
+)
+WHERE GAL.ACCESS_SET_ID = PROFILE_VALUE","false"
+"bi-analytics-2013::var::init.Log Level","bi-analytics-2013","Log Level","false","86400","true","","SELECT 0 FROM W_DUAL_G","false"
+"bi-analytics-2013::var::init.Low","bi-analytics-2013","Low","false","3600","","","select 0.95 from dual;","false"
+"bi-analytics-2013::var::init.MAX_INV_BAL_DT_VAR","bi-analytics-2013","MAX_INV_BAL_DT_VAR","false","86400","true","","select max(inv_balance_dt_wid) from w_inventory_daily_bal_f","false"
+"bi-analytics-2013::var::init.MAX_INV_LOT_BAL_DT_VAR","bi-analytics-2013","MAX_INV_LOT_BAL_DT_VAR","false","86400","true","","select MAX(INV_BALANCE_DT_WID) from W_INV_LOT_DAILY_BAL_F","false"
+"bi-analytics-2013::var::init.Maintenance Organization","bi-analytics-2013","Maintenance Organization","false","86400","true","false","SELECT
+DISTINCT  'MAINT_ORG_LIST', BIS_ORGANIZATIONS_V.ID
+FROM FND_USER_RESP_GROUPS, BIS_ORGANIZATIONS_V 
+WHERE FND_USER_RESP_GROUPS.RESPONSIBILITY_ID = BIS_ORGANIZATIONS_V.RESPONSIBILITY_ID 
+AND FND_USER_RESP_GROUPS.START_DATE < SYSDATE
+AND BIS_ORGANIZATIONS_V.EAM_ENABLED_FLAG = 'Y'
+AND (CASE WHEN FND_USER_RESP_GROUPS.END_DATE IS NULL THEN SYSDATE ELSE TO_DATE(FND_USER_RESP_GROUPS.END_DATE) END) >= SYSDATE 
+AND FND_USER_RESP_GROUPS.USER_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_USER_ID) ELSE (SELECT USER_ID FROM FND_USER WHERE USER_NAME = ':USER') END) 
+AND FND_USER_RESP_GROUPS.RESPONSIBILITY_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_ID) ELSE FND_USER_RESP_GROUPS.RESPONSIBILITY_ID END)
+AND FND_USER_RESP_GROUPS.RESPONSIBILITY_APPLICATION_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated'
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_APPL_ID) ELSE FND_USER_RESP_GROUPS.RESPONSIBILITY_APPLICATION_ID END)","false"
+"bi-analytics-2013::var::init.Marketing Sample Tables","bi-analytics-2013","Marketing Sample Tables","false","86400","true","","SELECT 'W_PARTY_D', 'W_PARTY_PER_D', 'W_PARTY_ORG_D' , 'W_ASSET_D', 'W_INS_CLAIM_D'  FROM VALUEOF(OLAPTBO).W_DUAL_G","false"
+"bi-analytics-2013::var::init.Mcal Calendar Wid Identification","bi-analytics-2013","Mcal Calendar Wid Identification","false","86400","true","","select max(MCAL_CAL_WID) from VALUEOF(OLAPTBO).W_MCAL_CONTEXT_G where ((ledger_id=valueof(0,NQ_SESSION.LEDGER)) or
+(org_id=valueof(NQ_SESSION.OU_ORG)')) AND CLASS='GL'","false"
+"bi-analytics-2013::var::init.Mcal Calendar Wid Identification for Project","bi-analytics-2013","Mcal Calendar Wid Identification for Project","false","86400","true","","select max(MCAL_CAL_WID) from VALUEOF(OLAPTBO).W_MCAL_CONTEXT_G where org_id=valueof(NQ_SESSION.OU_ORG) AND CLASS='PROJECTS'","false"
+"bi-analytics-2013::var::init.NEXT_ENTERPRISE_PERIOD","bi-analytics-2013","NEXT_ENTERPRISE_PERIOD","false","3600","","","SELECT NXT.PER_NAME_FSCL_MNTH FROM VALUEOF(OLAPTBO).W_DAY_D NXT  WHERE to_date(NXT.MONTH_AGO_DT)=to_date(sysdate - VALUEOF(TIME_OFFSET))
+
+","false"
+"bi-analytics-2013::var::init.NEXT_ENTERPRISE_QUARTER","bi-analytics-2013","NEXT_ENTERPRISE_QUARTER","false","3600","","","SELECT NXT.PER_NAME_FSCL_QTR FROM VALUEOF(OLAPTBO).W_DAY_D NXT  WHERE to_date(NXT.QUARTER_AGO_DT)=to_date(sysdate - VALUEOF(TIME_OFFSET))
+","false"
+"bi-analytics-2013::var::init.NEXT_ENTERPRISE_WEEK","bi-analytics-2013","NEXT_ENTERPRISE_WEEK","false","3600","","","SELECT NXT.PER_NAME_FSCL_WEEK FROM VALUEOF(OLAPTBO).W_DAY_D NXT  WHERE to_date(NXT.WEEK_AGO_DT)=to_date(sysdate - VALUEOF(TIME_OFFSET))
+","false"
+"bi-analytics-2013::var::init.NEXT_ENTERPRISE_YEAR","bi-analytics-2013","NEXT_ENTERPRISE_YEAR","false","3600","","","SELECT NXT.PER_NAME_FSCL_YEAR FROM VALUEOF(OLAPTBO).W_DAY_D NXT  WHERE to_date(NXT.YEAR_AGO_DT)=to_date(sysdate - VALUEOF(TIME_OFFSET))
+","false"
+"bi-analytics-2013::var::init.NEXT_MONTH","bi-analytics-2013","NEXT_MONTH","false","3600","","","SELECT NXT.PER_NAME_MONTH FROM VALUEOF(OLAPTBO).W_DAY_D NXT  WHERE to_date(NXT.MONTH_AGO_DT)=to_date(sysdate - VALUEOF(TIME_OFFSET))
+","false"
+"bi-analytics-2013::var::init.NEXT_WEEK","bi-analytics-2013","NEXT_WEEK","false","3600","","","SELECT NXT.PER_NAME_WEEK FROM VALUEOF(OLAPTBO).W_DAY_D NXT  WHERE to_date(NXT.WEEK_AGO_DT)=to_date(sysdate - VALUEOF(TIME_OFFSET))
+","false"
+"bi-analytics-2013::var::init.NEXT_YEAR","bi-analytics-2013","NEXT_YEAR","false","3600","","","SELECT NXT.CAL_YEAR FROM VALUEOF(OLAPTBO).W_DAY_D NXT  WHERE to_date(NXT.YEAR_AGO_DT)=to_date(sysdate - VALUEOF(TIME_OFFSET))","false"
+"bi-analytics-2013::var::init.New Activity Interval for Account","bi-analytics-2013","New Activity Interval for Account","false","86400","","","select VAL_NUM FROM VALUEOF(OLAPTBO).W_VARIABLES_G WHERE R_TYPE='ACC_NEED_ACT_NUMDAYS' AND APP_NAME ='Usage Accelerator'","false"
+"bi-analytics-2013::var::init.New Activity Interval for Asset","bi-analytics-2013","New Activity Interval for Asset","false","86400","","","select VAL_NUM FROM VALUEOF(OLAPTBO).W_VARIABLES_G WHERE R_TYPE='AST_NEED_ACT_NUMDAYS' AND APP_NAME ='Usage Accelerator'","false"
+"bi-analytics-2013::var::init.New Activity Interval for Contact","bi-analytics-2013","New Activity Interval for Contact","false","86400","","","select VAL_NUM FROM VALUEOF(OLAPTBO).W_VARIABLES_G WHERE R_TYPE='CON_NEED_ACT_NUMDAYS' AND APP_NAME ='Usage Accelerator'","false"
+"bi-analytics-2013::var::init.New Activity Interval for Opportunity","bi-analytics-2013","New Activity Interval for Opportunity","false","86400","","","select VAL_NUM FROM VALUEOF(OLAPTBO).W_VARIABLES_G WHERE R_TYPE='OPT_NEED_ACT_NUMDAYS' AND APP_NAME ='Usage Accelerator'","false"
+"bi-analytics-2013::var::init.New Contact Interval for Account","bi-analytics-2013","New Contact Interval for Account","false","86400","","","select VAL_NUM FROM VALUEOF(OLAPTBO).W_VARIABLES_G WHERE R_TYPE='ACC_NEED_CON_NUMDAYS' AND APP_NAME ='Usage Accelerator'","false"
+"bi-analytics-2013::var::init.New Contact Interval for Opportunity","bi-analytics-2013","New Contact Interval for Opportunity","false","86400","","","select VAL_NUM FROM VALUEOF(OLAPTBO).W_VARIABLES_G WHERE  R_TYPE='OPT_NEED_CON_NUMDAYS' AND APP_NAME ='Usage Accelerator'","false"
+"bi-analytics-2013::var::init.Next Fiscal variables","bi-analytics-2013","Next Fiscal variables","false","86400","true","","select max(MCAL_PERIOD_NAME),max(MCAL_QTR_NAME),max(MCAL_YEAR_NAME) from
+(
+  select C.MCAL_PERIOD_NAME as MCAL_PERIOD_NAME,'' as MCAL_QTR_NAME,''    as MCAL_YEAR_NAME
+ from VALUEOF(OLAPTBO).W_MCAL_PERIOD_D C
+ where C.adjustment_period_flg = 'N' 
+ and C.W_CURRENT_MCAL_PERIOD_CODE = 'Next'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID)
+ union all
+ -- Query to get previous quarter
+ select '' as MCAL_PERIOD_NAME,C.MCAL_PER_NAME_QTR as MCAL_QTR_NAME,'' as MCAL_YEAR_NAME
+ from VALUEOF(OLAPTBO).W_MCAL_QTR_D C
+ WHERE C.W_CURRENT_MCAL_QTR_CODE = 'Next'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID)
+ union all
+ -- Query to get previous year
+ select '' as MCAL_PERIOD_NAME,'' as MCAL_QTR_NAME,C.MCAL_PER_NAME_YEAR as MCAL_YEAR_NAME
+ from VALUEOF(OLAPTBO).W_MCAL_YEAR_D C
+ WHERE C.W_CURRENT_MCAL_YEAR_CODE = 'Next'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID))","false"
+"bi-analytics-2013::var::init.Next Project variables","bi-analytics-2013","Next Project variables","false","86400","true","","select max(MCAL_PERIOD_NAME),max(MCAL_QTR_NAME),max(MCAL_YEAR_NAME) from
+(
+  select C.MCAL_PERIOD_NAME as MCAL_PERIOD_NAME,'' as MCAL_QTR_NAME,''    as MCAL_YEAR_NAME
+ from VALUEOF(OLAPTBO).W_MCAL_PERIOD_D C
+ where C.adjustment_period_flg = 'N' 
+ and C.W_CURRENT_MCAL_PERIOD_CODE = 'Next'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID_PROJ)
+ union all
+ -- Query to get previous quarter
+ select '' as MCAL_PERIOD_NAME,C.MCAL_PER_NAME_QTR as MCAL_QTR_NAME,'' as MCAL_YEAR_NAME
+ from VALUEOF(OLAPTBO).W_MCAL_QTR_D C
+ WHERE C.W_CURRENT_MCAL_QTR_CODE = 'Next'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID_PROJ)
+ union all
+ -- Query to get previous year
+ select '' as MCAL_PERIOD_NAME,'' as MCAL_QTR_NAME,C.MCAL_PER_NAME_YEAR as MCAL_YEAR_NAME
+ from VALUEOF(OLAPTBO).W_MCAL_YEAR_D C
+ WHERE C.W_CURRENT_MCAL_YEAR_CODE = 'Next'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID_PROJ))","false"
+"bi-analytics-2013::var::init.ODM_ARG_1","bi-analytics-2013","ODM_ARG_1","false","86400","true","","SELECT 'M_AGE' FROM DUAL","false"
+"bi-analytics-2013::var::init.ODM_ARG_2","bi-analytics-2013","ODM_ARG_2","false","86400","true","","SELECT 'BILL_MTH_KEY' FROM DUAL","false"
+"bi-analytics-2013::var::init.ODM_ARG_3","bi-analytics-2013","ODM_ARG_3","false","86400","true","","SELECT 'SHIPTO_ADDR_KEY' FROM DUAL","false"
+"bi-analytics-2013::var::init.ODM_ARG_4","bi-analytics-2013","ODM_ARG_4","false","86400","true","","SELECT 'MONTHS_CONTACT' FROM DUAL","false"
+"bi-analytics-2013::var::init.ODM_ARG_5","bi-analytics-2013","ODM_ARG_5","false","86400","true","","SELECT 'M_INCOME_LVL' FROM DUAL","false"
+"bi-analytics-2013::var::init.ODM_ARG_6","bi-analytics-2013","ODM_ARG_6","false","86400","true","","SELECT 'M_MARITAL_ST' FROM DUAL","false"
+"bi-analytics-2013::var::init.ODM_ARG_7","bi-analytics-2013","ODM_ARG_7","false","86400","true","","SELECT 'M_CRDT_RATE' FROM DUAL","false"
+"bi-analytics-2013::var::init.ODM_ARG_8","bi-analytics-2013","ODM_ARG_8","false","86400","true","","SELECT 'M_MONTHS_CONTACT' FROM DUAL","false"
+"bi-analytics-2013::var::init.ORE_GRAPHICS_VARS_INIT","bi-analytics-2013","ORE_GRAPHICS_VARS_INIT","false","86400","true","","select 'cursor(select 10 n from dual)', 'NULL','RandomRedDots' from dual","false"
+"bi-analytics-2013::var::init.OR_ARGS","bi-analytics-2013","OR_ARGS","false","86400","true","","select 2008,2008 from dual;","false"
+"bi-analytics-2013::var::init.OR_PERSP_INIT","bi-analytics-2013","OR_PERSP_INIT","false","86400","true","","select 30,30,'lightblue' from dual","false"
+"bi-analytics-2013::var::init.OR_REDDOTS","bi-analytics-2013","OR_REDDOTS","false","86400","true","","select 100 from dual","false"
+"bi-analytics-2013::var::init.Operating Unit Organizations","bi-analytics-2013","Operating Unit Organizations","false","86400","true","false","SELECT DISTINCT 'OU_ORG', TO_CHAR(PER_ORGANIZATION_LIST.ORGANIZATION_ID) 
+FROM PER_ORGANIZATION_LIST, 
+(SELECT FND_PROFILE.VALUE_SPECIFIC('XLA_MO_SECURITY_PROFILE_LEVEL', USER_ID, RESPONSIBILITY_ID, RESPONSIBILITY_APPLICATION_ID) PROFILE_ID 
+FROM 
+(SELECT USER_ID, RESPONSIBILITY_ID, RESPONSIBILITY_APPLICATION_ID 
+FROM FND_USER_RESP_GROUPS 
+WHERE START_DATE < SYSDATE 
+AND (CASE WHEN END_DATE IS NULL THEN SYSDATE ELSE TO_DATE(END_DATE) END) >= SYSDATE 
+AND USER_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_USER_ID) ELSE (SELECT USER_ID FROM FND_USER WHERE USER_NAME = ':USER') END)
+AND RESPONSIBILITY_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_ID) ELSE RESPONSIBILITY_ID END)
+AND RESPONSIBILITY_APPLICATION_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_APPL_ID) ELSE RESPONSIBILITY_APPLICATION_ID END)
+)
+)
+WHERE
+PER_ORGANIZATION_LIST.SECURITY_PROFILE_ID = PROFILE_ID
+UNION
+SELECT 
+DISTINCT 'OU_ORG', FND_PROFILE.VALUE_SPECIFIC('ORG_ID', USER_ID, RESPONSIBILITY_ID, RESPONSIBILITY_APPLICATION_ID) ORGANIZATION_ID 
+FROM 
+(SELECT USER_ID, RESPONSIBILITY_ID, RESPONSIBILITY_APPLICATION_ID 
+FROM FND_USER_RESP_GROUPS 
+WHERE START_DATE < SYSDATE 
+AND (CASE WHEN END_DATE IS NULL THEN SYSDATE ELSE TO_DATE(END_DATE) END) >= SYSDATE 
+AND USER_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_USER_ID) ELSE (SELECT USER_ID FROM FND_USER WHERE USER_NAME = ':USER') END)
+AND RESPONSIBILITY_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_ID) ELSE RESPONSIBILITY_ID END)
+AND RESPONSIBILITY_APPLICATION_ID = (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_APPL_ID) ELSE RESPONSIBILITY_APPLICATION_ID END)
+)
+","false"
+"bi-analytics-2013::var::init.Orgs for Org-Based Security","bi-analytics-2013","Orgs for Org-Based Security","false","86400","true","false","select distinct 
+   'ORGANIZATION', 
+   PRR.SUB_PARTY_ID
+from 
+   VALUEOF(TBO).S_POSTN P, 
+   VALUEOF(TBO).S_USER U, 
+   VALUEOF(TBO).S_PARTY_PER PP, 
+   VALUEOF(TBO).S_PARTY_RPT_REL PRR
+where  
+   U.ROW_ID=PP.PERSON_ID and P.ROW_ID=PP.PARTY_ID and 
+   PRR.PARTY_ID = P.BU_ID  and PRR.PARTY_TYPE_CD = 'Organization' and 
+   U.LOGIN = ':USER'","false"
+"bi-analytics-2013::var::init.Outdated Opportunity Interval","bi-analytics-2013","Outdated Opportunity Interval","false","86400","","","select VAL_NUM FROM VALUEOF(OLAPTBO).W_VARIABLES_G WHERE R_TYPE='OPT_OUTDATED_NUMDAYS' AND APP_NAME='Usage Accelerator'","false"
+"bi-analytics-2013::var::init.PREVIOUS_ENTERPRISE_PERIOD","bi-analytics-2013","PREVIOUS_ENTERPRISE_PERIOD","false","3600","","","SELECT PRV.PER_NAME_FSCL_MNTH FROM VALUEOF(OLAPTBO).W_DAY_D PRV , VALUEOF(OLAPTBO).W_DAY_D CUR WHERE to_date(PRV.DAY_DT)=to_date(CUR.MONTH_AGO_DT) AND to_date(CUR.DAY_DT)=to_date(sysdate - VALUEOF(TIME_OFFSET))","false"
+"bi-analytics-2013::var::init.PREVIOUS_ENTERPRISE_QUARTER","bi-analytics-2013","PREVIOUS_ENTERPRISE_QUARTER","false","3600","","","SELECT PRV.PER_NAME_FSCL_QTR FROM VALUEOF(OLAPTBO).W_DAY_D PRV , VALUEOF(OLAPTBO).W_DAY_D CUR WHERE to_date(PRV.DAY_DT)=to_date(CUR.QUARTER_AGO_DT) AND to_date(CUR.DAY_DT)=to_date(sysdate - VALUEOF(TIME_OFFSET))","false"
+"bi-analytics-2013::var::init.PREVIOUS_ENTERPRISE_WEEK","bi-analytics-2013","PREVIOUS_ENTERPRISE_WEEK","false","3600","","","SELECT PRV.PER_NAME_FSCL_WEEK FROM VALUEOF(OLAPTBO).W_DAY_D PRV , VALUEOF(OLAPTBO).W_DAY_D CUR WHERE to_date(PRV.DAY_DT)=to_date(CUR.WEEK_AGO_DT) AND to_date(CUR.DAY_DT) =to_date(sysdate - VALUEOF(TIME_OFFSET))","false"
+"bi-analytics-2013::var::init.PREVIOUS_ENTERPRISE_YEAR","bi-analytics-2013","PREVIOUS_ENTERPRISE_YEAR","false","3600","","","SELECT PRV.PER_NAME_FSCL_YEAR FROM VALUEOF(OLAPTBO).W_DAY_D PRV , VALUEOF(OLAPTBO).W_DAY_D CUR WHERE to_date(PRV.DAY_DT)=to_date(CUR.YEAR_AGO_DT) AND to_date(CUR.DAY_DT)=to_date(sysdate - VALUEOF(TIME_OFFSET))
+","false"
+"bi-analytics-2013::var::init.PREVIOUS_MONTH","bi-analytics-2013","PREVIOUS_MONTH","false","3600","","","SELECT PRV.PER_NAME_MONTH FROM VALUEOF(OLAPTBO).W_DAY_D PRV , VALUEOF(OLAPTBO).W_DAY_D CUR WHERE to_date(PRV.DAY_DT)=to_date(CUR.MONTH_AGO_DT) AND to_date(CUR.DAY_DT)=to_date(sysdate - VALUEOF(TIME_OFFSET))
+","false"
+"bi-analytics-2013::var::init.PREVIOUS_QUARTER","bi-analytics-2013","PREVIOUS_QUARTER","false","3600","","","SELECT PRV.PER_NAME_QTR FROM VALUEOF(OLAPTBO).W_DAY_D PRV , VALUEOF(OLAPTBO).W_DAY_D CUR WHERE to_date(PRV.DAY_DT)=to_date(CUR.QUARTER_AGO_DT) AND to_date(CUR.DAY_DT)=to_date(sysdate - VALUEOF(TIME_OFFSET))","false"
+"bi-analytics-2013::var::init.PREVIOUS_WEEK","bi-analytics-2013","PREVIOUS_WEEK","false","3600","","","SELECT PRV.PER_NAME_WEEK FROM VALUEOF(OLAPTBO).W_DAY_D PRV , VALUEOF(OLAPTBO).W_DAY_D CUR WHERE to_date(PRV.DAY_DT)=to_date(CUR.WEEK_AGO_DT) AND to_date(CUR.DAY_DT) =to_date(sysdate - VALUEOF(TIME_OFFSET))
+","false"
+"bi-analytics-2013::var::init.PREVIOUS_YEAR","bi-analytics-2013","PREVIOUS_YEAR","false","3600","","","SELECT PRV.CAL_YEAR, PRV.PER_NAME_MONTH, PRV.PER_NAME_FSCL_MNTH, PRV.PER_NAME_FSCL_QTR","false"
+"bi-analytics-2013::var::init.Payables Organizations","bi-analytics-2013","Payables Organizations","false","86400","true","false","SELECT DISTINCT 'PAYABLES_ORG', s1.BUSINESS_UNIT
+FROM PS_SEC_BU_OPR s1, PS_BUS_UNIT_TBL_AP a, PS_INSTALLATION_FS i 
+WHERE s1.OPRID = ':USER'
+AND s1.BUSINESS_UNIT = a.BUSINESS_UNIT
+AND i.SECURITY_TYPE = 'O'
+AND i.BU_SECURITY = 'Y'
+UNION
+SELECT DISTINCT 'PAYABLES_ORG', s2.BUSINESS_UNIT
+FROM PS_SEC_BU_CLS s2, PS_BUS_UNIT_TBL_AP a, PS_INSTALLATION_FS i2, PSOPRDEFN p 
+WHERE p.OPRID = ':USER'
+AND s2.BUSINESS_UNIT = a.BUSINESS_UNIT
+AND p.OPRCLASS = s2.OPRCLASS
+AND i2.SECURITY_TYPE = 'C'
+AND i2.BU_SECURITY = 'Y'
+","false"
+"bi-analytics-2013::var::init.Pharma Syndicate Data Partition Id","bi-analytics-2013","Pharma Syndicate Data Partition Id","false","86400","true","","SELECT 	M.COUNTRY_REGION_NAME 
+FROM 	VALUEOF(OLAPTBO).W_POSITION_DH DH,
+	VALUEOF(OLAPTBO).W_TOP_POSTN_PARTITION_M M 
+WHERE 	DH.BASE_LOGIN= ':USER'  
+AND 	DH.CURRENT_FLG='Y'
+AND 	DH.CURRENT_TOP_LVL_POSTN = M.CURRENT_TOP_LVL_POSTN
+AND 	DH.DATASOURCE_NUM_ID = M.DATASOURCE_NUM_ID","false"
+"bi-analytics-2013::var::init.Previous Fiscal Variables","bi-analytics-2013","Previous Fiscal Variables","false","86400","true","","select max(MCAL_PERIOD_NAME),max(MCAL_QTR_NAME),max(MCAL_YEAR_NAME) from
+(
+  select C.MCAL_PERIOD_NAME as MCAL_PERIOD_NAME,'' as MCAL_QTR_NAME,''    as MCAL_YEAR_NAME
+ from VALUEOF(OLAPTBO).W_MCAL_PERIOD_D C
+ where C.adjustment_period_flg = 'N' 
+ and C.W_CURRENT_MCAL_PERIOD_CODE = 'Previous'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID)
+ union all
+ -- Query to get previous quarter
+ select '' as MCAL_PERIOD_NAME,C.MCAL_PER_NAME_QTR as MCAL_QTR_NAME,'' as MCAL_YEAR_NAME
+ from VALUEOF(OLAPTBO).W_MCAL_QTR_D C
+ WHERE C.W_CURRENT_MCAL_QTR_CODE = 'Previous'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID)
+ union all
+ -- Query to get previous year
+ select '' as MCAL_PERIOD_NAME,'' as MCAL_QTR_NAME,C.MCAL_PER_NAME_YEAR as MCAL_YEAR_NAME
+ from VALUEOF(OLAPTBO).W_MCAL_YEAR_D C
+ WHERE C.W_CURRENT_MCAL_YEAR_CODE = 'Previous'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID))","false"
+"bi-analytics-2013::var::init.Previous Project Variables","bi-analytics-2013","Previous Project Variables","false","86400","true","","select max(MCAL_PERIOD_NAME),max(MCAL_QTR_NAME),max(MCAL_YEAR_NAME) from
+(
+  select C.MCAL_PERIOD_NAME as MCAL_PERIOD_NAME,'' as MCAL_QTR_NAME,''    as MCAL_YEAR_NAME
+ from VALUEOF(OLAPTBO).W_MCAL_PERIOD_D C
+ where C.adjustment_period_flg = 'N' 
+ and C.W_CURRENT_MCAL_PERIOD_CODE = 'Previous'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID_PROJ)
+ union all
+ -- Query to get previous quarter
+ select '' as MCAL_PERIOD_NAME,C.MCAL_PER_NAME_QTR as MCAL_QTR_NAME,'' as MCAL_YEAR_NAME
+ from VALUEOF(OLAPTBO).W_MCAL_QTR_D C
+ WHERE C.W_CURRENT_MCAL_QTR_CODE = 'Previous'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID_PROJ)
+ union all
+ -- Query to get previous year
+ select '' as MCAL_PERIOD_NAME,'' as MCAL_QTR_NAME,C.MCAL_PER_NAME_YEAR as MCAL_YEAR_NAME
+ from VALUEOF(OLAPTBO).W_MCAL_YEAR_D C
+ WHERE C.W_CURRENT_MCAL_YEAR_CODE = 'Previous'
+ and C.MCAL_CAL_WID=valueof(NQ_SESSION.MCAL_CAL_WID_PROJ))","false"
+"bi-analytics-2013::var::init.Primary Owner ID","bi-analytics-2013","Primary Owner ID","false","86400","true","false","select PAR_ROW_ID
+from VALUEOF(TBO).S_USER
+where LOGIN = ':USER'","false"
+"bi-analytics-2013::var::init.Primary Position ID","bi-analytics-2013","Primary Position ID","false","86400","true","false","select C.PR_HELD_POSTN_ID
+from VALUEOF(TBO).S_CONTACT C, VALUEOF(TBO).S_USER U
+where C.ROW_ID = U.ROW_ID and U.LOGIN = ':USER'","false"
+"bi-analytics-2013::var::init.Receivables Organizations","bi-analytics-2013","Receivables Organizations","false","86400","true","false","SELECT DISTINCT 'RECEIVABLES_ORG', s1.BUSINESS_UNIT
+FROM PS_SEC_BU_OPR s1, PS_BUS_UNIT_TBL_AR a, PS_INSTALLATION_FS i 
+WHERE s1.OPRID = ':USER'
+AND s1.BUSINESS_UNIT = a.BUSINESS_UNIT AND i.SECURITY_TYPE = 'O'
+AND i.BU_SECURITY = 'Y'
+UNION
+SELECT DISTINCT 'RECEIVABLES_ORG', s2.BUSINESS_UNIT
+FROM PS_SEC_BU_CLS s2, PS_BUS_UNIT_TBL_AR a, PS_INSTALLATION_FS i2, PSOPRDEFN p 
+WHERE p.OPRID = ':USER' 
+AND s2.BUSINESS_UNIT = a.BUSINESS_UNIT AND p.OPRCLASS = s2.OPRCLASS AND i2.SECURITY_TYPE = 'C'
+AND i2.BU_SECURITY = 'Y'
+","false"
+"bi-analytics-2013::var::init.Set ID","bi-analytics-2013","Set ID","false","86400","true","false","SELECT DISTINCT
+'SET_ID',
+B.SETID
+FROM
+PSOPRDEFN A, PS_SCRTY_TBL_DEPT B
+WHERE
+A.ROWSECCLASS = B.ROWSECCLASS AND
+B.ACCESS_CD = 'Y' AND
+A.OPRID = ':USER'
+","false"
+"bi-analytics-2013::var::init.Tenant Identification","bi-analytics-2013","Tenant Identification","false","86400","true","","select distinct 'DEFAULT' from w_dual_g","false"
+"bi-analytics-2013::var::init.UA Deployment Date","bi-analytics-2013","UA Deployment Date","false","3600","","","select VAL_DATE from VALUEOF(OLAPTBO).W_VARIABLES_G WHERE R_TYPE='UA_DEPLOY_DT' and APP_NAME='Usage Accelerator'","false"
+"bi-analytics-2013::var::init.USER_HIER_ID","bi-analytics-2013","USER_HIER_ID","false","86400","true","","SELECT
+IDS
+FROM SAMP_USERS_VIS
+WHERE upper(USERID)=upper(':USER')
+AND TYPE = 'USERID'","false"
+"bi-analytics-2013::var::init.User HR Org Hierarchy Level","bi-analytics-2013","User HR Org Hierarchy Level","false","86400","true","","select 14 from dual","false"
+"bi-analytics-2013::var::init.User HR Org Hierarchy Name","bi-analytics-2013","User HR Org Hierarchy Name","false","86400","true","false","SELECT   OS.NAME
+FROM     PER_ORGANIZATION_STRUCTURES OS
+,        PER_SECURITY_PROFILES SP
+,        (SELECT FND_PROFILE.VALUE_SPECIFIC(  'PER_SECURITY_PROFILE_ID'
+                                            , USER_ID
+                                            , RESPONSIBILITY_ID
+                                            , RESPONSIBILITY_APPLICATION_ID) PROFILE_ID 
+          FROM     FND_USER_RESP_GROUPS 
+          WHERE    START_DATE < SYSDATE 
+          AND     (CASE WHEN END_DATE IS NULL 
+                        THEN SYSDATE 
+                        ELSE TO_DATE(END_DATE) 
+                        END) >= SYSDATE 
+          AND      USER_ID = 
+                     (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+                           THEN VALUEOF(NQ_SESSION.OLTP_EBS_USER_ID) 
+                           ELSE (SELECT USER_ID FROM FND_USER WHERE USER_NAME = ':USER') 
+                           END)
+          AND      RESPONSIBILITY_ID = 
+                     (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+                           THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_ID) 
+                           ELSE RESPONSIBILITY_ID 
+                           END)
+          AND      RESPONSIBILITY_APPLICATION_ID = 
+                     (CASE WHEN 'VALUEOF(NQ_SESSION.EBS_SSO_INTEGRATION_MODE)' = 'Integrated' 
+                           THEN VALUEOF(NQ_SESSION.OLTP_EBS_RESP_APPL_ID) 
+                           ELSE RESPONSIBILITY_APPLICATION_ID 
+                           END)
+         ) USER_SP
+WHERE    os.organization_structure_id = sp.organization_structure_id
+AND      SP.SECURITY_PROFILE_ID = USER_SP.PROFILE_ID
+AND  rownum = 1","false"
+"bi-analytics-2013::var::init.User HR Organization","bi-analytics-2013","User HR Organization","false","86400","true","false","SELECT DISTINCT FINAL_JOB.BUSINESS_UNIT
+FROM
+(
+SELECT X.EMPLID, MAX(X.BUSINESS_UNIT) BUSINESS_UNIT FROM
+(
+SELECT A.EMPLID, A.EMPL_RCD, A.EFFDT,EFFSEQ, A.JOB_INDICATOR, A.EMPL_STATUS, A.BUSINESS_UNIT 
+FROM PS_JOB A , 
+(SELECT EMPLID, MAX(EFFDT) MAX_EFFDT
+FROM PS_JOB
+WHERE
+JOB_INDICATOR = 'P' AND EMPL_STATUS IN ('A', 'L', 'P', 'W')
+GROUP BY EMPLID) B
+WHERE 
+A.EMPLID = B.EMPLID
+AND A.EFFDT = B.MAX_EFFDT
+AND A.JOB_INDICATOR = 'P' AND A.EMPL_STATUS IN ('A', 'L', 'P', 'W') 
+AND A.EFFSEQ = (SELECT MAX (C.EFFSEQ) 
+                FROM PS_JOB C 
+                WHERE 
+                  C.EMPLID = A.EMPLID AND 
+                  C.EMPL_RCD = A.EMPL_RCD AND 
+                  C.EFFDT = A.EFFDT AND
+                  C.JOB_INDICATOR = 'P' AND C.EMPL_STATUS IN ('A', 'L', 'P', 'W'))
+) X
+GROUP BY X.EMPLID
+) FINAL_JOB, PSOPRDEFN
+WHERE 
+FINAL_JOB.EMPLID = PSOPRDEFN.EMPLID AND
+PSOPRDEFN.OPRID = ':USER'","false"
+"bi-analytics-2013::var::init.User HR Organizations","bi-analytics-2013","User HR Organizations","false","86400","true","false","SELECT DISTINCT FINAL_JOB.BUSINESS_UNIT
+FROM
+(
+SELECT X.EMPLID, MAX(X.BUSINESS_UNIT) BUSINESS_UNIT FROM
+(
+SELECT A.EMPLID, A.EMPL_RCD, A.EFFDT,EFFSEQ, A.JOB_INDICATOR, A.EMPL_STATUS, A.BUSINESS_UNIT 
+FROM PS_JOB A , 
+(SELECT EMPLID, MAX(EFFDT) MAX_EFFDT
+FROM PS_JOB
+WHERE
+JOB_INDICATOR = 'P' AND EMPL_STATUS IN ('A', 'L', 'P', 'W')
+GROUP BY EMPLID) B
+WHERE 
+A.EMPLID = B.EMPLID
+AND A.EFFDT = B.MAX_EFFDT
+AND A.JOB_INDICATOR = 'P' AND A.EMPL_STATUS IN ('A', 'L', 'P', 'W') 
+AND A.EFFSEQ = (SELECT MAX (C.EFFSEQ) 
+                FROM PS_JOB C 
+                WHERE 
+                  C.EMPLID = A.EMPLID AND 
+                  C.EMPL_RCD = A.EMPL_RCD AND 
+                  C.EFFDT = A.EFFDT AND
+                  C.JOB_INDICATOR = 'P' AND C.EMPL_STATUS IN ('A', 'L', 'P', 'W'))
+) X
+GROUP BY X.EMPLID
+) FINAL_JOB, PSOPRDEFN
+WHERE 
+FINAL_JOB.EMPLID = PSOPRDEFN.EMPLID AND
+PSOPRDEFN.OPRID = ':USER'","false"
+"bi-analytics-2013::var::init.User Hierarchy Level","bi-analytics-2013","User Hierarchy Level","false","86400","true","","select round(FIXED_HIER_LEVEL) FROM VALUEOF(OLAPTBO).W_POSITION_DH WHERE BASE_LOGIN= ':USER'  AND CURRENT_FLG='Y'","false"
+"bi-analytics-2013::var::init.Verify DUAL Cube Name (=BISAMPLE)","bi-analytics-2013","Verify DUAL Cube Name (=BISAMPLE)","false","86400","true","","Select 'BISAMPLE' From Dual","false"
+"bi-analytics-2013::var::init.Verify DUAL ESSB HOST","bi-analytics-2013","Verify DUAL ESSB HOST","false","86400","true","","Select 'localhost:9799' From Dual","false"
+"bi-analytics-2013::var::init.Verify DUAL ORCL DSN","bi-analytics-2013","Verify DUAL ORCL DSN","false","86400","true","","SELECT '(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=VALUEOF(DB_HOST))(PORT=VALUEOF(DB_PORT))))(CONNECT_DATA=(SID=VALUEOF(DB_SID))))'
+FROM DUAL
+","false"
+"bi-analytics-2013::var::init.WS_VARS_INIT_BLOCK","bi-analytics-2013","WS_VARS_INIT_BLOCK","false","86400","true","","select 'San Francisco','United States','-', 'EUR' from dual","false"
+"bi-analytics-2013::var::init.Warehouse Refresh Date","bi-analytics-2013","Warehouse Refresh Date","false","3600","","","select DAY_DT, DAY_DT, DAY_DT - 180, PER_NAME_YEAR, PER_NAME_QTR, PER_NAME_MONTH, PER_NAME_WEEK, FSCL_YEAR, FSCL_QTR, 
+JULIAN_QTR_NUM, JULIAN_DAY_NUM, JULIAN_MONTH_NUM,JULIAN_YEAR_NUM, CAL_TRIMESTER, CAL_YEAR, CAL_QTR,ROW_WID
+from VALUEOF(OLAPTBO).W_DAY_D 
+where CAL_YEAR = TO_NUMBER(TO_CHAR( (select max(LOAD_DT) from VALUEOF(OLAPTBO).W_ETL_RUN_S), 'yyyy'), '9999') 
+and CAL_MONTH = TO_NUMBER(TO_CHAR( (select max(LOAD_DT) from VALUEOF(OLAPTBO).W_ETL_RUN_S), 'MM'), '99') 
+and DAY_OF_MONTH = TO_NUMBER(TO_CHAR( (select max(LOAD_DT) from VALUEOF(OLAPTBO).W_ETL_RUN_S), 'dd'), '99')","false"
+"sampleapp::var::init.Init Block Translations","sampleapp","Init Block Translations","false","","true","","select MSG_NUM, MSG_TEXT from TRANSLATIONS where MSG_LANG_ID = 'VALUEOF(NQ_SESSION.WEBLANGUAGE)'","false"
+"sampleapp::var::init.initBlockPrefCurrency","sampleapp","initBlockPrefCurrency","false","","true","","select 'VALUEOF(NQ_SESSION.PREFERED_CURRENCY)' from dual","false"
