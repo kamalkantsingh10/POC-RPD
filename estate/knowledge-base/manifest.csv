@@ -1,6 +1,6 @@
 "key","value","value_guarded"
 "extractor_version","0.2.0","false"
-"extracted_at","2026-08-21T17:10:01Z","false"
+"extracted_at","2026-11-18T09:32:58Z","false"
 "corpus_root","/home/kamal/Documents/Garage/obiee-corpus/clean","false"
 "rpd_ids","bi-analytics-2013 sampleapp sampleapp-v607","false"
 "halves_present:bi-analytics-2013","rpd","false"
@@ -9,4 +9,4 @@
 "pairing:sampleapp","not paired: only the rpd half was supplied","false"
 "halves_present:sampleapp-v607","catalog","false"
 "pairing:sampleapp-v607","not paired: only the catalog half was supplied","false"
-"tables","aggregation_rules analyses analysis_columns analysis_criteria analysis_filters analysis_prompts analysis_views bmm_joins catalog_versions coverage coverage_summary dashboard_contents dashboard_pages dashboards errors init_blocks lineage logical_columns logical_dimensions logical_levels logical_table_sources logical_tables lts_column_map physical_columns physical_joins physical_tables presentation_columns presentation_hierarchies presentation_level_columns presentation_levels presentation_subject_areas presentation_tables report_lineage saved_filters security_rls unparsed variables","false"
+"tables","aggregation_rules analyses analysis_columns analysis_criteria analysis_filters analysis_prompts analysis_views bmm_joins catalog_versions coverage coverage_summary dashboard_contents dashboard_pages dashboards errors init_blocks lineage logical_columns logical_dimensions logical_levels logical_table_sources logical_tables lts_column_map physical_columns physical_joins physical_table_definitions physical_tables presentation_columns presentation_hierarchies presentation_level_columns presentation_levels presentation_subject_areas presentation_tables report_lineage saved_filters security_rls unparsed variables","false"

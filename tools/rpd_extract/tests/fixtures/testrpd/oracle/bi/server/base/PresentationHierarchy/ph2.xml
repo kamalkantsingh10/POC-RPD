@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PresentationHierarchy mdsid="mph2" name="Rep Tree" xmlns="http://www.oracle.com/obis/repository" containerRef="/oracle/bi/server/base/PresentationTable/ptab1.xml#mptab1" logicalDimensionRef="/oracle/bi/server/base/Dimension/dim2.xml#mdim2">
+<RefDisplayColumns>
+<RefPresentationColumn refId="rd9" presentationColumnRef="/oracle/bi/server/base/PresentationTable/ptab1.xml#mpcol2"/>
+</RefDisplayColumns>
+</PresentationHierarchy>

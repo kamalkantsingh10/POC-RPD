@@ -26,7 +26,15 @@ from pathlib import Path
 from tools.rpd_extract import cli, layout
 from tools.rpd_extract.adapters.outbound import knowledge_base
 from tools.rpd_extract.core import identifiers as ids
-from tools.rpd_extract.core.model import RESOLVED_NONE
+from tools.rpd_extract.core.model import (
+    COMPUTED_NOT_SOURCED,
+    NOT_A_COLUMN_REFERENCE,
+    OUTSIDE_SEMANTIC_MODEL,
+    RESOLVED_CASE,
+    RESOLVED_EXACT,
+    RESOLVED_NONE,
+    SOURCED,
+)
 
 CASES = Path("estate/test-corpus/constructed-cases")
 RPD_HALF = CASES / "constructed"
@@ -154,6 +162,57 @@ class ConstructedPairTests(unittest.TestCase):
             self.assertNotIn("::", row["subject_area"])
         self.assertNotIn("presentation_subject_area_id",
                          self.table("analysis_criteria")[0].keys())
+
+
+class ReportLineageTests(ConstructedPairTests):
+    """Story 2.9 Part 2 — FR-7, demonstrated on the only matched pair there is.
+
+    **This proves the mechanism, not the estate.** Both halves were authored by
+    the same hand, so their agreement is a property of the author. FR-31 keeps
+    accuracy measured here separate from accuracy measured against real corpus
+    content, and the two are never merged.
+    """
+
+    def test_the_subject_area_resolves_without_overwriting_the_verbatim_value(self):
+        """AC 2.9-7."""
+        rows = self.table("report_lineage")
+        self.assertTrue(rows)
+        for row in rows:
+            self.assertEqual(row["subject_area"], '"Constructed SA"')
+            self.assertTrue(row["subject_area_id"])
+        # the source table is untouched
+        for crit in self.table("analysis_criteria"):
+            self.assertEqual(crit["subject_area"], '"Constructed SA"')
+
+    def test_a_bare_column_reference_completes_the_four_layer_path(self):
+        """AC 2.9-8: report column -> presentation -> logical -> physical."""
+        rows = {r["reference_text"]: r for r in self.table("report_lineage")}
+        amount = rows['"Sales Facts"."Amount"']
+        self.assertTrue(amount["presentation_column_id"].endswith(
+            "Constructed SA.Sales Facts.Amount"))
+        self.assertTrue(amount["logical_column_id"])
+        self.assertTrue(amount["physical_column_id"])
+        self.assertEqual(amount["source_state"], SOURCED)
+
+    def test_a_bmm_derived_column_says_computed_rather_than_blank(self):
+        """AC 2.9-11: no physical row is a fact, not a lookup failure."""
+        rows = {r["reference_text"]: r for r in self.table("report_lineage")}
+        rolling = rows['"Sales Facts"."Rolling Amount 3M"']
+        self.assertTrue(rolling["presentation_column_id"])
+        self.assertEqual(rolling["physical_column_id"], "")
+        self.assertEqual(rolling["source_state"], COMPUTED_NOT_SOURCED)
+
+    def test_every_row_records_how_it_resolved(self):
+        """AC 2.9-9."""
+        allowed = {RESOLVED_EXACT, RESOLVED_CASE, RESOLVED_NONE,
+                   NOT_A_COLUMN_REFERENCE, OUTSIDE_SEMANTIC_MODEL}
+        for row in self.table("report_lineage"):
+            self.assertIn(row["resolution"], allowed)
+
+    def test_one_row_per_analysis_column(self):
+        """AC 2.9-6: nothing is dropped for being unresolvable."""
+        self.assertEqual(len(self.table("report_lineage")),
+                         len(self.table("analysis_columns")))
 
 
 if __name__ == "__main__":

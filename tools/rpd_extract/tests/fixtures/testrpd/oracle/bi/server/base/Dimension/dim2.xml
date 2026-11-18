@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Dimension mdsid="mdim2" name="Rep Tree" xmlns="http://www.oracle.com/obis/repository" isValueBased="true" isRagged="false" isSkipped="false" subjectAreaRef="/oracle/bi/server/base/BusinessModel/bm1.xml#mbm1">
+<LogicalLevel mdsid="mlvl9" name="Rep" isGTA="false" memberCount="0"/>
+</Dimension>

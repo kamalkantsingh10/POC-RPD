@@ -22,7 +22,7 @@ from pathlib import Path
 from tools.rpd_extract import layout
 from tools.rpd_extract.adapters.inbound import catalog_xml, mds_xml
 from tools.rpd_extract.adapters.outbound import knowledge_base
-from tools.rpd_extract.core import identifiers
+from tools.rpd_extract.core import identifiers, report_lineage
 from tools.rpd_extract.core.model import Estate
 
 
@@ -69,9 +69,10 @@ def extract(found: layout.Layout) -> Estate:
         else:
             estate.merge(catalog_xml.load(half.root, half.rpd_id))
 
-    # Last, so it sees every row every adapter produced. Run here rather than
-    # inside an adapter because a catalog identifier colliding with an RPD one
-    # is invisible to either adapter alone.
+    # Both after the merge, for the same reason: neither adapter can see the
+    # other half. Report lineage joins the two by name (FR-7, AD-23), and only
+    # ever for halves the Operator declared as one estate (AD-22).
+    report_lineage.resolve(estate)
     estate.check_identifier_uniqueness()
     return estate
 

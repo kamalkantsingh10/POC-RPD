@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PresentationHierarchy mdsid="mph1" name="Time" xmlns="http://www.oracle.com/obis/repository" containerRef="/oracle/bi/server/base/PresentationTable/ptab1.xml#mptab1" logicalDimensionRef="/oracle/bi/server/base/Dimension/dim1.xml#mdim1">
+<PresentationLevel mdsid="mplv1" name="Total" containerRef="/oracle/bi/server/base/PresentationHierarchy/ph1.xml#mph1" logicalLevelRef="/oracle/bi/server/base/Dimension/dim1.xml#mlvl1"/>
+<PresentationLevel mdsid="mplv2" name="Year" containerRef="/oracle/bi/server/base/PresentationHierarchy/ph1.xml#mph1" logicalLevelRef="/oracle/bi/server/base/Dimension/dim1.xml#mlvl2">
+<RefDisplayColumns>
+<RefPresentationColumn refId="rd1" presentationColumnRef="/oracle/bi/server/base/PresentationTable/ptab1.xml#mpcol1"/>
+<RefPresentationColumn refId="rd2" presentationColumnRef="/oracle/bi/server/base/PresentationTable/ptab1.xml#mpcol2"/>
+</RefDisplayColumns>
+</PresentationLevel>
+</PresentationHierarchy>

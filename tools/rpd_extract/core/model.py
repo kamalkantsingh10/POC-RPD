@@ -45,6 +45,33 @@ class PhysicalTable:
     name: str
     table_type: str = ""
     max_conn: str = ""
+    #: The table this one is an alias of. Empty means *not an alias* — the
+    #: source records no such link — never *link not found*: one that is present
+    #: and does not resolve is an error, and the cell stays empty beside it.
+    source_table_id: str = ""
+
+
+@dataclass(frozen=True)
+class PhysicalTableDefinition:
+    """What a physical table resolves to in the database, verbatim.
+
+    The repository's name for a table is not necessarily the database's. The
+    source carries, per database type, either the SQL of an opaque view
+    (``table_type`` ``select``) or the name of the object actually queried —
+    in the pinned corpus the table shown as ``Operations`` is
+    ``FCT_OPERATIONS_DD`` in the database. Which of the two a row holds is told
+    by the table's ``table_type``, never by inspecting the text (AD-3).
+
+    One row per database type rather than a column on the table, because the
+    source allows several and choosing one would be a guess. The text is never
+    parsed: which tables a SELECT reads from is not recorded here.
+    """
+
+    row_id: str
+    rpd_id: str
+    table_id: str
+    database: str
+    text: str
 
 
 @dataclass(frozen=True)
@@ -177,6 +204,96 @@ class PresentationColumn:
     logical_column_id: str = ""
     override_logical_name: str = ""
     display_name: str = ""
+
+
+@dataclass(frozen=True)
+class LogicalDimension:
+    """A logical dimension — the drill semantics behind a hierarchy.
+
+    ``is_ragged`` and ``is_skipped`` are carried because each changes what a
+    drill path *means*: a ragged hierarchy has branches that stop early, and a
+    skip-level one has members with no parent at the level above. Flattening
+    either during a migration changes what a user can reach without changing a
+    single number, so parity checking on values would never catch it.
+    """
+
+    row_id: str
+    rpd_id: str
+    name: str
+    business_model: str = ""
+    is_value_based: bool = False
+    is_ragged: bool = False
+    is_skipped: bool = False
+    default_root_level_id: str = ""
+    level_count: int = 0
+
+
+@dataclass(frozen=True)
+class LogicalLevel:
+    """One level of a logical dimension, and the column that drills it.
+
+    ``position`` is document order, which is the order OBIEE drills in. It is
+    stored rather than derived from ``member_count`` because a level's member
+    count is data and its place in the hierarchy is structure.
+    """
+
+    row_id: str
+    rpd_id: str
+    dimension_id: str
+    position: int
+    name: str
+    member_count: str = ""
+    is_grand_total: bool = False
+    drill_key_column_id: str = ""
+
+
+@dataclass(frozen=True)
+class PresentationHierarchy:
+    """A hierarchy as a report author sees it, on one presentation table.
+
+    ``display_column_id`` is populated only for a **value-based** (parent-child)
+    hierarchy, which has no levels at all — its display column hangs off the
+    hierarchy itself. One of the corpus's 25 dimensions is of this kind, and
+    reading display columns only from levels drops the single column it names.
+    A level-based hierarchy leaves this empty and uses
+    ``presentation_level_columns`` instead.
+    """
+
+    row_id: str
+    rpd_id: str
+    table_id: str
+    name: str
+    dimension_id: str = ""
+    level_count: int = 0
+    display_column_id: str = ""
+
+
+@dataclass(frozen=True)
+class PresentationLevel:
+    """One level of a presentation hierarchy, in drill order."""
+
+    row_id: str
+    rpd_id: str
+    hierarchy_id: str
+    position: int
+    name: str
+    logical_level_id: str = ""
+
+
+@dataclass(frozen=True)
+class PresentationLevelColumn:
+    """A column displayed at one level — the drill path, one row per step.
+
+    Its own table rather than a repeated field on the level, because a level
+    displays several columns and the order they appear in is part of the
+    definition a Power BI hierarchy is rebuilt from.
+    """
+
+    row_id: str
+    rpd_id: str
+    level_id: str
+    position: int
+    presentation_column_id: str
 
 
 @dataclass(frozen=True)
@@ -435,6 +552,55 @@ RESOLVED_CASE = "case_normalised"
 RESOLVED_AMBIGUOUS = "ambiguous"
 RESOLVED_NONE = "unresolved"
 
+#: Report-lineage outcomes that are **not** resolution failures. Each names a
+#: reason the chain legitimately stops, because "unresolved" applied to all of
+#: them would report ~4500 defects where there are none (AD-3).
+#:
+#: ``NOT_A_COLUMN_REFERENCE`` — the formula is a computation, and its column
+#: references are embedded in an expression this pass does not parse.
+#: ``OUTSIDE_SEMANTIC_MODEL`` — the formula names an ``XSA('user'.'dataset')``
+#: Visual Analyzer upload. The data was never in the repository, so no amount of
+#: resolving will find it. That is a migration finding, not a gap.
+NOT_A_COLUMN_REFERENCE = "not_a_column_reference"
+OUTSIDE_SEMANTIC_MODEL = "outside_semantic_model"
+
+#: Whether a resolved presentation column reaches physical storage.
+#: ``COMPUTED_NOT_SOURCED`` is a BMM-derived column — ``PERIODROLLING`` and its
+#: kind — which has no lineage row because it is calculated, not stored. An
+#: empty cell would read as a lookup that failed.
+SOURCED = "sourced"
+COMPUTED_NOT_SOURCED = "computed_not_sourced"
+
+
+@dataclass(frozen=True)
+class ReportLineageRow:
+    """One Analysis column, traced toward the semantic layer (FR-7, AD-23).
+
+    Its own table, never an extension of ``lineage.csv``: that table describes
+    the repository alone and is meaningful without a catalog. Merging report
+    rows into it would make every existing consumer depend on a half that may
+    not have been supplied.
+
+    ``subject_area`` is the catalog's verbatim value, quotes intact, carried
+    alongside the resolution rather than replaced by it — the same rule
+    ``analysis_criteria`` follows, so a reader can always see what was asked for
+    as well as what it matched.
+    """
+
+    row_id: str
+    rpd_id: str
+    analysis_id: str
+    criteria_id: str
+    analysis_column_id: str
+    subject_area: str
+    reference_text: str
+    resolution: str
+    subject_area_id: str = ""
+    presentation_column_id: str = ""
+    logical_column_id: str = ""
+    physical_column_id: str = ""
+    source_state: str = ""
+
 
 @dataclass(frozen=True)
 class DashboardContent:
@@ -650,6 +816,9 @@ class Estate:
     """Everything extracted from one corpus, across every ``rpd-id``."""
 
     physical_tables: list[PhysicalTable] = field(default_factory=list)
+    physical_table_definitions: list[PhysicalTableDefinition] = field(
+        default_factory=list
+    )
     physical_columns: list[PhysicalColumn] = field(default_factory=list)
     physical_joins: list[PhysicalJoin] = field(default_factory=list)
     logical_tables: list[LogicalTable] = field(default_factory=list)
@@ -658,6 +827,12 @@ class Estate:
     subject_areas: list[SubjectArea] = field(default_factory=list)
     presentation_tables: list[PresentationTable] = field(default_factory=list)
     presentation_columns: list[PresentationColumn] = field(default_factory=list)
+    presentation_hierarchies: list[PresentationHierarchy] = field(default_factory=list)
+    presentation_levels: list[PresentationLevel] = field(default_factory=list)
+    presentation_level_columns: list[PresentationLevelColumn] = field(
+        default_factory=list)
+    logical_dimensions: list[LogicalDimension] = field(default_factory=list)
+    logical_levels: list[LogicalLevel] = field(default_factory=list)
     logical_table_sources: list[LogicalTableSource] = field(default_factory=list)
     column_mappings: list[ColumnMapping] = field(default_factory=list)
     lineage: list[LineageRow] = field(default_factory=list)
@@ -675,6 +850,7 @@ class Estate:
     analysis_filters: list[AnalysisFilter] = field(default_factory=list)
     analysis_prompts: list[AnalysisPrompt] = field(default_factory=list)
     analysis_views: list[AnalysisView] = field(default_factory=list)
+    report_lineage: list[ReportLineageRow] = field(default_factory=list)
     saved_filters: list[SavedFilter] = field(default_factory=list)
     unparsed: list[Unparsed] = field(default_factory=list)
     errors: list[ExtractionError] = field(default_factory=list)

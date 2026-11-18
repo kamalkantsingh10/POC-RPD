@@ -202,11 +202,14 @@ There is also a larger public corpus used to develop the tool — 1383 files acr
 
 | Table | Rows | What it holds |
 |---|---|---|
-| `physical_tables` / `physical_columns` | 100 / 1096 | Source database objects |
+| `physical_tables` / `physical_columns` | 100 / 1096 | Source database objects. `source_table_id` names the table an **alias** stands for — 8 of the 100 |
+| `physical_table_definitions` | 44 | What a physical table is in the database, **verbatim**: an opaque view's SQL (21), or the database name of an ordinary table (23), per database type. Never parsed |
 | `physical_joins` | 104 | Foreign keys and complex joins |
 | `logical_tables` / `logical_columns` | 82 / 1010 | Metric definitions, **formulas verbatim** |
 | `aggregation_rules` | 35 | One row per rule; overrides never collapsed |
 | `presentation_subject_areas` / `_tables` / `_columns` | 21 / 128 / 1543 | What report authors see |
+| `presentation_hierarchies` / `_levels` / `_level_columns` | 58 / 246 / 199 | **Drill paths** — hierarchies, their levels in order, and the column shown at each |
+| `logical_dimensions` / `logical_levels` | 25 / 106 | Drill semantics — **ragged, skip-level and parent-child** are carried, not flattened |
 | `logical_table_sources` / `lts_column_map` | 92 / 1035 | How logical maps to physical |
 | `lineage` | 1573 | **presentation → logical → source → physical** |
 | `bmm_joins` | 84 | Join types, inner vs outer |
@@ -217,14 +220,15 @@ There is also a larger public corpus used to develop the tool — 1383 files acr
 | `analyses` / `analysis_criteria` | 1607 / 1789 | Reports, and every query block in them |
 | `analysis_columns` | 11143 | Report columns, **formulas verbatim** — 10340 carry one |
 | `analysis_views` | 10879 | **What each report renders as** — chart, pivot, table, gauge, map — in order |
+| `report_lineage` | 11143 | **Report column → semantic layer** (FR-7). One row per Analysis column, resolved or with the reason it was not |
 | `analysis_filters` | 7135 | Filter expressions, dashboard- and Analysis-scope |
 | `analysis_prompts` | 4 | Prompts and the variables they set — **see the note below** |
 | `saved_filters` | 96 | Filters stored for reuse |
 | `catalog_versions` | — | `xmlVersion` per object type, **absence counted as a value** |
 | `coverage` | — | Objects parsed and skipped, per type **and layer** |
 | `coverage_summary` | — | **What share of the input was modelled**, in whole numbers |
-| `unparsed` | 1478 | **Known gaps** — content not modelled, and how much of it |
-| `errors` | 1583 | **Things that went wrong** — kept separate on purpose. **All 1583 are unresolved references**, 1521 of them into `/company_shared/`, a catalog root this fixture does not contain |
+| `unparsed` | 1434 | **Known gaps** — content not modelled, and how much of it |
+| `errors` | 1556 | **Things that went wrong** — kept separate on purpose. **All 1556 are unresolved references**, almost all into `/company_shared/`, a catalog root this fixture does not contain |
 | `manifest` | — | Source, timestamp, extractor version |
 
 ### `unparsed.csv` and `errors.csv` — read both, they answer different questions
@@ -243,7 +247,7 @@ There is also a larger public corpus used to develop the tool — 1383 files acr
 | `not_a_catalog_object` | A file in the catalog tree that was never a catalog object — a PNG, an RTF template, a PDF. **Catalog objects are extensionless, so every file must be attempted**; classifying these is what keeps 1030 of them out of `errors.csv` |
 | `excluded_by_scope` | Styling and formatting attributes, out of scope per FR-34. **Recorded rather than dropped**, because an exclusion that leaves no trace cannot be told from an oversight |
 
-The last three matter more than they look. **An object can parse "successfully" while attributes, elements and text on it are discarded silently** — the same failure NFR7 names as primary, one level below where AD-3 was watching. On the development corpus that is **1100 distinct items across 418,322 occurrences**, including the SQL that defines `select`-type views.
+The last three matter more than they look. **An object can parse "successfully" while attributes, elements and text on it are discarded silently** — the same failure NFR7 names as primary, one level below where AD-3 was watching. On the development corpus that is **1139 distinct items across 421,571 occurrences**, including the SQL that defines `select`-type views.
 
 It is also the **format-drift detector**. A repository from a different OBIEE version carrying new attributes announces itself here instead of being quietly dropped — which is the honest answer to "will this work on my estate?"
 
@@ -263,6 +267,8 @@ brackets are how many rows resolved out of how many were present.
 erDiagram
     physical_tables   ||--o{ physical_columns : "table_id (1096/1096)"
     physical_tables   ||--o{ physical_joins   : "table1_id (104/104)"
+    physical_tables   |o--o{ physical_tables  : "source_table_id, aliases (8/8)"
+    physical_tables   ||--o{ physical_table_definitions : "table_id (44/44)"
 
     logical_tables    ||--o{ logical_columns       : "table_id (1010/1010)"
     logical_tables    ||--o{ logical_table_sources : "logical_table_id (92/92)"
@@ -277,6 +283,13 @@ erDiagram
     presentation_tables        ||--o{ presentation_columns : "table_id (1543/1543)"
     logical_columns            ||--o{ presentation_columns : "logical_column_id (1543/1543)"
     logical_columns            |o--o| presentation_subject_areas : "implicit_fact_column_id (1/1)"
+
+    presentation_tables      ||--o{ presentation_hierarchies   : "table_id (58/58)"
+    presentation_hierarchies ||--o{ presentation_levels        : "hierarchy_id (246/246)"
+    presentation_levels      ||--o{ presentation_level_columns : "level_id (199/199)"
+    presentation_columns     ||--o{ presentation_level_columns : "presentation_column_id (199/199)"
+    logical_dimensions       ||--o{ logical_levels             : "dimension_id (106/106)"
+    logical_levels           ||--o{ presentation_levels        : "logical_level_id (246/246)"
 
     presentation_columns  ||--o{ lineage : "presentation_column_id (1573/1573)"
     logical_columns       ||--o{ lineage : "logical_column_id (1573/1573)"
@@ -303,6 +316,9 @@ erDiagram
     saved_filters |o--o{ dashboard_contents : "target_id (same key)"
 
     presentation_subject_areas |o..o{ analysis_criteria : "subject_area, BY NAME (0/1680)"
+
+    analysis_columns           ||--|| report_lineage : "analysis_column_id (11143/11143)"
+    presentation_columns       |o..o{ report_lineage : "presentation_column_id (0/5806)"
 ```
 
 ### Reading it
@@ -361,6 +377,22 @@ dashboard_pages → analysis_filters (scope=dashboard) ────────�
 - **`analysis_filters.target_id` resolves 165 of 666 present.** The other 5907 filters are
   literal expressions that reference no catalog object at all, so the key is empty by design,
   not missing.
+
+**Hierarchies are three tables because a drill path is a sequence, not a field.** `presentation_hierarchies`
+names the hierarchy and its owning table, `presentation_levels` orders the levels (`position` **is** the drill
+order), and `presentation_level_columns` says which column appears at each. `logical_dimensions` carries what
+the drill *means* — `is_ragged`, `is_skipped`, `is_value_based` — because flattening a ragged hierarchy changes
+what a user can reach **without changing any number**, so a value-based parity check will never catch it.
+A parent-child hierarchy has no levels at all: it carries its single column in
+`presentation_hierarchies.display_column_id`, and 1 of the corpus's 25 dimensions is of that kind.
+
+**`report_lineage` records why a row did not resolve, and most reasons are not failures.** Four outcomes beyond
+`exact` and `case_normalised`: `unresolved` is a genuine miss; `not_a_column_reference` means the formula is a
+computation whose column references sit inside an expression this pass does not parse; `outside_semantic_model`
+means the formula names an `XSA('user'.'dataset')` Visual Analyzer upload that was never in the repository at
+all. Separately, `source_state` distinguishes `sourced` from `computed_not_sourced` — a BMM-derived column such
+as `PERIODROLLING` resolves fine and legitimately has no physical column. **Read `resolution` before treating an
+empty `physical_column_id` as a gap.**
 
 **`analysis_views` says what a report looks like, and the type is the source's own word.**
 `view_type` holds `saw:pivotTableView`, never "Pivot Table" and never a Power BI visual name —
@@ -437,6 +469,31 @@ Keeping one and discarding the others would rewrite the formula. Note the **lead
 They are built to survive it. Values a spreadsheet would corrupt — a formula starting `-`, an identifier like `00123` — are guarded, and a companion `<column>_guarded` column records which. Details: `documents/planning-artifacts/decisions/csv-formula-guard.md`.
 
 
+## Table-level lineage in one sheet
+
+`lineage.csv` is per column. For the question asked per table — *which physical table is behind this Presentation Table,
+and is it an alias or a view?* — a separate script folds the Knowledge Base into one flat CSV:
+
+```sh
+python3 -m tools.rpd_extract.table_lineage --kb estate/knowledge-base --out /tmp/table-lineage.csv
+```
+
+One row per distinct chain — 157 on the development corpus, covering all 128 Presentation Tables:
+
+| Column | What it holds |
+|---|---|
+| `rpd_id`, `subject_area`, `presentation_table`, `logical_table`, `logical_table_source` | The chain down to the source |
+| `physical_table_alias` | The alias the source maps to. **Empty when the table is not an alias** |
+| `physical_table_original` | The table itself, or the table the alias stands for, as `<container>.<name>` |
+| `intermediate_view` | The opaque view's name, when the original table is defined by SQL in the repository |
+| `final_table` | For an opaque view, **its SQL verbatim**. Otherwise the table's name in the database |
+| `comment` | Always empty — for whoever reads the sheet |
+
+It reads the Knowledge Base only. **The SQL is not parsed**, so the tables a view reads from are in the query text and
+nowhere else; and a view defined in the database rather than in the repository is indistinguishable from a table here.
+A Presentation Table that reaches no physical column still gets a row, with the cells it could not fill left empty.
+
+
 ## Accuracy report
 
 Checks each parity-critical construct and reports **per construct type, never as one aggregate number**:
@@ -492,7 +549,12 @@ could join two different objects. **Check that column before trusting a resoluti
 ## What this does **not** do yet
 
 - **No parity checking.** No migrated number has been compared to a legacy one. This is the product's central claim and it is **unproven**.
-- **No catalog-to-semantic-layer resolution.** `saw:criteria[@subjectArea]` is captured verbatim and resolved to nothing (FR-7): it needs a repository and catalog from the *same* estate, and no such pair has been found.
+- **Catalog-to-semantic-layer resolution is built but unverified.** `report_lineage.csv` (FR-7) resolves an Analysis column to a
+  presentation column by name, then chains through `lineage` to physical storage. On the development corpus it resolves
+  **0 of 11143** — the repository and catalog are different SampleApp releases, so no name matches, and that zero is the
+  correct output rather than a defect. It has only ever completed against a **constructed** pair whose two halves were
+  authored by the same hand, which demonstrates the mechanism and proves nothing about a real estate. **It needs a
+  repository and catalog from the same instance**, and no such pair has been found.
 - **No Power BI output.** No Group Spec, no Migration Spine, no PBIP/TMDL.
 - **Only MDS XML** for the repository half, as above.
 
@@ -525,6 +587,7 @@ tools/rpd_extract/
   tests/         stdlib unittest + fixtures with recorded Ground Truth
   layout.py      which halves of an estate the Operator supplied
   cli.py         extraction entry point
+  table_lineage.py   table-level lineage as one flat CSV, from the Knowledge Base
   verify.py      per-construct accuracy report
 tools/catalog_survey.py   measures a catalog tree; every catalog figure in the
                           documents is re-derivable by running it

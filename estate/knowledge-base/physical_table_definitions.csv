@@ -1,0 +1,151 @@
+"row_id","rpd_id","table_id","database","database_guarded","text","text_guarded"
+"bi-analytics-2013::phys::Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_TIME_DD.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_TIME_DD","DefaultMulDB","false","Select tm.*, 
+        to_number(tm.calendar_year) as key_year,
+        to_number(tm.calendar_year||tm.calendar_quarter_number) as key_year_quarter, 
+        to_number(tm.calendar_year||tm.calendar_quarter_number||tm.calendar_month_number) as key_year_month,
+        to_number(tm.calendar_year||tm.calendar_quarter_number||tm.calendar_month_number||tm.calendar_week_number) as key_year_month_week,
+        to_number(tm.calendar_year||tm.calendar_quarter_number||tm.calendar_month_number||tm.calendar_week_number||tm.day_number_in_year) as key_year_day
+from dim_time_dd tm","false"
+"bi-analytics-2013::phys::Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_AGR_DD.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_AGR_DD","DefaultMulDB","false","Select event_dt, sum(fct_total_sales_dol) as fct_total_sales_dol, sum(fct_unit_amount) as fct_unit_amount from fct_operations_dd where extract(month from event_dt)=valueof(Anton_tserakhau_v_cur_month) group by event_dt ","false"
+"bi-analytics-2013::phys::Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_DD.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_DD","DefaultMulDB","false","FCT_OPERATIONS_DD","false"
+"bi-analytics-2013::phys::Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Operations with agregation.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Operations with agregation","DefaultMulDB","false","Select event_dt, sum(fct_total_sales_dol) as fct_total_sales_dol, sum(fct_unit_amount) as fct_unit_amount from fct_operations_dd where extract(month from event_dt)=valueof(Anton_tserakhau_v_cur_month) group by event_dt ","false"
+"bi-analytics-2013::phys::Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Operations.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Operations","DefaultMulDB","false","FCT_OPERATIONS_DD","false"
+"bi-analytics-2013::phys::Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Time.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Time","DefaultMulDB","false","Select tm.*, 
+        to_number(tm.calendar_year) as key_year,
+        to_number(tm.calendar_year||tm.calendar_quarter_number) as key_year_quarter, 
+        to_number(tm.calendar_year||tm.calendar_quarter_number||tm.calendar_month_number) as key_year_month,
+        to_number(tm.calendar_year||tm.calendar_quarter_number||tm.calendar_month_number||tm.calendar_week_number) as key_year_month_week,
+        to_number(tm.calendar_year||tm.calendar_quarter_number||tm.calendar_month_number||tm.calendar_week_number||tm.day_number_in_year) as key_year_day
+from dim_time_dd tm","false"
+"bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","DefaultMulDB","false","SELECT * FROM DIM_CUSTOMERS","false"
+"bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","DefaultMulDB","false","SELECT * FROM DIM_CUSTOMERS","false"
+"bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","DefaultMulDB","false","SELECT * FROM DIM_LOCATIONS_SCD","false"
+"bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","DefaultMulDB","false","SELECT * FROM DIM_LOCATIONS_SCD","false"
+"bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATIONS.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATIONS","DefaultMulDB","false","DIM_OPERATIONS","false"
+"bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","DefaultMulDB","false","SELECT DISTINCT OPERATION_METHOD_ID, OPERATION_METHOD_NAME, OPERATION_METHOD_TYPE, OPERATION_METHOD_TYPE_ID
+FROM DIM_OPERATIONS
+WHERE OPERATION_METHOD_ID IS NOT NULL","false"
+"bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","DefaultMulDB","false","SELECT TIME_ID,
+  DAY_NAME,
+  DAY_NUMBER_IN_WEEK,
+  DAY_NUMBER_IN_MONTH,
+  DAY_NUMBER_IN_YEAR,
+  CALENDAR_WEEK_NUMBER,
+  WEEK_ENDING_DATE,
+  CALENDAR_MONTH_NUMBER,
+  DAYS_IN_CAL_MONTH,
+  END_OF_CAL_MONTH,
+  CALENDAR_MONTH_NAME,
+  DAYS_IN_CAL_QUARTER,
+  BEG_OF_CAL_QUARTER,
+  END_OF_CAL_QUARTER,
+  CALENDAR_QUARTER_NUMBER,
+  CALENDAR_YEAR,
+  DAYS_IN_CAL_YEAR,
+  BEG_OF_CAL_YEAR,
+  END_OF_CAL_YEAR,
+  TO_NUMBER (CALENDAR_YEAR || CALENDAR_QUARTER_NUMBER) AS YEAR_Q,
+  TO_NUMBER (CALENDAR_YEAR || CALENDAR_MONTH_NUMBER) AS YEAR_M,
+  TO_NUMBER (CALENDAR_YEAR || CALENDAR_QUARTER_NUMBER || CALENDAR_MONTH_NUMBER || CALENDAR_WEEK_NUMBER) AS YEAR_W
+FROM DIM_TIMES_DAILY","false"
+"bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_ACTUAL.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_ACTUAL","DefaultMulDB","false","SELECT * FROM FCT_TRANSACTIONS_DAILY
+WHERE
+EXTRACT (YEAR from EVENT_DT) = VALUEOF(BI_YEAR)","false"
+"bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_DAILY.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_DAILY","DefaultMulDB","false","FCT_TRANSACTIONS_DAILY","false"
+"bi-analytics-2013::phys::TEAM_VAV.HR_TEAM_VAV.DEPARTMENTS.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::TEAM_VAV.HR_TEAM_VAV.DEPARTMENTS","DefaultMulDB","false","DEPARTMENTS","false"
+"bi-analytics-2013::phys::TEAM_VAV.HR_TEAM_VAV.EMPLOYEES.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::TEAM_VAV.HR_TEAM_VAV.EMPLOYEES","DefaultMulDB","false","SELECT EMPLOYEE_ID,
+  FIRST_NAME,
+  LAST_NAME,
+  EMAIL,
+  PHONE_NUMBER,
+  HIRE_DATE,
+  JOB_ID,
+  SALARY,
+  COMMISSION_PCT,
+  MANAGER_ID,
+  DEPARTMENT_ID,
+  BIRTH_DATE,
+  ROUND(MONTHS_BETWEEN(sysdate, BIRTH_DATE)/12,0) as AGE,
+  ROUND(MONTHS_BETWEEN(sysdate, HIRE_DATE)/12,0) as EXP  
+FROM EMPLOYEES","false"
+"bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.DIM_AR_PORTS.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.DIM_AR_PORTS","DefaultMulDB","false","DIM_AR_PORTS","false"
+"bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","DefaultMulDB","false","select distinct prod_category_id, prod_category_name, prod_category_desc from dim_products_scd","false"
+"bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS","DefaultMulDB","false","select * from dim_customers ","false"
+"bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.DIM_DEP_PORTS.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.DIM_DEP_PORTS","DefaultMulDB","false","DIM_DEP_PORTS","false"
+"bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD","DefaultMulDB","false","DIM_PRODUCTS_SCD","false"
+"bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.FCT_TRANS_MONTHLY.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.FCT_TRANS_MONTHLY","DefaultMulDB","false","FCT_TRANS_MONTHLY","false"
+"bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.FCT_TRANS_MONTHLY_ACTUAL.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Uladzislau_Dodu_star_schema.DW_STAR.FCT_TRANS_MONTHLY_ACTUAL","DefaultMulDB","false","select * from FCT_TRANS_MONTHLY where extract(year from event_dt) = VALUEOF(CURRENT_YEAR)","false"
+"bi-analytics-2013::phys::Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_DELIVERY_SYSTEMS.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_DELIVERY_SYSTEMS","DefaultMulDB","false","DIM_DELIVERY_SYSTEMS","false"
+"bi-analytics-2013::phys::Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_GEO_LOCATIONS_SCD.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_GEO_LOCATIONS_SCD","DefaultMulDB","false","DIM_GEO_LOCATIONS_SCD","false"
+"bi-analytics-2013::phys::Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_PAYMENT_SYSTEMS_SCD.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_PAYMENT_SYSTEMS_SCD","DefaultMulDB","false","select * from DIM_PAYMENT_SYSTEMS_SCD
+where payment_system_id <= 70
+","false"
+"bi-analytics-2013::phys::Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_PRODUCTS.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_PRODUCTS","DefaultMulDB","false","DIM_PRODUCTS","false"
+"bi-analytics-2013::phys::Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_TIMES.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_TIMES","DefaultMulDB","false","DIM_TIMES","false"
+"bi-analytics-2013::phys::Vasili_Korzun_DW.VASILI_KORZUN_DW.FCT_SALES_DD.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Vasili_Korzun_DW.VASILI_KORZUN_DW.FCT_SALES_DD","DefaultMulDB","false","FCT_SALES_DD","false"
+"bi-analytics-2013::phys::Vera_Yakimovich_DW.VY.DIM_TIMES.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Vera_Yakimovich_DW.VY.DIM_TIMES","DefaultMulDB","false","SELECT TIME_ID,
+  DAY_NAME,
+  DAY_NUMBER_IN_WEEK,
+  DAY_NUMBER_IN_MONTH,
+  DAY_NUMBER_IN_YEAR,
+  CALENDAR_WEEK_NUMBER,
+  WEEK_ENDING_DATE,
+  CALENDAR_MONTH_NUMBER,
+  DAYS_IN_CAL_MONTH,
+  END_OF_CAL_MONTH,
+  CALENDAR_MONTH_NAME,
+  TO_NUMBER (CALENDAR_YEAR || CALENDAR_QUARTER_NUMBER || CALENDAR_MONTH_NUMBER) as month_id,
+  DAYS_IN_CAL_QUARTER,
+  BEG_OF_CAL_QUARTER,
+  END_OF_CAL_QUARTER,
+  CALENDAR_QUARTER_NUMBER,
+  TO_NUMBER (CALENDAR_YEAR || CALENDAR_QUARTER_NUMBER) as quart_id,
+  CALENDAR_YEAR,
+  DAYS_IN_CAL_YEAR,
+  BEG_OF_CAL_YEAR,
+  END_OF_CAL_YEAR
+FROM DIM_TIMES","false"
+"bi-analytics-2013::phys::Vera_Yakimovich_DW.VY.FCT_ACTUAL_INCOME_PRODUCTS_DAILY.def.DefaultMulDB","bi-analytics-2013","bi-analytics-2013::phys::Vera_Yakimovich_DW.VY.FCT_ACTUAL_INCOME_PRODUCTS_DAILY","DefaultMulDB","false","SELECT 
+EVENT_DT,
+  PRODUCT_ID,
+  ORD_GEO_ID,
+  CUSTOMER_ID,
+  QUANTITY,
+  TOTAL_COST,
+  AMOUNT_SOLD,
+PART_ID
+ FROM FCT_INCOME_PRODUCTS_DAILY  INNER JOIN dim_geo ON dim_geo.country_geo_id = FCT_INCOME_PRODUCTS_DAILY.ORD_GEO_ID
+INNER JOIN dim_times ON dim_times.time_id = fct_income_products_daily.event_dt
+WHERE  calendar_year IN VALUEOF(VAR_ACT_YEAR)","false"
+"sampleapp::phys::xe.SAMPLESALES.EMP_PARENT_CHILD.def.DefaultMulDB","sampleapp","sampleapp::phys::xe.SAMPLESALES.EMP_PARENT_CHILD","DefaultMulDB","false","EMP_PARENT_CHILD","false"
+"sampleapp::phys::xe.SAMPLESALES.FactCrossJoin.def.DefaultMulDB","sampleapp","sampleapp::phys::xe.SAMPLESALES.FactCrossJoin","DefaultMulDB","false","select 1 Preserve from dual","false"
+"sampleapp::phys::xe.SAMPLESALES.FactCrossJoin1.def.DefaultMulDB","sampleapp","sampleapp::phys::xe.SAMPLESALES.FactCrossJoin1","DefaultMulDB","false","select 1 Preserve from dual","false"
+"sampleapp::phys::xe.SAMPLESALES.SAMP_PRODUCTS_D_TRANSLATION.def.DefaultMulDB","sampleapp","sampleapp::phys::xe.SAMPLESALES.SAMP_PRODUCTS_D_TRANSLATION","DefaultMulDB","false","SAMP_PRODUCTS_D_TRANSLATION","false"
+"sampleapp::phys::xe.SAMPLESALES.SAMP_REVENUE_A.def.DefaultMulDB","sampleapp","sampleapp::phys::xe.SAMPLESALES.SAMP_REVENUE_A","DefaultMulDB","false","SAMP_REVENUE_A","false"
+"sampleapp::phys::xe.SAMPLESALES.SAMP_REVENUE_A_YR.def.DefaultMulDB","sampleapp","sampleapp::phys::xe.SAMPLESALES.SAMP_REVENUE_A_YR","DefaultMulDB","false","SAMP_REVENUE_A_YR","false"
+"sampleapp::phys::xe.SAMPLESALES.SAMP_REVENUE_F.def.DefaultMulDB","sampleapp","sampleapp::phys::xe.SAMPLESALES.SAMP_REVENUE_F","DefaultMulDB","false","SAMP_REVENUE_F","false"
+"sampleapp::phys::xe.SAMPLESALES.SAMP_TARGETS_F.def.DefaultMulDB","sampleapp","sampleapp::phys::xe.SAMPLESALES.SAMP_TARGETS_F","DefaultMulDB","false","SAMP_TARGETS_F","false"
+"sampleapp::phys::xe.SAMPLESALES.SAMP_TIME_DAY_D.def.DefaultMulDB","sampleapp","sampleapp::phys::xe.SAMPLESALES.SAMP_TIME_DAY_D","DefaultMulDB","false","SAMP_TIME_DAY_D","false"
+"sampleapp::phys::xe.SAMPLESALES.US_CRIME_BY_STATE.def.DefaultMulDB","sampleapp","sampleapp::phys::xe.SAMPLESALES.US_CRIME_BY_STATE","DefaultMulDB","false","US_CRIME_BY_STATE","false"
+"sampleapp::phys::xe.SAMPLESALES.US_CRIME_YEARS.def.DefaultMulDB","sampleapp","sampleapp::phys::xe.SAMPLESALES.US_CRIME_YEARS","DefaultMulDB","false","US_CRIME_YEARS","false"
+"sampleapp::phys::xe.SAMPLESALES.US_CRIME_YEAR_2K_ONWARDS.def.DefaultMulDB","sampleapp","sampleapp::phys::xe.SAMPLESALES.US_CRIME_YEAR_2K_ONWARDS","DefaultMulDB","false","SELECT '2010' YEAR FROM dual
+UNION
+SELECT '2009' Year from dual
+UNION
+SELECT '2008' Year from dual
+UNION
+SELECT '2007' Year from dual
+UNION
+SELECT '2006' Year from dual
+UNION
+SELECT '2005' Year from dual
+UNION
+SELECT '2004' Year from dual
+UNION
+SELECT '2003' Year from dual
+UNION
+SELECT '2002' Year from dual
+UNION
+SELECT '2001' Year from dual
+UNION
+SELECT '2000' Year from dual","false"

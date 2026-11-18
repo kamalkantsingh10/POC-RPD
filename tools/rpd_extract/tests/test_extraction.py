@@ -754,3 +754,236 @@ class AccuracyReport(unittest.TestCase):
         # and the two must stay distinguishable.
         kinds = {r[1] for r in self.rows}
         self.assertEqual(kinds, {self.verify.CORPUS, self.verify.CONSTRUCTED})
+
+
+class PresentationHierarchies(unittest.TestCase):
+    """Story 2.9 Part 1 — the presentation layer stops being incomplete.
+
+    Ground Truth is the fixture in ``fixtures/testrpd``: one Dimension with two
+    logical levels, one PresentationHierarchy with two presentation levels, and
+    two display columns on the lower level.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.estate = load_fixture()
+
+    def test_a_hierarchy_hangs_off_its_presentation_table(self):
+        """AC 2.9-1."""
+        hier = next(h for h in self.estate.presentation_hierarchies
+                    if h.name == "Time")
+        table = {t.row_id for t in self.estate.presentation_tables}
+        self.assertIn(hier.table_id, table)
+        self.assertEqual(hier.level_count, 2)
+
+    def test_levels_keep_their_drill_order(self):
+        """AC 2.9-2: position is the drill order, and reordering changes meaning."""
+        time_id = next(h for h in self.estate.presentation_hierarchies
+                       if h.name == "Time").row_id
+        levels = sorted((l for l in self.estate.presentation_levels
+                         if l.hierarchy_id == time_id), key=lambda l: l.position)
+        self.assertEqual([l.name for l in levels], ["Total", "Year"])
+        self.assertEqual([l.position for l in levels], [0, 1])
+        hier = next(h for h in self.estate.presentation_hierarchies
+                    if h.name == "Time").row_id
+        levels = [l for l in levels if l.hierarchy_id == hier]
+        for level in levels:
+            self.assertEqual(level.hierarchy_id, hier)
+
+    def test_the_drill_path_maps_levels_to_presentation_columns(self):
+        """AC 2.9-3: this is what a Power BI hierarchy is built from."""
+        cols = self.estate.presentation_level_columns
+        self.assertEqual(len(cols), 2)
+        known = {c.row_id for c in self.estate.presentation_columns}
+        for entry in cols:
+            self.assertIn(entry.presentation_column_id, known)
+        # Both hang off the lower level; the grand-total level displays nothing.
+        self.assertEqual(len({c.level_id for c in cols}), 1)
+
+    def test_a_logical_level_reference_resolves_to_a_row(self):
+        """AC 2.9-4: no dangling identifier — FR-8 wants exactly one row."""
+        levels = {l.row_id for l in self.estate.logical_levels}
+        self.assertTrue(levels)
+        for level in self.estate.presentation_levels:
+            self.assertIn(level.logical_level_id, levels)
+
+    def test_drill_semantics_are_carried_not_dropped(self):
+        """AC 2.9-4: ragged and skip-level change what a hierarchy means."""
+        dim = next(d for d in self.estate.logical_dimensions
+                   if d.name == "Time Dim")
+        self.assertTrue(dim.is_ragged)
+        self.assertFalse(dim.is_skipped)
+        self.assertFalse(dim.is_value_based)
+        self.assertEqual(dim.level_count, 2)
+
+    def test_the_two_types_no_longer_report_as_unmodelled(self):
+        """AC 2.9-5."""
+        unmodelled = {u.object_type for u in self.estate.unparsed
+                      if u.kind == "unmodelled_type"}
+        self.assertNotIn("PresentationHierarchy", unmodelled)
+        self.assertNotIn("Dimension", unmodelled)
+
+
+class ParentChildHierarchies(unittest.TestCase):
+    """Story 2.9 — a value-based hierarchy has no levels at all.
+
+    One of the fixture corpus's 25 dimensions is parent-child, and its
+    PresentationHierarchy carries the display column directly rather than on a
+    level. Reading display columns only from levels loses it silently.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.estate = load_fixture()
+
+
+    def test_a_value_based_hierarchy_declares_itself(self):
+        dim = next(d for d in self.estate.logical_dimensions if d.name == "Rep Tree")
+        self.assertTrue(dim.is_value_based)
+
+    def test_it_has_no_levels_and_that_is_not_a_failure(self):
+        hier = next(h for h in self.estate.presentation_hierarchies
+                    if h.name == "Rep Tree")
+        self.assertEqual(hier.level_count, 0)
+        self.assertEqual(
+            [l for l in self.estate.presentation_levels
+             if l.hierarchy_id == hier.row_id], []
+        )
+
+    def test_its_display_column_is_kept_on_the_hierarchy(self):
+        """Otherwise the only column a parent-child hierarchy names is dropped."""
+        hier = next(h for h in self.estate.presentation_hierarchies
+                    if h.name == "Rep Tree")
+        self.assertTrue(hier.display_column_id)
+        known = {c.row_id for c in self.estate.presentation_columns}
+        self.assertIn(hier.display_column_id, known)
+
+    def test_a_dimension_identifier_is_qualified_by_its_business_model(self):
+        """FR-8: four dimensions named 'Times' exist in the corpus.
+
+        Falling back to the dimension's own name as its container collapses
+        them onto one identifier, which is a duplicate_identifier error, not a
+        naming preference.
+        """
+        for dim in self.estate.logical_dimensions:
+            _, _, path = ids.parse_id(dim.row_id)
+            container = path.rsplit(".", 1)[0]
+            self.assertNotEqual(container, dim.name, dim.row_id)
+
+
+class AliasesAndTableDefinitions(unittest.TestCase):
+    """What a physical table really is: an alias of another, an opaque view's
+    SQL, or a database object under a different name.
+
+    Built here rather than added to the shared fixture, whose recorded Ground
+    Truth every other class counts against.
+    """
+
+    NS = 'xmlns="http://www.oracle.com/obis/repository"'
+    SQL = " Select tm.*,\n  to_number(tm.year) as key_year\nfrom DIM_TIME tm "
+
+    def load(self, extra: dict[str, str] | None = None) -> Estate:
+        container = 'containerRef="/oracle/bi/server/base/Schema/s.xml#ms"'
+        files = {
+            # Named so the alias is parsed BEFORE the table it points at.
+            "a_alias.xml": (
+                f'<PhysicalTable mdsid="malias" name="Time" type="select" {self.NS} '
+                f'{container} sourceTableRef="/oracle/bi/server/base/PhysicalTable/'
+                f'z_view.xml#mview"/>'
+            ),
+            "z_view.xml": (
+                f'<PhysicalTable mdsid="mview" name="DIM_TIME_DD" type="select" '
+                f'{self.NS} {container}><DBMapItem name="DefaultMulDB"><Value>'
+                f'<![CDATA[{self.SQL}]]></Value></DBMapItem></PhysicalTable>'
+            ),
+            "renamed.xml": (
+                f'<PhysicalTable mdsid="mren" name="Operations" type="none" '
+                f'{self.NS} {container}><DBMapItem name="DefaultMulDB"><Value>'
+                f'FCT_OPERATIONS_DD</Value></DBMapItem><DBMapItem name="Oracle">'
+                f'<Value>FCT_OPS_ORA</Value></DBMapItem></PhysicalTable>'
+            ),
+            "plain.xml": (
+                f'<PhysicalTable mdsid="mplain" name="CHANNELS" type="none" '
+                f'{self.NS} {container}/>'
+            ),
+            **(extra or {}),
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "testrpd" / "oracle" / "bi" / "server" / "base"
+            (base / "PhysicalTable").mkdir(parents=True)
+            (base / "Schema").mkdir(parents=True)
+            (base / "Schema" / "s.xml").write_text(
+                f'<?xml version="1.0"?><Schema mdsid="ms" name="S" {self.NS}/>',
+                encoding="utf-8",
+            )
+            for name, body in files.items():
+                (base / "PhysicalTable" / name).write_text(
+                    '<?xml version="1.0"?>' + body, encoding="utf-8"
+                )
+            return mds_xml.load(tmp)
+
+    def test_an_alias_names_the_table_it_stands_for(self):
+        tables = {t.name: t for t in self.load().physical_tables}
+        self.assertEqual(tables["Time"].source_table_id, "testrpd::phys::S.DIM_TIME_DD")
+
+    def test_a_table_that_is_not_an_alias_has_no_source(self):
+        tables = {t.name: t for t in self.load().physical_tables}
+        for name in ("DIM_TIME_DD", "Operations", "CHANNELS"):
+            self.assertEqual(tables[name].source_table_id, "", name)
+
+    def test_view_sql_is_verbatim(self):
+        """Leading space, line breaks and trailing space all survive (FR-2)."""
+        estate = self.load()
+        texts = {d.table_id: d.text for d in estate.physical_table_definitions
+                 if d.table_id.endswith("DIM_TIME_DD")}
+        self.assertEqual(texts, {"testrpd::phys::S.DIM_TIME_DD": self.SQL})
+
+    def test_every_database_type_gets_its_own_row(self):
+        estate = self.load()
+        rows = sorted(
+            (d.database, d.text) for d in estate.physical_table_definitions
+            if d.table_id == "testrpd::phys::S.Operations"
+        )
+        self.assertEqual(
+            rows, [("DefaultMulDB", "FCT_OPERATIONS_DD"), ("Oracle", "FCT_OPS_ORA")]
+        )
+
+    def test_a_table_with_no_definition_has_no_row(self):
+        estate = self.load()
+        self.assertFalse([d for d in estate.physical_table_definitions
+                          if d.table_id.endswith("CHANNELS")])
+
+    def test_nothing_read_here_is_still_reported_as_unread(self):
+        estate = self.load()
+        self.assertEqual(estate.errors, [])
+        estate.check_identifier_uniqueness()
+        self.assertEqual(estate.errors, [])
+        unread = {u.detail for u in estate.unparsed}
+        for detail in ("PhysicalTable@sourceTableRef", "DBMapItem", "DBMapItem@name",
+                       "Value", "Value#text"):
+            self.assertNotIn(detail, unread)
+
+    def test_an_alias_whose_source_does_not_resolve_is_an_error_not_a_table(self):
+        estate = self.load({
+            "dangling.xml": (
+                f'<PhysicalTable mdsid="mdang" name="Orphan" type="none" {self.NS} '
+                f'containerRef="/oracle/bi/server/base/Schema/s.xml#ms" '
+                f'sourceTableRef="/oracle/bi/server/base/PhysicalTable/gone.xml#mgone"/>'
+            ),
+        })
+        orphan = next(t for t in estate.physical_tables if t.name == "Orphan")
+        self.assertEqual(orphan.source_table_id, "")
+        self.assertEqual(
+            [(e.kind, e.source_id) for e in estate.errors],
+            [("unresolved_reference", "testrpd::phys::S.Orphan")],
+        )
+
+    def test_both_survive_the_knowledge_base(self):
+        with tempfile.TemporaryDirectory() as out:
+            knowledge_base.write(self.load(), out, corpus_root="-", timestamp="-")
+            header, rows = read_table(Path(out) / "physical_tables.csv")
+            alias = next(dict(zip(header, r)) for r in rows if "Time" in r)
+            self.assertEqual(alias["source_table_id"], "testrpd::phys::S.DIM_TIME_DD")
+            header, rows = read_table(Path(out) / "physical_table_definitions.csv")
+            texts = {dict(zip(header, r))["text"] for r in rows}
+            self.assertIn(self.SQL, texts)

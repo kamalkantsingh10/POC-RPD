@@ -57,6 +57,7 @@ development_status:
   2-6-extract-filters-prompts-and-saved-filters: review
   2-7-report-catalog-coverage-honestly: review
   2-8-extract-analysis-views: review
+  2-9-complete-the-presentation-layer-and-resolve-report-lineage: review
   epic-2-retrospective: optional
 
   epic-3: backlog

@@ -16,8 +16,8 @@ Three estates, keyed by the `rpd_id` column present on every table:
 | `rpd_id`           | half    | rows   |
 | ------------------ | ------- | ------ |
 | `sampleapp-v607`   | catalog | 51,393 |
-| `bi-analytics-2013`| rpd     |  7,877 |
-| `sampleapp`        | rpd     |    812 |
+| `bi-analytics-2013`| rpd     |  7,904 |
+| `sampleapp`        | rpd     |    820 |
 
 The catalog tables come out EMPTY unless `<corpus>/clean` declares a catalog
 half. A repository tree alone is layout 2, and layout 2 has no catalog — so

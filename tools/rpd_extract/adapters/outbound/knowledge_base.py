@@ -120,12 +120,26 @@ def write(
 
     emit(
         "physical_tables",
-        ["row_id", "rpd_id", "container", "name", "table_type", "max_conn"],
+        ["row_id", "rpd_id", "container", "name", "table_type", "max_conn",
+         "source_table_id"],
         sorted(
-            [[t.row_id, t.rpd_id, t.container, t.name, t.table_type, t.max_conn]
+            [[t.row_id, t.rpd_id, t.container, t.name, t.table_type, t.max_conn,
+              t.source_table_id]
              for t in estate.physical_tables]
         ),
         guard=("name", "container"),
+    )
+
+    # The SQL of an opaque view, or the database name of an ordinary table —
+    # ``physical_tables.table_type`` says which. Verbatim, never parsed.
+    emit(
+        "physical_table_definitions",
+        ["row_id", "rpd_id", "table_id", "database", "text"],
+        sorted(
+            [[d.row_id, d.rpd_id, d.table_id, d.database, d.text]
+             for d in estate.physical_table_definitions]
+        ),
+        guard=("database", "text"),
     )
 
     emit(
@@ -224,6 +238,68 @@ def write(
              for c in estate.presentation_columns]
         ),
         guard=("name", "display_name"),
+    )
+
+    emit(
+        "presentation_hierarchies",
+        ["row_id", "rpd_id", "table_id", "name", "dimension_id", "level_count",
+         "display_column_id"],
+        sorted(
+            [[h.row_id, h.rpd_id, h.table_id, h.name, h.dimension_id,
+              str(h.level_count), h.display_column_id]
+             for h in estate.presentation_hierarchies]
+        ),
+        guard=("name",),
+    )
+
+    emit(
+        "presentation_levels",
+        ["row_id", "rpd_id", "hierarchy_id", "position", "name",
+         "logical_level_id"],
+        sorted(
+            [[l.row_id, l.rpd_id, l.hierarchy_id, str(l.position), l.name,
+              l.logical_level_id]
+             for l in estate.presentation_levels]
+        ),
+        guard=("name",),
+    )
+
+    emit(
+        "presentation_level_columns",
+        ["row_id", "rpd_id", "level_id", "position", "presentation_column_id"],
+        sorted(
+            [[c.row_id, c.rpd_id, c.level_id, str(c.position),
+              c.presentation_column_id]
+             for c in estate.presentation_level_columns]
+        ),
+    )
+
+    emit(
+        "logical_dimensions",
+        ["row_id", "rpd_id", "name", "business_model", "is_value_based",
+         "is_ragged", "is_skipped", "default_root_level_id", "level_count"],
+        sorted(
+            [[d.row_id, d.rpd_id, d.name, d.business_model,
+              "true" if d.is_value_based else "false",
+              "true" if d.is_ragged else "false",
+              "true" if d.is_skipped else "false",
+              d.default_root_level_id, str(d.level_count)]
+             for d in estate.logical_dimensions]
+        ),
+        guard=("name",),
+    )
+
+    emit(
+        "logical_levels",
+        ["row_id", "rpd_id", "dimension_id", "position", "name", "member_count",
+         "is_grand_total", "drill_key_column_id"],
+        sorted(
+            [[l.row_id, l.rpd_id, l.dimension_id, str(l.position), l.name,
+              l.member_count, "true" if l.is_grand_total else "false",
+              l.drill_key_column_id]
+             for l in estate.logical_levels]
+        ),
+        guard=("name", "member_count"),
     )
 
     emit(
@@ -403,6 +479,22 @@ def write(
              for v in estate.analysis_views]
         ),
         guard=("view_type", "name", "display_type", "display_subtype"),
+    )
+
+    emit(
+        "report_lineage",
+        ["row_id", "rpd_id", "analysis_id", "criteria_id", "analysis_column_id",
+         "subject_area", "subject_area_id", "reference_text",
+         "presentation_column_id", "resolution", "logical_column_id",
+         "physical_column_id", "source_state"],
+        sorted(
+            [[r.row_id, r.rpd_id, r.analysis_id, r.criteria_id,
+              r.analysis_column_id, r.subject_area, r.subject_area_id,
+              r.reference_text, r.presentation_column_id, r.resolution,
+              r.logical_column_id, r.physical_column_id, r.source_state]
+             for r in estate.report_lineage]
+        ),
+        guard=("subject_area", "reference_text"),
     )
 
     emit(

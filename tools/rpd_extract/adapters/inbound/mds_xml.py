@@ -34,7 +34,13 @@ from tools.rpd_extract.core.model import (
     PhysicalColumn,
     PhysicalJoin,
     PhysicalTable,
+    PhysicalTableDefinition,
     PresentationColumn,
+    LogicalDimension,
+    LogicalLevel,
+    PresentationHierarchy,
+    PresentationLevel,
+    PresentationLevelColumn,
     PresentationTable,
     SecurityRule,
     SubjectArea,
@@ -361,6 +367,16 @@ def _children(element: ET.Element, name: str) -> list[ET.Element]:
     return [_sought(child) for child in element if _tag(child) == name]
 
 
+def _descendants(element: ET.Element, name: str) -> list[ET.Element]:
+    """Every descendant with this local name, at any depth.
+
+    Reference lists nest one wrapper deep — ``LogicalKey/RefColumns/RefLogical
+    Column``, ``PresentationLevel/RefDisplayColumns/RefPresentationColumn`` — and
+    reading only direct children finds none of them.
+    """
+    return [_sought(found) for found in element.iter() if _tag(found) == name]
+
+
 def _container_path(element: ET.Element, index: _Index) -> tuple[str, ...]:
     """Resolve ``@containerRef`` to the full containment chain, outermost first.
 
@@ -417,6 +433,29 @@ def _parse_physical(rpd_id: str, root: ET.Element, index: _Index, estate: Estate
     )
     estate.count(rpd_id, "PhysicalTable", "parsed")
 
+    # One entry per database type. For an opaque view the value is its SQL; for
+    # an ordinary table it is the name of the object in the database, which need
+    # not be the name the repository shows. Kept verbatim and never parsed.
+    for position, item in enumerate(_children(root, "DBMapItem"), start=1):
+        database = item.attrib.get("name", "")
+        values = _children(item, "Value")
+        # An entry with no value is still an entry: the source says this table
+        # is mapped for that database and says nothing more.
+        texts = [_text(value) for value in values] or [""]
+        for text in texts:
+            estate.physical_table_definitions.append(
+                PhysicalTableDefinition(
+                    row_id=ids.make_id(
+                        rpd_id, ids.PHYSICAL, *container, name,
+                        "def", database or f"unnamed-{position}",
+                    ),
+                    rpd_id=rpd_id,
+                    table_id=table_id,
+                    database=database,
+                    text=text,
+                )
+            )
+
     for column in _children(root, "PhysicalColumn"):
         column_name = column.attrib.get("name", "")
         if not column_name:
@@ -463,6 +502,43 @@ def _parse_physical(rpd_id: str, root: ET.Element, index: _Index, estate: Estate
             )
         )
         estate.count(rpd_id, "PhysicalForeignKey", "parsed")
+
+
+def _resolve_alias_sources(
+    trees: list[tuple[str, str, ET.Element]], index: _Index, estate: Estate
+) -> None:
+    """Record, for each alias, the physical table it is an alias of.
+
+    A pass of its own because an alias can be parsed before the table it points
+    at, and an identifier exists only once its table has been parsed.
+
+    A link that is present but does not resolve is an error, and the cell stays
+    empty: an alias reported as an ordinary table would send whoever reads the
+    Knowledge Base looking for a database object that does not exist.
+    """
+    position = {table.row_id: i for i, table in enumerate(estate.physical_tables)}
+    for rpd_id, object_type, root in trees:
+        if object_type != "PhysicalTable":
+            continue
+        ref = root.attrib.get("sourceTableRef", "")
+        if not ref:
+            continue
+        table_id = index.identifier(root.attrib.get("mdsid", ""))
+        if table_id not in position:
+            continue  # the table itself failed to parse, and said so already
+        _, mdsid = index.resolve_ref(ref)
+        source_id = index.identifier(mdsid) if mdsid else ""
+        if not source_id:
+            estate.record_error(
+                rpd_id, "unresolved_reference", table_id, "PhysicalTable",
+                "this table is an alias, but the table it is an alias of could "
+                "not be resolved to a Knowledge Base identifier",
+            )
+            continue
+        at = position[table_id]
+        estate.physical_tables[at] = replace(
+            estate.physical_tables[at], source_table_id=source_id
+        )
 
 
 def _parse_complex_join(rpd_id: str, root: ET.Element, index: _Index, estate: Estate) -> None:
@@ -686,6 +762,178 @@ def _parse_presentation_table(
             )
         )
         estate.count(rpd_id, "PresentationColumn", "parsed")
+
+
+def _parse_dimension(
+    rpd_id: str, root: ET.Element, index: _Index, estate: Estate
+) -> None:
+    """A logical dimension and its levels — the drill semantics of a hierarchy."""
+    name = root.attrib.get("name", "")
+    if not name:
+        estate.record_error(
+            rpd_id, "missing_name", root.attrib.get("mdsid", "?"), "Dimension", "no name",
+        )
+        return
+    _, bm_mdsid = index.resolve_ref(root.attrib.get("subjectAreaRef", ""))
+    model_entry = index.get(bm_mdsid) if bm_mdsid else None
+    business_model = model_entry.name if model_entry else ""
+    if not business_model:
+        # The business model is the identifier's container, exactly as for a
+        # logical table. Four dimensions in the corpus are named "Times"; using
+        # the dimension's own name as its container collapses them onto one
+        # identifier. Refuse rather than invent a placeholder (AD-3, FR-8).
+        estate.record_error(
+            rpd_id, "unresolved_reference", root.attrib.get("mdsid", "?"),
+            "Dimension",
+            f"business model for dimension {name!r} could not be resolved",
+        )
+        return
+
+    dimension_id = ids.make_id(rpd_id, ids.BUSINESS_MODEL, business_model, name)
+    index.bind(root.attrib.get("mdsid", ""), dimension_id)
+
+    levels = _children(root, "LogicalLevel")
+    for order, level in enumerate(levels):
+        level_name = level.attrib.get("name", "")
+        if not level_name:
+            estate.record_error(
+                rpd_id, "missing_name", level.attrib.get("mdsid", "?"),
+                "LogicalLevel", "no name",
+            )
+            continue
+        level_id = ids.make_id(rpd_id, ids.BUSINESS_MODEL, business_model,
+                               name, level_name)
+        index.bind(level.attrib.get("mdsid", ""), level_id)
+
+        # The key marked isForDrillDown is the one a drill actually follows.
+        drill = ""
+        for key in _children(level, "LogicalKey"):
+            if key.attrib.get("isForDrillDown", "") != "true":
+                continue
+            for ref in _descendants(key, "RefLogicalColumn"):
+                _, column_mdsid = index.resolve_ref(
+                    ref.attrib.get("logicalColumnRef", "")
+                )
+                drill = index.identifier(column_mdsid) if column_mdsid else ""
+                if drill:
+                    break
+            if drill:
+                break
+
+        estate.logical_levels.append(
+            LogicalLevel(
+                row_id=level_id, rpd_id=rpd_id, dimension_id=dimension_id,
+                position=order, name=level_name,
+                member_count=level.attrib.get("memberCount", ""),
+                is_grand_total=level.attrib.get("isGTA", "") == "true",
+                drill_key_column_id=drill,
+            )
+        )
+        estate.count(rpd_id, "LogicalLevel", "parsed")
+
+    _, root_mdsid = index.resolve_ref(root.attrib.get("defaultRootLevelRef", ""))
+    estate.logical_dimensions.append(
+        LogicalDimension(
+            row_id=dimension_id, rpd_id=rpd_id, name=name,
+            business_model=business_model,
+            is_value_based=root.attrib.get("isValueBased", "") == "true",
+            is_ragged=root.attrib.get("isRagged", "") == "true",
+            is_skipped=root.attrib.get("isSkipped", "") == "true",
+            default_root_level_id=(
+                index.identifier(root_mdsid) if root_mdsid else ""
+            ),
+            level_count=len(levels),
+        )
+    )
+    estate.count(rpd_id, "Dimension", "parsed")
+
+
+def _parse_presentation_hierarchy(
+    rpd_id: str, root: ET.Element, index: _Index, estate: Estate
+) -> None:
+    """A hierarchy as a report author sees it, and the columns it drills."""
+    name = root.attrib.get("name", "")
+    _, table_mdsid = index.resolve_ref(root.attrib.get("containerRef", ""))
+    table_id = index.identifier(table_mdsid) if table_mdsid else ""
+    if not name or not table_id:
+        estate.record_error(
+            rpd_id, "unresolved_reference", root.attrib.get("mdsid", "?"),
+            "PresentationHierarchy",
+            "hierarchy name or owning presentation table could not be resolved",
+        )
+        return
+
+    _, _, table_path = ids.parse_id(table_id)
+    hierarchy_id = ids.make_id(rpd_id, ids.PRESENTATION, table_path, name)
+    index.bind(root.attrib.get("mdsid", ""), hierarchy_id)
+
+    _, dim_mdsid = index.resolve_ref(root.attrib.get("logicalDimensionRef", ""))
+    levels = _children(root, "PresentationLevel")
+    for order, level in enumerate(levels):
+        level_name = level.attrib.get("name", "")
+        if not level_name:
+            estate.record_error(
+                rpd_id, "missing_name", level.attrib.get("mdsid", "?"),
+                "PresentationLevel", "no name",
+            )
+            continue
+        level_id = ids.make_id(rpd_id, ids.PRESENTATION, table_path, name, level_name)
+        index.bind(level.attrib.get("mdsid", ""), level_id)
+        _, logical_mdsid = index.resolve_ref(level.attrib.get("logicalLevelRef", ""))
+        estate.presentation_levels.append(
+            PresentationLevel(
+                row_id=level_id, rpd_id=rpd_id, hierarchy_id=hierarchy_id,
+                position=order, name=level_name,
+                logical_level_id=(
+                    index.identifier(logical_mdsid) if logical_mdsid else ""
+                ),
+            )
+        )
+        estate.count(rpd_id, "PresentationLevel", "parsed")
+
+        for place, ref in enumerate(_descendants(level, "RefPresentationColumn")):
+            _, column_mdsid = index.resolve_ref(
+                ref.attrib.get("presentationColumnRef", "")
+            )
+            column_id = index.identifier(column_mdsid) if column_mdsid else ""
+            if not column_id:
+                estate.record_error(
+                    rpd_id, "unresolved_reference", level_id,
+                    "RefPresentationColumn",
+                    "display column reference does not resolve to a known column",
+                )
+                continue
+            estate.presentation_level_columns.append(
+                PresentationLevelColumn(
+                    row_id=ids.make_id(rpd_id, ids.PRESENTATION, table_path, name,
+                                       level_name, str(place)),
+                    rpd_id=rpd_id, level_id=level_id, position=place,
+                    presentation_column_id=column_id,
+                )
+            )
+
+    # A value-based (parent-child) hierarchy has no levels; its display column
+    # hangs off the hierarchy. Read from the direct RefDisplayColumns child so a
+    # level's columns cannot be picked up twice.
+    display_column = ""
+    own = _first_child(root, "RefDisplayColumns")
+    if own is not None:
+        for ref in _descendants(own, "RefPresentationColumn"):
+            _, column_mdsid = index.resolve_ref(
+                ref.attrib.get("presentationColumnRef", "")
+            )
+            display_column = index.identifier(column_mdsid) if column_mdsid else ""
+            if display_column:
+                break
+
+    estate.presentation_hierarchies.append(
+        PresentationHierarchy(
+            row_id=hierarchy_id, rpd_id=rpd_id, table_id=table_id, name=name,
+            dimension_id=index.identifier(dim_mdsid) if dim_mdsid else "",
+            level_count=len(levels), display_column_id=display_column,
+        )
+    )
+    estate.count(rpd_id, "PresentationHierarchy", "parsed")
 
 
 def _parse_table_source(rpd_id: str, root: ET.Element, index: _Index, estate: Estate) -> None:
@@ -991,6 +1239,8 @@ _HANDLED = {
     "LogicalTable",
     "PresentationCatalog",
     "PresentationTable",
+    "PresentationHierarchy",
+    "Dimension",
     "LogicalTableSource",
     "LogicalComplexJoin",
     "Variable",
@@ -1090,6 +1340,10 @@ def load(corpus_root: Path | str, rpd_id: str | None = None) -> Estate:
         "LogicalTable": _parse_logical,
         "PresentationCatalog": _parse_subject_area,
         "PresentationTable": _parse_presentation_table,
+        # After LogicalTable (levels cite logical columns) and after
+        # PresentationTable (levels display presentation columns).
+        "Dimension": _parse_dimension,
+        "PresentationHierarchy": _parse_presentation_hierarchy,
         "LogicalTableSource": _parse_table_source,
         "LogicalComplexJoin": _parse_bmm_join,
         "InitBlock": _parse_init_block,
@@ -1104,6 +1358,7 @@ def load(corpus_root: Path | str, rpd_id: str | None = None) -> Estate:
                 continue
             handler(rpd_id, root, index, estate)
 
+    _resolve_alias_sources(trees, index, estate)
     _count_mapped_sources(estate)
     _flag_time_series(estate)
     _build_lineage(estate)
