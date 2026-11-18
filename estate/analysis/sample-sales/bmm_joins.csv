@@ -1,0 +1,8 @@
+"row_id","rpd_id","name","name_guarded","join_type","table1_id","multiplicity1","is_aggregate1","table2_id","multiplicity2","is_aggregate2"
+"sampleapp::bmm::joins.Relationship_2004:11061353928600","sampleapp","Relationship_2004:11061353928600","false","Inner","sampleapp::bmm::SAMPLESALES.Dim Time","0..1","false","sampleapp::bmm::SAMPLESALES.Fact Target","0..n","false"
+"sampleapp::bmm::joins.Relationship_2004:11091353928666","sampleapp","Relationship_2004:11091353928666","false","Inner","sampleapp::bmm::SAMPLESALES.Dim Time","0..1","false","sampleapp::bmm::SAMPLESALES.Fact Revenue","0..n","false"
+"sampleapp::bmm::joins.Relationship_2004:17511354089145","sampleapp","Relationship_2004:17511354089145","false","Inner","sampleapp::bmm::SAMPLESALES.Dim Sales Rep","1..1","false","sampleapp::bmm::SAMPLESALES.Fact Revenue","0..n","false"
+"sampleapp::bmm::joins.Relationship_2004:2111353851711","sampleapp","Relationship_2004:2111353851711","false","Inner","sampleapp::bmm::SAMPLESALES.Fact Revenue","n..n","false","sampleapp::bmm::SAMPLESALES.Dim Offices","0..1","false"
+"sampleapp::bmm::joins.Relationship_2004:2141353851711","sampleapp","Relationship_2004:2141353851711","false","Inner","sampleapp::bmm::SAMPLESALES.Fact Revenue","n..n","false","sampleapp::bmm::SAMPLESALES.Dim Products","0..1","false"
+"sampleapp::bmm::joins.Relationship_2004:2301353851711","sampleapp","Relationship_2004:2301353851711","false","Inner","sampleapp::bmm::SAMPLESALES.Fact Target","n..n","false","sampleapp::bmm::SAMPLESALES.Dim Offices","0..1","false"
+"sampleapp::bmm::joins.Relationship_2004:2331353851711","sampleapp","Relationship_2004:2331353851711","false","Inner","sampleapp::bmm::SAMPLESALES.Fact Target","n..n","false","sampleapp::bmm::SAMPLESALES.Dim Products","0..1","false"

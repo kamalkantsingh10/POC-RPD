@@ -27,9 +27,12 @@ __pycache__/
 # withholds.
 
 # --- Generated analysis ------------------------------------------------------
-# Documents derived from the Knowledge Base inherit its licensing position: they
-# carry verbatim names and formulas from two UNLICENSED corpus repositories,
-# including personal names. Same open question as PRD §16. Regenerate rather
-# than commit, and revisit when licensing is settled (PRD §15 Open Question 15).
+# estate/analysis/ is now COMMITTED, on the same footing as the Knowledge Base it
+# is derived from: it carries verbatim names and formulas from two UNLICENSED
+# corpus repositories, including personal names, and publishing it accepts the
+# position recorded in estate/knowledge-base/README.md. The licensing question
+# itself stays open (PRD §16, §15 Open Question 15).
+#
+# The one-off semantic model documents written to the repository root are still
+# ignored.
 /semantic-model-*.md
-/estate/analysis/

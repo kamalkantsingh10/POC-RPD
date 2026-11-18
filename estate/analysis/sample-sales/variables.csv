@@ -1,0 +1,3 @@
+"row_id","rpd_id","name","name_guarded","is_session","init_block_id","security_mask","redacted","expr_text","expr_text_guarded","expr_text_desc","expr_text_desc_guarded","expr_refs","expr_refs_guarded"
+"bi-analytics-2013::var::PREFERRED_CURRENCY","bi-analytics-2013","PREFERRED_CURRENCY","false","true","bi-analytics-2013::var::init.DUAL Currency (=USD)","2","false","'USD'","false","'USD'","false","","false"
+"sampleapp::var::PREFERRED_CURRENCY","sampleapp","PREFERRED_CURRENCY","false","true","sampleapp::var::init.initBlockPrefCurrency","2","false","'gc1'","false","'gc1'","false","","false"

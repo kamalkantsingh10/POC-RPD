@@ -1,0 +1,7 @@
+"row_id","rpd_id","subject_area_id","name","name_guarded","display_name","display_name_guarded","aliases","aliases_guarded"
+"sampleapp::pres::Sample Sales.Dim Offices","sampleapp","sampleapp::pres::Sample Sales","Dim Offices","false","","false","","false"
+"sampleapp::pres::Sample Sales.Dim Products","sampleapp","sampleapp::pres::Sample Sales","Dim Products","false","","false","","false"
+"sampleapp::pres::Sample Sales.Dim Sales Rep","sampleapp","sampleapp::pres::Sample Sales","Dim Sales Rep","false","","false","","false"
+"sampleapp::pres::Sample Sales.Dim Time","sampleapp","sampleapp::pres::Sample Sales","Dim Time","false","VALUEOF(NQ_SESSION.CN_Sample_Sales_Dim_Time)","false","","false"
+"sampleapp::pres::Sample Sales.Fact Revenue","sampleapp","sampleapp::pres::Sample Sales","Fact Revenue","false","","false","","false"
+"sampleapp::pres::Sample Sales.Fact Target","sampleapp","sampleapp::pres::Sample Sales","Fact Target","false","","false","","false"

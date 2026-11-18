@@ -1,0 +1,3 @@
+"row_id","rpd_id","name","name_guarded","refresh_period","is_session","is_enabled","init_string","init_string_guarded"
+"bi-analytics-2013::var::init.DUAL Currency (=USD)","bi-analytics-2013","DUAL Currency (=USD)","false","86400","true","","Select 'USD' From Dual","false"
+"sampleapp::var::init.initBlockPrefCurrency","sampleapp","initBlockPrefCurrency","false","","true","","select 'VALUEOF(NQ_SESSION.PREFERED_CURRENCY)' from dual","false"

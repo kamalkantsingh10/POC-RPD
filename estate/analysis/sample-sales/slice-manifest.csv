@@ -1,0 +1,5 @@
+"key","value","value_guarded"
+"subject_area","Sample Sales","false"
+"knowledge_base","estate/knowledge-base","false"
+"tables","aggregation_rules bmm_joins init_blocks lineage logical_columns logical_table_sources logical_tables lts_column_map physical_columns physical_joins physical_tables presentation_columns presentation_subject_areas presentation_tables security_rls variables","false"
+"rows","351","false"
