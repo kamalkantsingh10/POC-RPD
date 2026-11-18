@@ -1,52 +1,52 @@
-"rpd_id","subject_area","subject_area_guarded","presentation_table","presentation_table_guarded","logical_table","logical_table_guarded","logical_table_source","logical_table_source_guarded","physical_table_alias","physical_table_alias_guarded","physical_table_original","physical_table_original_guarded","intermediate_view","intermediate_view_guarded","final_table","final_table_guarded","comment","comment_guarded"
-"bi-analytics-2013","Anton_Tserakhau","false","Dishes","false","Dishes","false","Dishes","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Dishes","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_DISHES","false","","false","DIM_DISHES","false","","false"
-"bi-analytics-2013","Anton_Tserakhau","false","Operations","false","Operations","false","Operations","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Operations","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_DD","false","","false","FCT_OPERATIONS_DD","false","","false"
-"bi-analytics-2013","Anton_Tserakhau","false","Operations with agregation","false","Operations with agregation","false","Operations with agregation","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Operations with agregation","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_AGR_DD","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_AGR_DD","false","Select event_dt, sum(fct_total_sales_dol) as fct_total_sales_dol, sum(fct_unit_amount) as fct_unit_amount from fct_operations_dd where extract(month from event_dt)=valueof(Anton_tserakhau_v_cur_month) group by event_dt ","false","","false"
-"bi-analytics-2013","Anton_Tserakhau","false","Periods","false","Periods","false","Periods","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Periods","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_GEN_PERIODS","false","","false","DIM_GEN_PERIODS","false","","false"
-"bi-analytics-2013","Anton_Tserakhau","false","Restaurants","false","Restaurants","false","LTS Restaurants - Locations","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Locations","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_GEO_LOCATIONS","false","","false","DIM_GEO_LOCATIONS","false","","false"
-"bi-analytics-2013","Anton_Tserakhau","false","Restaurants","false","Restaurants","false","LTS Restaurants - Locations","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Restaurants","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_RESTAURANTS","false","","false","DIM_RESTAURANTS","false","","false"
-"bi-analytics-2013","Anton_Tserakhau","false","Time","false","Time","false","Time","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Time","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_TIME_DD","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_TIME_DD","false","Select tm.*, 
+"rpd_id","subject_area","presentation_table","logical_table","logical_table_source","physical_table_alias","physical_table_original","intermediate_view","final_table","comment"
+"bi-analytics-2013","Anton_Tserakhau","Dishes","Dishes","Dishes","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Dishes","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_DISHES","","DIM_DISHES",""
+"bi-analytics-2013","Anton_Tserakhau","Operations","Operations","Operations","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Operations","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_DD","","FCT_OPERATIONS_DD",""
+"bi-analytics-2013","Anton_Tserakhau","Operations with agregation","Operations with agregation","Operations with agregation","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Operations with agregation","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_AGR_DD","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_AGR_DD","Select event_dt, sum(fct_total_sales_dol) as fct_total_sales_dol, sum(fct_unit_amount) as fct_unit_amount from fct_operations_dd where extract(month from event_dt)=valueof(Anton_tserakhau_v_cur_month) group by event_dt ",""
+"bi-analytics-2013","Anton_Tserakhau","Periods","Periods","Periods","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Periods","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_GEN_PERIODS","","DIM_GEN_PERIODS",""
+"bi-analytics-2013","Anton_Tserakhau","Restaurants","Restaurants","LTS Restaurants - Locations","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Locations","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_GEO_LOCATIONS","","DIM_GEO_LOCATIONS",""
+"bi-analytics-2013","Anton_Tserakhau","Restaurants","Restaurants","LTS Restaurants - Locations","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Restaurants","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_RESTAURANTS","","DIM_RESTAURANTS",""
+"bi-analytics-2013","Anton_Tserakhau","Time","Time","Time","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Time","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_TIME_DD","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_TIME_DD","Select tm.*, 
         to_number(tm.calendar_year) as key_year,
         to_number(tm.calendar_year||tm.calendar_quarter_number) as key_year_quarter, 
         to_number(tm.calendar_year||tm.calendar_quarter_number||tm.calendar_month_number) as key_year_month,
         to_number(tm.calendar_year||tm.calendar_quarter_number||tm.calendar_month_number||tm.calendar_week_number) as key_year_month_week,
         to_number(tm.calendar_year||tm.calendar_quarter_number||tm.calendar_month_number||tm.calendar_week_number||tm.day_number_in_year) as key_year_day
-from dim_time_dd tm","false","","false"
-"bi-analytics-2013","Anton_Tserakhau_SH","false","CHANNELS","false","CHANNELS","false","CHANNELS","false","","false","Anton_Tserakhau_SH.SH.CHANNELS","false","","false","CHANNELS","false","","false"
-"bi-analytics-2013","Anton_Tserakhau_SH","false","COSTS","false","COSTS","false","COSTS","false","","false","Anton_Tserakhau_SH.SH.COSTS","false","","false","COSTS","false","","false"
-"bi-analytics-2013","Anton_Tserakhau_SH","false","COUNTRIES","false","COUNTRIES","false","COUNTRIES","false","","false","Anton_Tserakhau_SH.SH.COUNTRIES","false","","false","COUNTRIES","false","","false"
-"bi-analytics-2013","Anton_Tserakhau_SH","false","CUSTOMERS","false","CUSTOMERS","false","CUSTOMERS","false","","false","Anton_Tserakhau_SH.SH.CUSTOMERS","false","","false","CUSTOMERS","false","","false"
-"bi-analytics-2013","Anton_Tserakhau_SH","false","PRODUCTS","false","PRODUCTS","false","PRODUCTS","false","","false","Anton_Tserakhau_SH.SH.PRODUCTS","false","","false","PRODUCTS","false","","false"
-"bi-analytics-2013","Anton_Tserakhau_SH","false","PROMOTIONS","false","PROMOTIONS","false","PROMOTIONS","false","","false","Anton_Tserakhau_SH.SH.PROMOTIONS","false","","false","PROMOTIONS","false","","false"
-"bi-analytics-2013","Anton_Tserakhau_SH","false","SALES","false","SALES","false","SALES","false","","false","Anton_Tserakhau_SH.SH.SALES","false","","false","SALES","false","","false"
-"bi-analytics-2013","Anton_Tserakhau_SH","false","TIMES","false","TIMES","false","TIMES","false","","false","Anton_Tserakhau_SH.SH.TIMES","false","","false","TIMES","false","","false"
-"bi-analytics-2013","Anton_Tserakhau_demo","false","Operations with agregation","false","Operations with agregation","false","Operations with agregation","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Operations with agregation","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_AGR_DD","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_AGR_DD","false","Select event_dt, sum(fct_total_sales_dol) as fct_total_sales_dol, sum(fct_unit_amount) as fct_unit_amount from fct_operations_dd where extract(month from event_dt)=valueof(Anton_tserakhau_v_cur_month) group by event_dt ","false","","false"
-"bi-analytics-2013","Anton_Tserakhau_demo","false","Time","false","Time","false","Time","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Time","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_TIME_DD","false","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_TIME_DD","false","Select tm.*, 
+from dim_time_dd tm",""
+"bi-analytics-2013","Anton_Tserakhau_SH","CHANNELS","CHANNELS","CHANNELS","","Anton_Tserakhau_SH.SH.CHANNELS","","CHANNELS",""
+"bi-analytics-2013","Anton_Tserakhau_SH","COSTS","COSTS","COSTS","","Anton_Tserakhau_SH.SH.COSTS","","COSTS",""
+"bi-analytics-2013","Anton_Tserakhau_SH","COUNTRIES","COUNTRIES","COUNTRIES","","Anton_Tserakhau_SH.SH.COUNTRIES","","COUNTRIES",""
+"bi-analytics-2013","Anton_Tserakhau_SH","CUSTOMERS","CUSTOMERS","CUSTOMERS","","Anton_Tserakhau_SH.SH.CUSTOMERS","","CUSTOMERS",""
+"bi-analytics-2013","Anton_Tserakhau_SH","PRODUCTS","PRODUCTS","PRODUCTS","","Anton_Tserakhau_SH.SH.PRODUCTS","","PRODUCTS",""
+"bi-analytics-2013","Anton_Tserakhau_SH","PROMOTIONS","PROMOTIONS","PROMOTIONS","","Anton_Tserakhau_SH.SH.PROMOTIONS","","PROMOTIONS",""
+"bi-analytics-2013","Anton_Tserakhau_SH","SALES","SALES","SALES","","Anton_Tserakhau_SH.SH.SALES","","SALES",""
+"bi-analytics-2013","Anton_Tserakhau_SH","TIMES","TIMES","TIMES","","Anton_Tserakhau_SH.SH.TIMES","","TIMES",""
+"bi-analytics-2013","Anton_Tserakhau_demo","Operations with agregation","Operations with agregation","Operations with agregation","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Operations with agregation","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_AGR_DD","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.FCT_OPERATIONS_AGR_DD","Select event_dt, sum(fct_total_sales_dol) as fct_total_sales_dol, sum(fct_unit_amount) as fct_unit_amount from fct_operations_dd where extract(month from event_dt)=valueof(Anton_tserakhau_v_cur_month) group by event_dt ",""
+"bi-analytics-2013","Anton_Tserakhau_demo","Time","Time","Time","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.Time","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_TIME_DD","Anton_Tserakhau_DW.ANTON_TSERAKHAU_DW.DIM_TIME_DD","Select tm.*, 
         to_number(tm.calendar_year) as key_year,
         to_number(tm.calendar_year||tm.calendar_quarter_number) as key_year_quarter, 
         to_number(tm.calendar_year||tm.calendar_quarter_number||tm.calendar_month_number) as key_year_month,
         to_number(tm.calendar_year||tm.calendar_quarter_number||tm.calendar_month_number||tm.calendar_week_number) as key_year_month_week,
         to_number(tm.calendar_year||tm.calendar_quarter_number||tm.calendar_month_number||tm.calendar_week_number||tm.day_number_in_year) as key_year_day
-from dim_time_dd tm","false","","false"
-"bi-analytics-2013","DW_STAR","false","DIM_AR_PORTS","false","DIM_AR_PORTS","false","DIM_AR_PORTS","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_AR_PORTS","false","","false","DIM_AR_PORTS","false","","false"
-"bi-analytics-2013","DW_STAR","false","DIM_CUSTOMERS","false","DIM_CUSTOMERS","false","DIM_CUSTOMERS","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS","false","select * from dim_customers ","false","","false"
-"bi-analytics-2013","DW_STAR","false","DIM_DEP_PORTS","false","DIM_DEP_PORTS","false","DIM_DEP_PORTS","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_DEP_PORTS","false","","false","DIM_DEP_PORTS","false","","false"
-"bi-analytics-2013","DW_STAR","false","DIM_INSURANCES","false","DIM_INSURANCES","false","DIM_INSURANCES","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_INSURANCES","false","","false","DIM_INSURANCES","false","","false"
-"bi-analytics-2013","DW_STAR","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","DIM_CATEGORIES","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","false","select distinct prod_category_id, prod_category_name, prod_category_desc from dim_products_scd","false","","false"
-"bi-analytics-2013","DW_STAR","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","DIM_CATEGORIES","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD","false","","false","DIM_PRODUCTS_SCD","false","","false"
-"bi-analytics-2013","DW_STAR","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","false","select distinct prod_category_id, prod_category_name, prod_category_desc from dim_products_scd","false","","false"
-"bi-analytics-2013","DW_STAR","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD","false","","false","DIM_PRODUCTS_SCD","false","","false"
-"bi-analytics-2013","DW_STAR","false","DIM_SHIPS","false","DIM_SHIPS","false","DIM_SHIPS","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_SHIPS","false","","false","DIM_SHIPS","false","","false"
-"bi-analytics-2013","DW_STAR","false","DIM_TIMES","false","DIM_TIMES","false","DIM_TIMES","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_TIMES","false","","false","DIM_TIMES","false","","false"
-"bi-analytics-2013","DW_STAR","false","FCT_TRANS_MONTHLY","false","FCT_TRANS_MONTHLY","false","FCT_TRANS_MONTHLY","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.FCT_TRANS_MONTHLY","false","","false","FCT_TRANS_MONTHLY","false","","false"
-"bi-analytics-2013","HR_TEAM_VAV","false","DEPARTMENTS","false","DEPARTMENTS","false","COUNTRIES","false","","false","TEAM_VAV.HR_TEAM_VAV.COUNTRIES","false","","false","COUNTRIES","false","","false"
-"bi-analytics-2013","HR_TEAM_VAV","false","DEPARTMENTS","false","DEPARTMENTS","false","COUNTRIES","false","","false","TEAM_VAV.HR_TEAM_VAV.REGIONS","false","","false","REGIONS","false","","false"
-"bi-analytics-2013","HR_TEAM_VAV","false","DEPARTMENTS","false","DEPARTMENTS","false","DEPARTMENTS","false","","false","TEAM_VAV.HR_TEAM_VAV.DEPARTMENTS","false","","false","DEPARTMENTS","false","","false"
-"bi-analytics-2013","HR_TEAM_VAV","false","DEPARTMENTS","false","DEPARTMENTS","false","DEPARTMENTS","false","","false","TEAM_VAV.HR_TEAM_VAV.LOCATIONS","false","","false","LOCATIONS","false","","false"
-"bi-analytics-2013","HR_TEAM_VAV","false","DEPARTMENTS","false","DEPARTMENTS","false","LOCATIONS","false","","false","TEAM_VAV.HR_TEAM_VAV.COUNTRIES","false","","false","COUNTRIES","false","","false"
-"bi-analytics-2013","HR_TEAM_VAV","false","DEPARTMENTS","false","DEPARTMENTS","false","LOCATIONS","false","","false","TEAM_VAV.HR_TEAM_VAV.LOCATIONS","false","","false","LOCATIONS","false","","false"
-"bi-analytics-2013","HR_TEAM_VAV","false","DEPARTMENTS","false","DEPARTMENTS","false","REGIONS","false","","false","TEAM_VAV.HR_TEAM_VAV.REGIONS","false","","false","REGIONS","false","","false"
-"bi-analytics-2013","HR_TEAM_VAV","false","EMPLOYEES","false","EMPLOYEES","false","EMPLOYEES","false","","false","TEAM_VAV.HR_TEAM_VAV.EMPLOYEES","false","TEAM_VAV.HR_TEAM_VAV.EMPLOYEES","false","SELECT EMPLOYEE_ID,
+from dim_time_dd tm",""
+"bi-analytics-2013","DW_STAR","DIM_AR_PORTS","DIM_AR_PORTS","DIM_AR_PORTS","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_AR_PORTS","","DIM_AR_PORTS",""
+"bi-analytics-2013","DW_STAR","DIM_CUSTOMERS","DIM_CUSTOMERS","DIM_CUSTOMERS","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS","select * from dim_customers ",""
+"bi-analytics-2013","DW_STAR","DIM_DEP_PORTS","DIM_DEP_PORTS","DIM_DEP_PORTS","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_DEP_PORTS","","DIM_DEP_PORTS",""
+"bi-analytics-2013","DW_STAR","DIM_INSURANCES","DIM_INSURANCES","DIM_INSURANCES","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_INSURANCES","","DIM_INSURANCES",""
+"bi-analytics-2013","DW_STAR","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","DIM_CATEGORIES","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","select distinct prod_category_id, prod_category_name, prod_category_desc from dim_products_scd",""
+"bi-analytics-2013","DW_STAR","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","DIM_CATEGORIES","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD","","DIM_PRODUCTS_SCD",""
+"bi-analytics-2013","DW_STAR","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","select distinct prod_category_id, prod_category_name, prod_category_desc from dim_products_scd",""
+"bi-analytics-2013","DW_STAR","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD","","DIM_PRODUCTS_SCD",""
+"bi-analytics-2013","DW_STAR","DIM_SHIPS","DIM_SHIPS","DIM_SHIPS","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_SHIPS","","DIM_SHIPS",""
+"bi-analytics-2013","DW_STAR","DIM_TIMES","DIM_TIMES","DIM_TIMES","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_TIMES","","DIM_TIMES",""
+"bi-analytics-2013","DW_STAR","FCT_TRANS_MONTHLY","FCT_TRANS_MONTHLY","FCT_TRANS_MONTHLY","","Uladzislau_Dodu_star_schema.DW_STAR.FCT_TRANS_MONTHLY","","FCT_TRANS_MONTHLY",""
+"bi-analytics-2013","HR_TEAM_VAV","DEPARTMENTS","DEPARTMENTS","COUNTRIES","","TEAM_VAV.HR_TEAM_VAV.COUNTRIES","","COUNTRIES",""
+"bi-analytics-2013","HR_TEAM_VAV","DEPARTMENTS","DEPARTMENTS","COUNTRIES","","TEAM_VAV.HR_TEAM_VAV.REGIONS","","REGIONS",""
+"bi-analytics-2013","HR_TEAM_VAV","DEPARTMENTS","DEPARTMENTS","DEPARTMENTS","","TEAM_VAV.HR_TEAM_VAV.DEPARTMENTS","","DEPARTMENTS",""
+"bi-analytics-2013","HR_TEAM_VAV","DEPARTMENTS","DEPARTMENTS","DEPARTMENTS","","TEAM_VAV.HR_TEAM_VAV.LOCATIONS","","LOCATIONS",""
+"bi-analytics-2013","HR_TEAM_VAV","DEPARTMENTS","DEPARTMENTS","LOCATIONS","","TEAM_VAV.HR_TEAM_VAV.COUNTRIES","","COUNTRIES",""
+"bi-analytics-2013","HR_TEAM_VAV","DEPARTMENTS","DEPARTMENTS","LOCATIONS","","TEAM_VAV.HR_TEAM_VAV.LOCATIONS","","LOCATIONS",""
+"bi-analytics-2013","HR_TEAM_VAV","DEPARTMENTS","DEPARTMENTS","REGIONS","","TEAM_VAV.HR_TEAM_VAV.REGIONS","","REGIONS",""
+"bi-analytics-2013","HR_TEAM_VAV","EMPLOYEES","EMPLOYEES","EMPLOYEES","","TEAM_VAV.HR_TEAM_VAV.EMPLOYEES","TEAM_VAV.HR_TEAM_VAV.EMPLOYEES","SELECT EMPLOYEE_ID,
   FIRST_NAME,
   LAST_NAME,
   EMAIL,
@@ -60,19 +60,19 @@ from dim_time_dd tm","false","","false"
   BIRTH_DATE,
   ROUND(MONTHS_BETWEEN(sysdate, BIRTH_DATE)/12,0) as AGE,
   ROUND(MONTHS_BETWEEN(sysdate, HIRE_DATE)/12,0) as EXP  
-FROM EMPLOYEES","false","","false"
-"bi-analytics-2013","HR_TEAM_VAV","false","JOBS","false","JOBS","false","JOBS","false","","false","TEAM_VAV.HR_TEAM_VAV.JOBS","false","","false","JOBS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT","false","CURRENCY","false","CURRENCY","false","DIM_CURRENCY_SCD","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CURRENCY_SCD","false","","false","DIM_CURRENCY_SCD","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT","false","CUSTOMERS_REC","false","CUSTOMERS_REC","false","DIM_CUSTOMERS_REC","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","false","SELECT * FROM DIM_CUSTOMERS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT","false","CUSTOMERS_SEND","false","CUSTOMERS_SEND","false","DIM_CUSTOMERS_SEND","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","false","SELECT * FROM DIM_CUSTOMERS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT","false","LOCATIONS_REC","false","LOCATIONS_REC","false","DIM_LOCATIONS_REC","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","false","SELECT * FROM DIM_LOCATIONS_SCD","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT","false","LOCATIONS_SEND","false","LOCATIONS_SEND","false","DIM_LOCATIONS_SEND","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","false","SELECT * FROM DIM_LOCATIONS_SCD","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT","false","OPERATIONS","false","OPERATIONS","false","DIM_OPERATIONS","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATIONS","false","","false","DIM_OPERATIONS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT","false","OPERATIONS","false","OPERATIONS","false","DIM_OPERATIONS","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","false","SELECT DISTINCT OPERATION_METHOD_ID, OPERATION_METHOD_NAME, OPERATION_METHOD_TYPE, OPERATION_METHOD_TYPE_ID
+FROM EMPLOYEES",""
+"bi-analytics-2013","HR_TEAM_VAV","JOBS","JOBS","JOBS","","TEAM_VAV.HR_TEAM_VAV.JOBS","","JOBS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT","CURRENCY","CURRENCY","DIM_CURRENCY_SCD","","Iryna_Bradzetskaya_MT.U_SAL.DIM_CURRENCY_SCD","","DIM_CURRENCY_SCD",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT","CUSTOMERS_REC","CUSTOMERS_REC","DIM_CUSTOMERS_REC","","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","SELECT * FROM DIM_CUSTOMERS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT","CUSTOMERS_SEND","CUSTOMERS_SEND","DIM_CUSTOMERS_SEND","","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","SELECT * FROM DIM_CUSTOMERS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT","LOCATIONS_REC","LOCATIONS_REC","DIM_LOCATIONS_REC","","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","SELECT * FROM DIM_LOCATIONS_SCD",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT","LOCATIONS_SEND","LOCATIONS_SEND","DIM_LOCATIONS_SEND","","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","SELECT * FROM DIM_LOCATIONS_SCD",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT","OPERATIONS","OPERATIONS","DIM_OPERATIONS","","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATIONS","","DIM_OPERATIONS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT","OPERATIONS","OPERATIONS","DIM_OPERATIONS","","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","SELECT DISTINCT OPERATION_METHOD_ID, OPERATION_METHOD_NAME, OPERATION_METHOD_TYPE, OPERATION_METHOD_TYPE_ID
 FROM DIM_OPERATIONS
-WHERE OPERATION_METHOD_ID IS NOT NULL","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT","false","TARIFFS","false","TARIFFS","false","DIM_TARIFFS","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_TARIFFS","false","","false","DIM_TARIFFS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT","false","TIMES_DAILY","false","TIMES_DAILY","false","DIM_TIMES_DAILY","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","false","SELECT TIME_ID,
+WHERE OPERATION_METHOD_ID IS NOT NULL",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT","TARIFFS","TARIFFS","DIM_TARIFFS","","Iryna_Bradzetskaya_MT.U_SAL.DIM_TARIFFS","","DIM_TARIFFS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT","TIMES_DAILY","TIMES_DAILY","DIM_TIMES_DAILY","","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","SELECT TIME_ID,
   DAY_NAME,
   DAY_NUMBER_IN_WEEK,
   DAY_NUMBER_IN_MONTH,
@@ -94,22 +94,22 @@ WHERE OPERATION_METHOD_ID IS NOT NULL","false","","false"
   TO_NUMBER (CALENDAR_YEAR || CALENDAR_QUARTER_NUMBER) AS YEAR_Q,
   TO_NUMBER (CALENDAR_YEAR || CALENDAR_MONTH_NUMBER) AS YEAR_M,
   TO_NUMBER (CALENDAR_YEAR || CALENDAR_QUARTER_NUMBER || CALENDAR_MONTH_NUMBER || CALENDAR_WEEK_NUMBER) AS YEAR_W
-FROM DIM_TIMES_DAILY","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT","false","TRANSACTIONS_DAILY","false","TRANSACTIONS_DAILY","false","FCT_TRANSACTIONS_DAILY","false","","false","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_DAILY","false","","false","FCT_TRANSACTIONS_DAILY","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","false","CURRENCY","false","CURRENCY","false","DIM_CURRENCY_SCD","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CURRENCY_SCD","false","","false","DIM_CURRENCY_SCD","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","false","CUSTOMERS_REC","false","CUSTOMERS_REC","false","DIM_CUSTOMERS_REC","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","false","SELECT * FROM DIM_CUSTOMERS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","false","CUSTOMERS_SEND","false","CUSTOMERS_SEND","false","DIM_CUSTOMERS_SEND","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","false","SELECT * FROM DIM_CUSTOMERS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","false","FCT_TRANSACTIONS_ACTUAL","false","FCT_TRANSACTIONS_ACTUAL","false","FCT_TRANSACTIONS_ACTUAL","false","","false","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_ACTUAL","false","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_ACTUAL","false","SELECT * FROM FCT_TRANSACTIONS_DAILY
+FROM DIM_TIMES_DAILY",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT","TRANSACTIONS_DAILY","TRANSACTIONS_DAILY","FCT_TRANSACTIONS_DAILY","","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_DAILY","","FCT_TRANSACTIONS_DAILY",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","CURRENCY","CURRENCY","DIM_CURRENCY_SCD","","Iryna_Bradzetskaya_MT.U_SAL.DIM_CURRENCY_SCD","","DIM_CURRENCY_SCD",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","CUSTOMERS_REC","CUSTOMERS_REC","DIM_CUSTOMERS_REC","","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","SELECT * FROM DIM_CUSTOMERS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","CUSTOMERS_SEND","CUSTOMERS_SEND","DIM_CUSTOMERS_SEND","","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","SELECT * FROM DIM_CUSTOMERS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","FCT_TRANSACTIONS_ACTUAL","FCT_TRANSACTIONS_ACTUAL","FCT_TRANSACTIONS_ACTUAL","","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_ACTUAL","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_ACTUAL","SELECT * FROM FCT_TRANSACTIONS_DAILY
 WHERE
-EXTRACT (YEAR from EVENT_DT) = VALUEOF(BI_YEAR)","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","false","LOCATIONS_REC","false","LOCATIONS_REC","false","DIM_LOCATIONS_REC","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","false","SELECT * FROM DIM_LOCATIONS_SCD","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","false","LOCATIONS_SEND","false","LOCATIONS_SEND","false","DIM_LOCATIONS_SEND","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","false","SELECT * FROM DIM_LOCATIONS_SCD","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","false","OPERATIONS","false","OPERATIONS","false","DIM_OPERATIONS","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATIONS","false","","false","DIM_OPERATIONS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","false","OPERATIONS","false","OPERATIONS","false","DIM_OPERATIONS","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","false","SELECT DISTINCT OPERATION_METHOD_ID, OPERATION_METHOD_NAME, OPERATION_METHOD_TYPE, OPERATION_METHOD_TYPE_ID
+EXTRACT (YEAR from EVENT_DT) = VALUEOF(BI_YEAR)",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","LOCATIONS_REC","LOCATIONS_REC","DIM_LOCATIONS_REC","","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","SELECT * FROM DIM_LOCATIONS_SCD",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","LOCATIONS_SEND","LOCATIONS_SEND","DIM_LOCATIONS_SEND","","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","SELECT * FROM DIM_LOCATIONS_SCD",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","OPERATIONS","OPERATIONS","DIM_OPERATIONS","","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATIONS","","DIM_OPERATIONS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","OPERATIONS","OPERATIONS","DIM_OPERATIONS","","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","SELECT DISTINCT OPERATION_METHOD_ID, OPERATION_METHOD_NAME, OPERATION_METHOD_TYPE, OPERATION_METHOD_TYPE_ID
 FROM DIM_OPERATIONS
-WHERE OPERATION_METHOD_ID IS NOT NULL","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","false","TARIFFS","false","TARIFFS","false","DIM_TARIFFS","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_TARIFFS","false","","false","DIM_TARIFFS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","false","TIMES_DAILY","false","TIMES_DAILY","false","DIM_TIMES_DAILY","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","false","SELECT TIME_ID,
+WHERE OPERATION_METHOD_ID IS NOT NULL",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","TARIFFS","TARIFFS","DIM_TARIFFS","","Iryna_Bradzetskaya_MT.U_SAL.DIM_TARIFFS","","DIM_TARIFFS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Actual","TIMES_DAILY","TIMES_DAILY","DIM_TIMES_DAILY","","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","SELECT TIME_ID,
   DAY_NAME,
   DAY_NUMBER_IN_WEEK,
   DAY_NUMBER_IN_MONTH,
@@ -131,18 +131,18 @@ WHERE OPERATION_METHOD_ID IS NOT NULL","false","","false"
   TO_NUMBER (CALENDAR_YEAR || CALENDAR_QUARTER_NUMBER) AS YEAR_Q,
   TO_NUMBER (CALENDAR_YEAR || CALENDAR_MONTH_NUMBER) AS YEAR_M,
   TO_NUMBER (CALENDAR_YEAR || CALENDAR_QUARTER_NUMBER || CALENDAR_MONTH_NUMBER || CALENDAR_WEEK_NUMBER) AS YEAR_W
-FROM DIM_TIMES_DAILY","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","false","CURRENCY","false","CURRENCY","false","DIM_CURRENCY_SCD","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CURRENCY_SCD","false","","false","DIM_CURRENCY_SCD","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","false","CUSTOMERS_REC","false","CUSTOMERS_REC","false","DIM_CUSTOMERS_REC","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","false","SELECT * FROM DIM_CUSTOMERS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","false","CUSTOMERS_SEND","false","CUSTOMERS_SEND","false","DIM_CUSTOMERS_SEND","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","false","SELECT * FROM DIM_CUSTOMERS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","false","LOCATIONS_REC","false","LOCATIONS_REC","false","DIM_LOCATIONS_REC","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","false","SELECT * FROM DIM_LOCATIONS_SCD","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","false","LOCATIONS_SEND","false","LOCATIONS_SEND","false","DIM_LOCATIONS_SEND","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","false","SELECT * FROM DIM_LOCATIONS_SCD","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","false","OPERATIONS","false","OPERATIONS","false","DIM_OPERATIONS","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATIONS","false","","false","DIM_OPERATIONS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","false","OPERATIONS","false","OPERATIONS","false","DIM_OPERATIONS","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","false","SELECT DISTINCT OPERATION_METHOD_ID, OPERATION_METHOD_NAME, OPERATION_METHOD_TYPE, OPERATION_METHOD_TYPE_ID
+FROM DIM_TIMES_DAILY",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","CURRENCY","CURRENCY","DIM_CURRENCY_SCD","","Iryna_Bradzetskaya_MT.U_SAL.DIM_CURRENCY_SCD","","DIM_CURRENCY_SCD",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","CUSTOMERS_REC","CUSTOMERS_REC","DIM_CUSTOMERS_REC","","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","SELECT * FROM DIM_CUSTOMERS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","CUSTOMERS_SEND","CUSTOMERS_SEND","DIM_CUSTOMERS_SEND","","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","SELECT * FROM DIM_CUSTOMERS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","LOCATIONS_REC","LOCATIONS_REC","DIM_LOCATIONS_REC","","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","SELECT * FROM DIM_LOCATIONS_SCD",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","LOCATIONS_SEND","LOCATIONS_SEND","DIM_LOCATIONS_SEND","","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","SELECT * FROM DIM_LOCATIONS_SCD",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","OPERATIONS","OPERATIONS","DIM_OPERATIONS","","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATIONS","","DIM_OPERATIONS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","OPERATIONS","OPERATIONS","DIM_OPERATIONS","","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","SELECT DISTINCT OPERATION_METHOD_ID, OPERATION_METHOD_NAME, OPERATION_METHOD_TYPE, OPERATION_METHOD_TYPE_ID
 FROM DIM_OPERATIONS
-WHERE OPERATION_METHOD_ID IS NOT NULL","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","false","TARIFFS","false","TARIFFS","false","DIM_TARIFFS","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_TARIFFS","false","","false","DIM_TARIFFS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","false","TIMES_DAILY","false","TIMES_DAILY","false","DIM_TIMES_DAILY","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","false","SELECT TIME_ID,
+WHERE OPERATION_METHOD_ID IS NOT NULL",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","TARIFFS","TARIFFS","DIM_TARIFFS","","Iryna_Bradzetskaya_MT.U_SAL.DIM_TARIFFS","","DIM_TARIFFS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","TIMES_DAILY","TIMES_DAILY","DIM_TIMES_DAILY","","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","SELECT TIME_ID,
   DAY_NAME,
   DAY_NUMBER_IN_WEEK,
   DAY_NUMBER_IN_MONTH,
@@ -164,22 +164,22 @@ WHERE OPERATION_METHOD_ID IS NOT NULL","false","","false"
   TO_NUMBER (CALENDAR_YEAR || CALENDAR_QUARTER_NUMBER) AS YEAR_Q,
   TO_NUMBER (CALENDAR_YEAR || CALENDAR_MONTH_NUMBER) AS YEAR_M,
   TO_NUMBER (CALENDAR_YEAR || CALENDAR_QUARTER_NUMBER || CALENDAR_MONTH_NUMBER || CALENDAR_WEEK_NUMBER) AS YEAR_W
-FROM DIM_TIMES_DAILY","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","false","TRANSACTIONS_DAILY","false","TRANSACTIONS_DAILY","false","FCT_TRANSACTIONS_DAILY","false","","false","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_DAILY","false","","false","FCT_TRANSACTIONS_DAILY","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","false","CURRENCY","false","CURRENCY","false","DIM_CURRENCY_SCD","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CURRENCY_SCD","false","","false","DIM_CURRENCY_SCD","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","false","CUSTOMERS_REC","false","CUSTOMERS_REC","false","DIM_CUSTOMERS_REC","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","false","SELECT * FROM DIM_CUSTOMERS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","false","CUSTOMERS_SEND","false","CUSTOMERS_SEND","false","DIM_CUSTOMERS_SEND","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","false","SELECT * FROM DIM_CUSTOMERS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","false","FCT_TRANSACTIONS_ACTUAL","false","FCT_TRANSACTIONS_ACTUAL","false","FCT_TRANSACTIONS_ACTUAL","false","","false","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_ACTUAL","false","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_ACTUAL","false","SELECT * FROM FCT_TRANSACTIONS_DAILY
+FROM DIM_TIMES_DAILY",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Full","TRANSACTIONS_DAILY","TRANSACTIONS_DAILY","FCT_TRANSACTIONS_DAILY","","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_DAILY","","FCT_TRANSACTIONS_DAILY",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","CURRENCY","CURRENCY","DIM_CURRENCY_SCD","","Iryna_Bradzetskaya_MT.U_SAL.DIM_CURRENCY_SCD","","DIM_CURRENCY_SCD",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","CUSTOMERS_REC","CUSTOMERS_REC","DIM_CUSTOMERS_REC","","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_REC","SELECT * FROM DIM_CUSTOMERS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","CUSTOMERS_SEND","CUSTOMERS_SEND","DIM_CUSTOMERS_SEND","","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","Iryna_Bradzetskaya_MT.U_SAL.DIM_CUSTOMERS_SEND","SELECT * FROM DIM_CUSTOMERS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","FCT_TRANSACTIONS_ACTUAL","FCT_TRANSACTIONS_ACTUAL","FCT_TRANSACTIONS_ACTUAL","","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_ACTUAL","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_ACTUAL","SELECT * FROM FCT_TRANSACTIONS_DAILY
 WHERE
-EXTRACT (YEAR from EVENT_DT) = VALUEOF(BI_YEAR)","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","false","LOCATIONS_REC","false","LOCATIONS_REC","false","DIM_LOCATIONS_REC","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","false","SELECT * FROM DIM_LOCATIONS_SCD","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","false","LOCATIONS_SEND","false","LOCATIONS_SEND","false","DIM_LOCATIONS_SEND","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","false","SELECT * FROM DIM_LOCATIONS_SCD","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","false","OPERATIONS","false","OPERATIONS","false","DIM_OPERATIONS","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATIONS","false","","false","DIM_OPERATIONS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","false","OPERATIONS","false","OPERATIONS","false","DIM_OPERATIONS","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","false","SELECT DISTINCT OPERATION_METHOD_ID, OPERATION_METHOD_NAME, OPERATION_METHOD_TYPE, OPERATION_METHOD_TYPE_ID
+EXTRACT (YEAR from EVENT_DT) = VALUEOF(BI_YEAR)",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","LOCATIONS_REC","LOCATIONS_REC","DIM_LOCATIONS_REC","","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_REC","SELECT * FROM DIM_LOCATIONS_SCD",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","LOCATIONS_SEND","LOCATIONS_SEND","DIM_LOCATIONS_SEND","","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","Iryna_Bradzetskaya_MT.U_SAL.DIM_LOCATIONS_SEND","SELECT * FROM DIM_LOCATIONS_SCD",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","OPERATIONS","OPERATIONS","DIM_OPERATIONS","","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATIONS","","DIM_OPERATIONS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","OPERATIONS","OPERATIONS","DIM_OPERATIONS","","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","Iryna_Bradzetskaya_MT.U_SAL.DIM_OPERATION_METHODS","SELECT DISTINCT OPERATION_METHOD_ID, OPERATION_METHOD_NAME, OPERATION_METHOD_TYPE, OPERATION_METHOD_TYPE_ID
 FROM DIM_OPERATIONS
-WHERE OPERATION_METHOD_ID IS NOT NULL","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","false","TARIFFS","false","TARIFFS","false","DIM_TARIFFS","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_TARIFFS","false","","false","DIM_TARIFFS","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","false","TIMES_DAILY","false","TIMES_DAILY","false","DIM_TIMES_DAILY","false","","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","false","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","false","SELECT TIME_ID,
+WHERE OPERATION_METHOD_ID IS NOT NULL",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","TARIFFS","TARIFFS","DIM_TARIFFS","","Iryna_Bradzetskaya_MT.U_SAL.DIM_TARIFFS","","DIM_TARIFFS",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","TIMES_DAILY","TIMES_DAILY","DIM_TIMES_DAILY","","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","Iryna_Bradzetskaya_MT.U_SAL.DIM_TIMES_DAILY","SELECT TIME_ID,
   DAY_NAME,
   DAY_NUMBER_IN_WEEK,
   DAY_NUMBER_IN_MONTH,
@@ -201,44 +201,44 @@ WHERE OPERATION_METHOD_ID IS NOT NULL","false","","false"
   TO_NUMBER (CALENDAR_YEAR || CALENDAR_QUARTER_NUMBER) AS YEAR_Q,
   TO_NUMBER (CALENDAR_YEAR || CALENDAR_MONTH_NUMBER) AS YEAR_M,
   TO_NUMBER (CALENDAR_YEAR || CALENDAR_QUARTER_NUMBER || CALENDAR_MONTH_NUMBER || CALENDAR_WEEK_NUMBER) AS YEAR_W
-FROM DIM_TIMES_DAILY","false","","false"
-"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","false","TRANSACTIONS_DAILY","false","TRANSACTIONS_DAILY","false","FCT_TRANSACTIONS_DAILY","false","","false","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_DAILY","false","","false","FCT_TRANSACTIONS_DAILY","false","","false"
-"bi-analytics-2013","SH - COSTS","false","CHANNELS","false","CHANNELS","false","CHANNELS","false","","false","Uladzislau_Dodu_SH.SH.CHANNELS","false","","false","CHANNELS","false","","false"
-"bi-analytics-2013","SH - COSTS","false","COSTS","false","COSTS","false","COSTS","false","","false","Uladzislau_Dodu_SH.SH.COSTS","false","","false","COSTS","false","","false"
-"bi-analytics-2013","SH - COSTS","false","PRODUCTS","false","PRODUCTS","false","PRODUCTS","false","","false","Uladzislau_Dodu_SH.SH.PRODUCTS","false","","false","PRODUCTS","false","","false"
-"bi-analytics-2013","SH - COSTS","false","PROMOTIONS","false","PROMOTIONS","false","PROMOTIONS","false","","false","Uladzislau_Dodu_SH.SH.PROMOTIONS","false","","false","PROMOTIONS","false","","false"
-"bi-analytics-2013","SH - COSTS","false","TIMES","false","TIMES","false","TIMES","false","","false","Uladzislau_Dodu_SH.SH.TIMES","false","","false","TIMES","false","","false"
-"bi-analytics-2013","SH - SALES","false","CHANNELS","false","CHANNELS","false","CHANNELS","false","","false","Uladzislau_Dodu_SH.SH.CHANNELS","false","","false","CHANNELS","false","","false"
-"bi-analytics-2013","SH - SALES","false","COUNTRIES","false","COUNTRIES","false","COUNTRIES","false","","false","Uladzislau_Dodu_SH.SH.COUNTRIES","false","","false","COUNTRIES","false","","false"
-"bi-analytics-2013","SH - SALES","false","CUSTOMERS","false","CUSTOMERS","false","CUSTOMERS","false","","false","Uladzislau_Dodu_SH.SH.CUSTOMERS","false","","false","CUSTOMERS","false","","false"
-"bi-analytics-2013","SH - SALES","false","PRODUCTS","false","PRODUCTS","false","PRODUCTS","false","","false","Uladzislau_Dodu_SH.SH.PRODUCTS","false","","false","PRODUCTS","false","","false"
-"bi-analytics-2013","SH - SALES","false","PROMOTIONS","false","PROMOTIONS","false","PROMOTIONS","false","","false","Uladzislau_Dodu_SH.SH.PROMOTIONS","false","","false","PROMOTIONS","false","","false"
-"bi-analytics-2013","SH - SALES","false","SALES","false","SALES","false","SALES","false","","false","Uladzislau_Dodu_SH.SH.SALES","false","","false","SALES","false","","false"
-"bi-analytics-2013","SH - SALES","false","TIMES","false","TIMES","false","TIMES","false","","false","Uladzislau_Dodu_SH.SH.TIMES","false","","false","TIMES","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","false","DIM_AR_PORTS","false","DIM_AR_PORTS","false","DIM_AR_PORTS","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_AR_PORTS","false","","false","DIM_AR_PORTS","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","false","DIM_CUSTOMERS","false","DIM_CUSTOMERS","false","DIM_CUSTOMERS","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS","false","select * from dim_customers ","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","false","DIM_DEP_PORTS","false","DIM_DEP_PORTS","false","DIM_DEP_PORTS","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_DEP_PORTS","false","","false","DIM_DEP_PORTS","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","false","DIM_INSURANCES","false","DIM_INSURANCES","false","DIM_INSURANCES","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_INSURANCES","false","","false","DIM_INSURANCES","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","DIM_CATEGORIES","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","false","select distinct prod_category_id, prod_category_name, prod_category_desc from dim_products_scd","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","DIM_CATEGORIES","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD","false","","false","DIM_PRODUCTS_SCD","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","false","select distinct prod_category_id, prod_category_name, prod_category_desc from dim_products_scd","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD","false","","false","DIM_PRODUCTS_SCD","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","false","DIM_SHIPS","false","DIM_SHIPS","false","DIM_SHIPS","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_SHIPS","false","","false","DIM_SHIPS","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","false","DIM_TIMES","false","DIM_TIMES","false","DIM_TIMES","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_TIMES","false","","false","DIM_TIMES","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","false","FCT_TRANS_MONTHLY","false","FCT_TRANS_MONTHLY","false","FCT_TRANS_MONTHLY","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.FCT_TRANS_MONTHLY","false","","false","FCT_TRANS_MONTHLY","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","false","DIM_AR_PORTS","false","DIM_AR_PORTS","false","DIM_AR_PORTS","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_AR_PORTS","false","","false","DIM_AR_PORTS","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","false","DIM_CUSTOMERS","false","DIM_CUSTOMERS","false","DIM_CUSTOMERS","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS","false","select * from dim_customers ","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","false","DIM_DEP_PORTS","false","DIM_DEP_PORTS","false","DIM_DEP_PORTS","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_DEP_PORTS","false","","false","DIM_DEP_PORTS","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","false","DIM_INSURANCES","false","DIM_INSURANCES","false","DIM_INSURANCES","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_INSURANCES","false","","false","DIM_INSURANCES","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","DIM_CATEGORIES","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","false","select distinct prod_category_id, prod_category_name, prod_category_desc from dim_products_scd","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","DIM_CATEGORIES","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD","false","","false","DIM_PRODUCTS_SCD","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","false","select distinct prod_category_id, prod_category_name, prod_category_desc from dim_products_scd","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","DIM_PRODUCTS_SCD","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD","false","","false","DIM_PRODUCTS_SCD","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","false","DIM_SHIPS","false","DIM_SHIPS","false","DIM_SHIPS","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.DIM_SHIPS","false","","false","DIM_SHIPS","false","","false"
-"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","false","FCT_TRANS_MONTHLY","false","FCT_TRANS_MONTHLY","false","FCT_TRANS_MONTHLY","false","","false","Uladzislau_Dodu_star_schema.DW_STAR.FCT_TRANS_MONTHLY","false","","false","FCT_TRANS_MONTHLY","false","","false"
-"bi-analytics-2013","VY","false","Customer","false","Customer","false","DIM_CUSTOMERS","false","","false","Vera_Yakimovich_DW.VY.DIM_CUSTOMERS","false","","false","DIM_CUSTOMERS","false","","false"
-"bi-analytics-2013","VY","false","Customer","false","Customer","false","DIM_CUSTOMERS","false","Vera_Yakimovich_DW.VY.DIM_GEO_CUSTOMERS","false","Vera_Yakimovich_DW.VY.DIM_GEO","false","","false","DIM_GEO","false","","false"
-"bi-analytics-2013","VY","false","Daily Actual Income Facts","false","Daily Actual Income Facts","false","FCT_EUROPEAN_INCOME_PRODUCTS_DAILY","false","","false","Vera_Yakimovich_DW.VY.FCT_ACTUAL_INCOME_PRODUCTS_DAILY","false","Vera_Yakimovich_DW.VY.FCT_ACTUAL_INCOME_PRODUCTS_DAILY","false","SELECT 
+FROM DIM_TIMES_DAILY",""
+"bi-analytics-2013","Iryna_Bradzetskaya_MT_Row-level_Security","TRANSACTIONS_DAILY","TRANSACTIONS_DAILY","FCT_TRANSACTIONS_DAILY","","Iryna_Bradzetskaya_MT.U_SAL.FCT_TRANSACTIONS_DAILY","","FCT_TRANSACTIONS_DAILY",""
+"bi-analytics-2013","SH - COSTS","CHANNELS","CHANNELS","CHANNELS","","Uladzislau_Dodu_SH.SH.CHANNELS","","CHANNELS",""
+"bi-analytics-2013","SH - COSTS","COSTS","COSTS","COSTS","","Uladzislau_Dodu_SH.SH.COSTS","","COSTS",""
+"bi-analytics-2013","SH - COSTS","PRODUCTS","PRODUCTS","PRODUCTS","","Uladzislau_Dodu_SH.SH.PRODUCTS","","PRODUCTS",""
+"bi-analytics-2013","SH - COSTS","PROMOTIONS","PROMOTIONS","PROMOTIONS","","Uladzislau_Dodu_SH.SH.PROMOTIONS","","PROMOTIONS",""
+"bi-analytics-2013","SH - COSTS","TIMES","TIMES","TIMES","","Uladzislau_Dodu_SH.SH.TIMES","","TIMES",""
+"bi-analytics-2013","SH - SALES","CHANNELS","CHANNELS","CHANNELS","","Uladzislau_Dodu_SH.SH.CHANNELS","","CHANNELS",""
+"bi-analytics-2013","SH - SALES","COUNTRIES","COUNTRIES","COUNTRIES","","Uladzislau_Dodu_SH.SH.COUNTRIES","","COUNTRIES",""
+"bi-analytics-2013","SH - SALES","CUSTOMERS","CUSTOMERS","CUSTOMERS","","Uladzislau_Dodu_SH.SH.CUSTOMERS","","CUSTOMERS",""
+"bi-analytics-2013","SH - SALES","PRODUCTS","PRODUCTS","PRODUCTS","","Uladzislau_Dodu_SH.SH.PRODUCTS","","PRODUCTS",""
+"bi-analytics-2013","SH - SALES","PROMOTIONS","PROMOTIONS","PROMOTIONS","","Uladzislau_Dodu_SH.SH.PROMOTIONS","","PROMOTIONS",""
+"bi-analytics-2013","SH - SALES","SALES","SALES","SALES","","Uladzislau_Dodu_SH.SH.SALES","","SALES",""
+"bi-analytics-2013","SH - SALES","TIMES","TIMES","TIMES","","Uladzislau_Dodu_SH.SH.TIMES","","TIMES",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","DIM_AR_PORTS","DIM_AR_PORTS","DIM_AR_PORTS","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_AR_PORTS","","DIM_AR_PORTS",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","DIM_CUSTOMERS","DIM_CUSTOMERS","DIM_CUSTOMERS","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS","select * from dim_customers ",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","DIM_DEP_PORTS","DIM_DEP_PORTS","DIM_DEP_PORTS","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_DEP_PORTS","","DIM_DEP_PORTS",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","DIM_INSURANCES","DIM_INSURANCES","DIM_INSURANCES","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_INSURANCES","","DIM_INSURANCES",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","DIM_CATEGORIES","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","select distinct prod_category_id, prod_category_name, prod_category_desc from dim_products_scd",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","DIM_CATEGORIES","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD","","DIM_PRODUCTS_SCD",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","select distinct prod_category_id, prod_category_name, prod_category_desc from dim_products_scd",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD","","DIM_PRODUCTS_SCD",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","DIM_SHIPS","DIM_SHIPS","DIM_SHIPS","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_SHIPS","","DIM_SHIPS",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","DIM_TIMES","DIM_TIMES","DIM_TIMES","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_TIMES","","DIM_TIMES",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY","FCT_TRANS_MONTHLY","FCT_TRANS_MONTHLY","FCT_TRANS_MONTHLY","","Uladzislau_Dodu_star_schema.DW_STAR.FCT_TRANS_MONTHLY","","FCT_TRANS_MONTHLY",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","DIM_AR_PORTS","DIM_AR_PORTS","DIM_AR_PORTS","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_AR_PORTS","","DIM_AR_PORTS",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","DIM_CUSTOMERS","DIM_CUSTOMERS","DIM_CUSTOMERS","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CUSTOMERS","select * from dim_customers ",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","DIM_DEP_PORTS","DIM_DEP_PORTS","DIM_DEP_PORTS","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_DEP_PORTS","","DIM_DEP_PORTS",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","DIM_INSURANCES","DIM_INSURANCES","DIM_INSURANCES","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_INSURANCES","","DIM_INSURANCES",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","DIM_CATEGORIES","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","select distinct prod_category_id, prod_category_name, prod_category_desc from dim_products_scd",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","DIM_CATEGORIES","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD","","DIM_PRODUCTS_SCD",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","Uladzislau_Dodu_star_schema.DW_STAR.DIM_CATEGORIES","select distinct prod_category_id, prod_category_name, prod_category_desc from dim_products_scd",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","DIM_PRODUCTS_SCD","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_PRODUCTS_SCD","","DIM_PRODUCTS_SCD",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","DIM_SHIPS","DIM_SHIPS","DIM_SHIPS","","Uladzislau_Dodu_star_schema.DW_STAR.DIM_SHIPS","","DIM_SHIPS",""
+"bi-analytics-2013","Uladzislau_Dodu_TRANS_MONTHLY_ACTUAL","FCT_TRANS_MONTHLY","FCT_TRANS_MONTHLY","FCT_TRANS_MONTHLY","","Uladzislau_Dodu_star_schema.DW_STAR.FCT_TRANS_MONTHLY","","FCT_TRANS_MONTHLY",""
+"bi-analytics-2013","VY","Customer","Customer","DIM_CUSTOMERS","","Vera_Yakimovich_DW.VY.DIM_CUSTOMERS","","DIM_CUSTOMERS",""
+"bi-analytics-2013","VY","Customer","Customer","DIM_CUSTOMERS","Vera_Yakimovich_DW.VY.DIM_GEO_CUSTOMERS","Vera_Yakimovich_DW.VY.DIM_GEO","","DIM_GEO",""
+"bi-analytics-2013","VY","Daily Actual Income Facts","Daily Actual Income Facts","FCT_EUROPEAN_INCOME_PRODUCTS_DAILY","","Vera_Yakimovich_DW.VY.FCT_ACTUAL_INCOME_PRODUCTS_DAILY","Vera_Yakimovich_DW.VY.FCT_ACTUAL_INCOME_PRODUCTS_DAILY","SELECT 
 EVENT_DT,
   PRODUCT_ID,
   ORD_GEO_ID,
@@ -249,11 +249,11 @@ EVENT_DT,
 PART_ID
  FROM FCT_INCOME_PRODUCTS_DAILY  INNER JOIN dim_geo ON dim_geo.country_geo_id = FCT_INCOME_PRODUCTS_DAILY.ORD_GEO_ID
 INNER JOIN dim_times ON dim_times.time_id = fct_income_products_daily.event_dt
-WHERE  calendar_year IN VALUEOF(VAR_ACT_YEAR)","false","","false"
-"bi-analytics-2013","VY","false","Daily Income Facts","false","Daily Income Facts","false","FCT_INCOME_PRODUCTS_DAILY","false","","false","Vera_Yakimovich_DW.VY.FCT_INCOME_PRODUCTS_DAILY","false","","false","FCT_INCOME_PRODUCTS_DAILY","false","","false"
-"bi-analytics-2013","VY","false","Location","false","Location","false","DIM_GEO","false","","false","Vera_Yakimovich_DW.VY.DIM_GEO","false","","false","DIM_GEO","false","","false"
-"bi-analytics-2013","VY","false","Products","false","Products","false","DIM_PRODUCTS","false","","false","Vera_Yakimovich_DW.VY.DIM_PRODUCTS","false","","false","DIM_PRODUCTS","false","","false"
-"bi-analytics-2013","VY","false","Times","false","Times","false","DIM_TIMES","false","","false","Vera_Yakimovich_DW.VY.DIM_TIMES","false","Vera_Yakimovich_DW.VY.DIM_TIMES","false","SELECT TIME_ID,
+WHERE  calendar_year IN VALUEOF(VAR_ACT_YEAR)",""
+"bi-analytics-2013","VY","Daily Income Facts","Daily Income Facts","FCT_INCOME_PRODUCTS_DAILY","","Vera_Yakimovich_DW.VY.FCT_INCOME_PRODUCTS_DAILY","","FCT_INCOME_PRODUCTS_DAILY",""
+"bi-analytics-2013","VY","Location","Location","DIM_GEO","","Vera_Yakimovich_DW.VY.DIM_GEO","","DIM_GEO",""
+"bi-analytics-2013","VY","Products","Products","DIM_PRODUCTS","","Vera_Yakimovich_DW.VY.DIM_PRODUCTS","","DIM_PRODUCTS",""
+"bi-analytics-2013","VY","Times","Times","DIM_TIMES","","Vera_Yakimovich_DW.VY.DIM_TIMES","Vera_Yakimovich_DW.VY.DIM_TIMES","SELECT TIME_ID,
   DAY_NAME,
   DAY_NUMBER_IN_WEEK,
   DAY_NUMBER_IN_MONTH,
@@ -274,10 +274,10 @@ WHERE  calendar_year IN VALUEOF(VAR_ACT_YEAR)","false","","false"
   DAYS_IN_CAL_YEAR,
   BEG_OF_CAL_YEAR,
   END_OF_CAL_YEAR
-FROM DIM_TIMES","false","","false"
-"bi-analytics-2013","VY-Actual","false","Customer","false","Customer","false","DIM_CUSTOMERS","false","","false","Vera_Yakimovich_DW.VY.DIM_CUSTOMERS","false","","false","DIM_CUSTOMERS","false","","false"
-"bi-analytics-2013","VY-Actual","false","Customer","false","Customer","false","DIM_CUSTOMERS","false","Vera_Yakimovich_DW.VY.DIM_GEO_CUSTOMERS","false","Vera_Yakimovich_DW.VY.DIM_GEO","false","","false","DIM_GEO","false","","false"
-"bi-analytics-2013","VY-Actual","false","Daily Actual Income Facts","false","Daily Actual Income Facts","false","FCT_EUROPEAN_INCOME_PRODUCTS_DAILY","false","","false","Vera_Yakimovich_DW.VY.FCT_ACTUAL_INCOME_PRODUCTS_DAILY","false","Vera_Yakimovich_DW.VY.FCT_ACTUAL_INCOME_PRODUCTS_DAILY","false","SELECT 
+FROM DIM_TIMES",""
+"bi-analytics-2013","VY-Actual","Customer","Customer","DIM_CUSTOMERS","","Vera_Yakimovich_DW.VY.DIM_CUSTOMERS","","DIM_CUSTOMERS",""
+"bi-analytics-2013","VY-Actual","Customer","Customer","DIM_CUSTOMERS","Vera_Yakimovich_DW.VY.DIM_GEO_CUSTOMERS","Vera_Yakimovich_DW.VY.DIM_GEO","","DIM_GEO",""
+"bi-analytics-2013","VY-Actual","Daily Actual Income Facts","Daily Actual Income Facts","FCT_EUROPEAN_INCOME_PRODUCTS_DAILY","","Vera_Yakimovich_DW.VY.FCT_ACTUAL_INCOME_PRODUCTS_DAILY","Vera_Yakimovich_DW.VY.FCT_ACTUAL_INCOME_PRODUCTS_DAILY","SELECT 
 EVENT_DT,
   PRODUCT_ID,
   ORD_GEO_ID,
@@ -288,30 +288,30 @@ EVENT_DT,
 PART_ID
  FROM FCT_INCOME_PRODUCTS_DAILY  INNER JOIN dim_geo ON dim_geo.country_geo_id = FCT_INCOME_PRODUCTS_DAILY.ORD_GEO_ID
 INNER JOIN dim_times ON dim_times.time_id = fct_income_products_daily.event_dt
-WHERE  calendar_year IN VALUEOF(VAR_ACT_YEAR)","false","","false"
-"bi-analytics-2013","VY-Actual","false","Location","false","Location","false","DIM_GEO","false","","false","Vera_Yakimovich_DW.VY.DIM_GEO","false","","false","DIM_GEO","false","","false"
-"bi-analytics-2013","VY-Actual","false","Products","false","Products","false","DIM_PRODUCTS","false","","false","Vera_Yakimovich_DW.VY.DIM_PRODUCTS","false","","false","DIM_PRODUCTS","false","","false"
-"bi-analytics-2013","Vasili_Korzun_DW","false","Delivery systems","false","DIM_DELIVERY_SYSTEMS","false","DIM_DELIVERY_SYSTEMS","false","","false","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_DELIVERY_SYSTEMS","false","","false","DIM_DELIVERY_SYSTEMS","false","","false"
-"bi-analytics-2013","Vasili_Korzun_DW","false","Fact Sales","false","FCT_SALES_DD","false","FCT_SALES_DD","false","","false","Vasili_Korzun_DW.VASILI_KORZUN_DW.FCT_SALES_DD","false","","false","FCT_SALES_DD","false","","false"
-"bi-analytics-2013","Vasili_Korzun_DW","false","Geo locations","false","DIM_GEO_LOCATIONS_SCD","false","DIM_GEO_LOCATIONS_SCD","false","","false","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_GEO_LOCATIONS_SCD","false","","false","DIM_GEO_LOCATIONS_SCD","false","","false"
-"bi-analytics-2013","Vasili_Korzun_DW","false","Payment systems","false","DIM_PAYMENT_SYSTEMS_SCD","false","DIM_PAYMENT_SYSTEMS_SCD","false","","false","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_PAYMENT_SYSTEMS_SCD","false","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_PAYMENT_SYSTEMS_SCD","false","select * from DIM_PAYMENT_SYSTEMS_SCD
+WHERE  calendar_year IN VALUEOF(VAR_ACT_YEAR)",""
+"bi-analytics-2013","VY-Actual","Location","Location","DIM_GEO","","Vera_Yakimovich_DW.VY.DIM_GEO","","DIM_GEO",""
+"bi-analytics-2013","VY-Actual","Products","Products","DIM_PRODUCTS","","Vera_Yakimovich_DW.VY.DIM_PRODUCTS","","DIM_PRODUCTS",""
+"bi-analytics-2013","Vasili_Korzun_DW","Delivery systems","DIM_DELIVERY_SYSTEMS","DIM_DELIVERY_SYSTEMS","","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_DELIVERY_SYSTEMS","","DIM_DELIVERY_SYSTEMS",""
+"bi-analytics-2013","Vasili_Korzun_DW","Fact Sales","FCT_SALES_DD","FCT_SALES_DD","","Vasili_Korzun_DW.VASILI_KORZUN_DW.FCT_SALES_DD","","FCT_SALES_DD",""
+"bi-analytics-2013","Vasili_Korzun_DW","Geo locations","DIM_GEO_LOCATIONS_SCD","DIM_GEO_LOCATIONS_SCD","","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_GEO_LOCATIONS_SCD","","DIM_GEO_LOCATIONS_SCD",""
+"bi-analytics-2013","Vasili_Korzun_DW","Payment systems","DIM_PAYMENT_SYSTEMS_SCD","DIM_PAYMENT_SYSTEMS_SCD","","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_PAYMENT_SYSTEMS_SCD","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_PAYMENT_SYSTEMS_SCD","select * from DIM_PAYMENT_SYSTEMS_SCD
 where payment_system_id <= 70
-","false","","false"
-"bi-analytics-2013","Vasili_Korzun_DW","false","Products","false","DIM_PRODUCTS","false","DIM_PRODUCTS","false","","false","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_PRODUCTS","false","","false","DIM_PRODUCTS","false","","false"
-"bi-analytics-2013","Vasili_Korzun_DW","false","Times","false","DIM_TIMES","false","DIM_TIMES","false","","false","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_TIMES","false","","false","DIM_TIMES","false","","false"
-"bi-analytics-2013","Vasili_Korzun_DW_current_year","false","DIM_DELIVERY_SYSTEMS","false","DIM_DELIVERY_SYSTEMS","false","DIM_DELIVERY_SYSTEMS","false","","false","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_DELIVERY_SYSTEMS","false","","false","DIM_DELIVERY_SYSTEMS","false","","false"
-"bi-analytics-2013","Vasili_Korzun_DW_current_year","false","DIM_GEO_LOCATIONS_SCD","false","DIM_GEO_LOCATIONS_SCD","false","DIM_GEO_LOCATIONS_SCD","false","","false","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_GEO_LOCATIONS_SCD","false","","false","DIM_GEO_LOCATIONS_SCD","false","","false"
-"bi-analytics-2013","Vasili_Korzun_DW_current_year","false","DIM_PRODUCTS","false","DIM_PRODUCTS","false","DIM_PRODUCTS","false","","false","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_PRODUCTS","false","","false","DIM_PRODUCTS","false","","false"
-"bi-analytics-2013","Vasili_Korzun_DW_current_year","false","DIM_TIMES","false","DIM_TIMES","false","DIM_TIMES","false","","false","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_TIMES","false","","false","DIM_TIMES","false","","false"
-"bi-analytics-2013","Vasili_Korzun_DW_current_year","false","FCT_SALES_DD","false","FCT_SALES_DD","false","FCT_SALES_DD","false","","false","Vasili_Korzun_DW.VASILI_KORZUN_DW.FCT_SALES_DD","false","","false","FCT_SALES_DD","false","","false"
-"bi-analytics-2013","Vera_Yakimovich_SH","false","CHANNELS","false","CHANNELS","false","CHANNELS","false","","false","Vera_Yakimovich_SH.SH.CHANNELS","false","","false","CHANNELS","false","","false"
-"bi-analytics-2013","Vera_Yakimovich_SH","false","COUNTRIES","false","COUNTRIES","false","COUNTRIES","false","","false","Vera_Yakimovich_SH.SH.COUNTRIES","false","","false","COUNTRIES","false","","false"
-"bi-analytics-2013","Vera_Yakimovich_SH","false","CUSTOMERS","false","CUSTOMERS","false","CUSTOMERS","false","","false","Vera_Yakimovich_SH.SH.CUSTOMERS","false","","false","CUSTOMERS","false","","false"
-"bi-analytics-2013","Vera_Yakimovich_SH","false","PRODUCTS","false","PRODUCTS","false","PRODUCTS","false","","false","Vera_Yakimovich_SH.SH.PRODUCTS","false","","false","PRODUCTS","false","","false"
-"bi-analytics-2013","Vera_Yakimovich_SH","false","SALES","false","SALES","false","SALES","false","","false","Vera_Yakimovich_SH.SH.SALES","false","","false","SALES","false","","false"
-"bi-analytics-2013","Vera_Yakimovich_SH","false","TIMES","false","TIMES","false","TIMES","false","","false","Vera_Yakimovich_SH.SH.TIMES","false","","false","TIMES","false","","false"
-"sampleapp","Densification - US Crime By State","false","US_CRIME_BY_STATE","false","US_CRIME_BY_STATE","false","US_CRIME_BY_STATE","false","","false","xe.SAMPLESALES.US_CRIME_BY_STATE","false","","false","US_CRIME_BY_STATE","false","","false"
-"sampleapp","Densification - US Crime By State","false","US_CRIME_YEAR_2K_ONWARDS","false","US_CRIME_YEAR_2K_ONWARDS","false","US_CRIME_YEAR_2K_ONWARDS","false","","false","xe.SAMPLESALES.US_CRIME_YEAR_2K_ONWARDS","false","xe.SAMPLESALES.US_CRIME_YEAR_2K_ONWARDS","false","SELECT '2010' YEAR FROM dual
+",""
+"bi-analytics-2013","Vasili_Korzun_DW","Products","DIM_PRODUCTS","DIM_PRODUCTS","","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_PRODUCTS","","DIM_PRODUCTS",""
+"bi-analytics-2013","Vasili_Korzun_DW","Times","DIM_TIMES","DIM_TIMES","","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_TIMES","","DIM_TIMES",""
+"bi-analytics-2013","Vasili_Korzun_DW_current_year","DIM_DELIVERY_SYSTEMS","DIM_DELIVERY_SYSTEMS","DIM_DELIVERY_SYSTEMS","","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_DELIVERY_SYSTEMS","","DIM_DELIVERY_SYSTEMS",""
+"bi-analytics-2013","Vasili_Korzun_DW_current_year","DIM_GEO_LOCATIONS_SCD","DIM_GEO_LOCATIONS_SCD","DIM_GEO_LOCATIONS_SCD","","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_GEO_LOCATIONS_SCD","","DIM_GEO_LOCATIONS_SCD",""
+"bi-analytics-2013","Vasili_Korzun_DW_current_year","DIM_PRODUCTS","DIM_PRODUCTS","DIM_PRODUCTS","","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_PRODUCTS","","DIM_PRODUCTS",""
+"bi-analytics-2013","Vasili_Korzun_DW_current_year","DIM_TIMES","DIM_TIMES","DIM_TIMES","","Vasili_Korzun_DW.VASILI_KORZUN_DW.DIM_TIMES","","DIM_TIMES",""
+"bi-analytics-2013","Vasili_Korzun_DW_current_year","FCT_SALES_DD","FCT_SALES_DD","FCT_SALES_DD","","Vasili_Korzun_DW.VASILI_KORZUN_DW.FCT_SALES_DD","","FCT_SALES_DD",""
+"bi-analytics-2013","Vera_Yakimovich_SH","CHANNELS","CHANNELS","CHANNELS","","Vera_Yakimovich_SH.SH.CHANNELS","","CHANNELS",""
+"bi-analytics-2013","Vera_Yakimovich_SH","COUNTRIES","COUNTRIES","COUNTRIES","","Vera_Yakimovich_SH.SH.COUNTRIES","","COUNTRIES",""
+"bi-analytics-2013","Vera_Yakimovich_SH","CUSTOMERS","CUSTOMERS","CUSTOMERS","","Vera_Yakimovich_SH.SH.CUSTOMERS","","CUSTOMERS",""
+"bi-analytics-2013","Vera_Yakimovich_SH","PRODUCTS","PRODUCTS","PRODUCTS","","Vera_Yakimovich_SH.SH.PRODUCTS","","PRODUCTS",""
+"bi-analytics-2013","Vera_Yakimovich_SH","SALES","SALES","SALES","","Vera_Yakimovich_SH.SH.SALES","","SALES",""
+"bi-analytics-2013","Vera_Yakimovich_SH","TIMES","TIMES","TIMES","","Vera_Yakimovich_SH.SH.TIMES","","TIMES",""
+"sampleapp","Densification - US Crime By State","US_CRIME_BY_STATE","US_CRIME_BY_STATE","US_CRIME_BY_STATE","","xe.SAMPLESALES.US_CRIME_BY_STATE","","US_CRIME_BY_STATE",""
+"sampleapp","Densification - US Crime By State","US_CRIME_YEAR_2K_ONWARDS","US_CRIME_YEAR_2K_ONWARDS","US_CRIME_YEAR_2K_ONWARDS","","xe.SAMPLESALES.US_CRIME_YEAR_2K_ONWARDS","xe.SAMPLESALES.US_CRIME_YEAR_2K_ONWARDS","SELECT '2010' YEAR FROM dual
 UNION
 SELECT '2009' Year from dual
 UNION
@@ -331,19 +331,19 @@ SELECT '2002' Year from dual
 UNION
 SELECT '2001' Year from dual
 UNION
-SELECT '2000' Year from dual","false","","false"
-"sampleapp","Population","false","Facts","false","Population","false","POP_POPULATION","false","","false","xe.SAMPLESALES.POP_POPULATION","false","","false","POP_POPULATION","false","","false"
-"sampleapp","Population","false","Region","false","Region","false","POP_CITY","false","","false","xe.SAMPLESALES.POP_CITY","false","","false","POP_CITY","false","","false"
-"sampleapp","Population","false","Region","false","Region","false","POP_STATE","false","","false","xe.SAMPLESALES.POP_STATE","false","","false","POP_STATE","false","","false"
-"sampleapp","Sample Sales","false","Dim Offices","false","Dim Offices","false","SAMP_OFFICES_D","false","","false","xe.SAMPLESALES.SAMP_OFFICES_D","false","","false","SAMP_OFFICES_D","false","","false"
-"sampleapp","Sample Sales","false","Dim Products","false","Dim Products","false","SAMP_PRODUCTS_D","false","","false","xe.SAMPLESALES.SAMP_PRODUCTS_D","false","","false","SAMP_PRODUCTS_D","false","","false"
-"sampleapp","Sample Sales","false","Dim Sales Rep","false","Dim Sales Rep","false","LTS Employee","false","","false","xe.SAMPLESALES.EMPLOYEE","false","","false","EMPLOYEE","false","","false"
-"sampleapp","Sample Sales","false","Dim Sales Rep","false","Dim Sales Rep","false","LTS Employee","false","","false","xe.SAMPLESALES.EMP_PARENT_CHILD","false","","false","EMP_PARENT_CHILD","false","","false"
-"sampleapp","Sample Sales","false","Dim Time","false","Dim Time","false","LTS Time Day","false","","false","xe.SAMPLESALES.SAMP_TIME_DAY_D","false","","false","SAMP_TIME_DAY_D","false","","false"
-"sampleapp","Sample Sales","false","Dim Time","false","Dim Time","false","LTS Time Month","false","","false","xe.SAMPLESALES.SAMP_TIME_MTH_D","false","","false","SAMP_TIME_MTH_D","false","","false"
-"sampleapp","Sample Sales","false","Fact Revenue","false","Fact Revenue","false","Aggregate Revenue","false","","false","xe.SAMPLESALES.SAMP_REVENUE_A","false","","false","SAMP_REVENUE_A","false","","false"
-"sampleapp","Sample Sales","false","Fact Revenue","false","Fact Revenue","false","Aggregate Revenue By Month","false","","false","xe.SAMPLESALES.SAMP_REVENUE_A_MTH","false","","false","SAMP_REVENUE_A_MTH","false","","false"
-"sampleapp","Sample Sales","false","Fact Revenue","false","Fact Revenue","false","Aggregate Revenue by Year","false","","false","xe.SAMPLESALES.SAMP_REVENUE_A_YR","false","","false","SAMP_REVENUE_A_YR","false","","false"
-"sampleapp","Sample Sales","false","Fact Revenue","false","Fact Revenue","false","FactCrossJoin","false","","false","xe.SAMPLESALES.FactCrossJoin","false","xe.SAMPLESALES.FactCrossJoin","false","select 1 Preserve from dual","false","","false"
-"sampleapp","Sample Sales","false","Fact Revenue","false","Fact Revenue","false","SAMP_REVENUE_F","false","","false","xe.SAMPLESALES.SAMP_REVENUE_F","false","","false","SAMP_REVENUE_F","false","","false"
-"sampleapp","Sample Sales","false","Fact Target","false","Fact Target","false","SAMP_TARGETS_F","false","","false","xe.SAMPLESALES.SAMP_TARGETS_F","false","","false","SAMP_TARGETS_F","false","","false"
+SELECT '2000' Year from dual",""
+"sampleapp","Population","Facts","Population","POP_POPULATION","","xe.SAMPLESALES.POP_POPULATION","","POP_POPULATION",""
+"sampleapp","Population","Region","Region","POP_CITY","","xe.SAMPLESALES.POP_CITY","","POP_CITY",""
+"sampleapp","Population","Region","Region","POP_STATE","","xe.SAMPLESALES.POP_STATE","","POP_STATE",""
+"sampleapp","Sample Sales","Dim Offices","Dim Offices","SAMP_OFFICES_D","","xe.SAMPLESALES.SAMP_OFFICES_D","","SAMP_OFFICES_D",""
+"sampleapp","Sample Sales","Dim Products","Dim Products","SAMP_PRODUCTS_D","","xe.SAMPLESALES.SAMP_PRODUCTS_D","","SAMP_PRODUCTS_D",""
+"sampleapp","Sample Sales","Dim Sales Rep","Dim Sales Rep","LTS Employee","","xe.SAMPLESALES.EMPLOYEE","","EMPLOYEE",""
+"sampleapp","Sample Sales","Dim Sales Rep","Dim Sales Rep","LTS Employee","","xe.SAMPLESALES.EMP_PARENT_CHILD","","EMP_PARENT_CHILD",""
+"sampleapp","Sample Sales","Dim Time","Dim Time","LTS Time Day","","xe.SAMPLESALES.SAMP_TIME_DAY_D","","SAMP_TIME_DAY_D",""
+"sampleapp","Sample Sales","Dim Time","Dim Time","LTS Time Month","","xe.SAMPLESALES.SAMP_TIME_MTH_D","","SAMP_TIME_MTH_D",""
+"sampleapp","Sample Sales","Fact Revenue","Fact Revenue","Aggregate Revenue","","xe.SAMPLESALES.SAMP_REVENUE_A","","SAMP_REVENUE_A",""
+"sampleapp","Sample Sales","Fact Revenue","Fact Revenue","Aggregate Revenue By Month","","xe.SAMPLESALES.SAMP_REVENUE_A_MTH","","SAMP_REVENUE_A_MTH",""
+"sampleapp","Sample Sales","Fact Revenue","Fact Revenue","Aggregate Revenue by Year","","xe.SAMPLESALES.SAMP_REVENUE_A_YR","","SAMP_REVENUE_A_YR",""
+"sampleapp","Sample Sales","Fact Revenue","Fact Revenue","FactCrossJoin","","xe.SAMPLESALES.FactCrossJoin","xe.SAMPLESALES.FactCrossJoin","select 1 Preserve from dual",""
+"sampleapp","Sample Sales","Fact Revenue","Fact Revenue","SAMP_REVENUE_F","","xe.SAMPLESALES.SAMP_REVENUE_F","","SAMP_REVENUE_F",""
+"sampleapp","Sample Sales","Fact Target","Fact Target","SAMP_TARGETS_F","","xe.SAMPLESALES.SAMP_TARGETS_F","","SAMP_TARGETS_F",""

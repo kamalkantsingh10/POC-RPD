@@ -489,6 +489,9 @@ One row per distinct chain — 157 on the development corpus, covering all 128 P
 | `final_table` | For an opaque view, **its SQL verbatim**. Otherwise the table's name in the database |
 | `comment` | Always empty — for whoever reads the sheet |
 
+The sheet is **plain by default** — no `_guarded` companion columns, because it is a handout read by eye. If a value in
+it would be altered by a spreadsheet, the run says how many; `--guarded` then writes the spreadsheet-safe form.
+
 It reads the Knowledge Base only. **The SQL is not parsed**, so the tables a view reads from are in the query text and
 nowhere else; and a view defined in the database rather than in the repository is indistinguishable from a table here.
 A Presentation Table that reaches no physical column still gets a row, with the cells it could not fill left empty.

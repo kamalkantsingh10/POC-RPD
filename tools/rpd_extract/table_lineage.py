@@ -29,8 +29,15 @@ How each cell is filled:
 reach no physical column still gets a row, with the cells it could not fill left
 empty, so an empty cell means *not recorded* and a missing row cannot happen.
 
-Rows are sorted and written through the Knowledge Base's own CSV writer, so a
-re-run is byte-identical (AD-6) and the file survives a spreadsheet (FR-28).
+Rows are sorted, so a re-run is byte-identical (AD-6).
+
+**The sheet is written plain by default — no ``_guarded`` companion columns.**
+It is a handout read by eye, and nine companions double its width to say
+``false`` 1413 times. The cost is real and is not hidden: a value a spreadsheet
+would alter (SQL opening with ``--``, a name like ``00123``) is written as it
+is, so the run **counts those values and says so**. ``--guarded`` writes the
+Knowledge Base's spreadsheet-safe form instead (FR-28), for when the count is
+not zero and the sheet is going to be opened in one.
 
 Standard library only (NFR13).
 """
@@ -38,10 +45,15 @@ Standard library only (NFR13).
 from __future__ import annotations
 
 import argparse
+import csv
 import sys
 from pathlib import Path
 
-from tools.rpd_extract.adapters.outbound.csv_writer import read_table, write_table
+from tools.rpd_extract.adapters.outbound.csv_writer import (
+    needs_guard,
+    read_table,
+    write_table,
+)
 
 HEADER = [
     "rpd_id",
@@ -234,10 +246,27 @@ def build(kb: Path | str) -> list[list[str]]:
     return sorted(out)
 
 
-def write(rows: list[list[str]], out: Path | str) -> None:
+def at_risk(rows: list[list[str]]) -> int:
+    """How many values a spreadsheet would alter on opening the plain sheet."""
+    return sum(1 for row in rows for value in row if needs_guard(value))
+
+
+def write(rows: list[list[str]], out: Path | str, *, guarded: bool = False) -> None:
+    """Write the sheet: plain by default, spreadsheet-safe when ``guarded``.
+
+    Plain means every value exactly as the Knowledge Base holds it and no
+    companion columns. Same encoding conventions either way: UTF-8, LF, every
+    field quoted.
+    """
     out = Path(out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    write_table(out, HEADER, rows, guard_columns=_GUARD)
+    if guarded:
+        write_table(out, HEADER, rows, guard_columns=_GUARD)
+        return
+    with out.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, quoting=csv.QUOTE_ALL, lineterminator="\n")
+        writer.writerow(HEADER)
+        writer.writerows(rows)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -250,6 +279,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--kb", required=True, type=Path, help="Knowledge Base directory")
     parser.add_argument("--out", required=True, type=Path, help="the CSV file to write")
+    parser.add_argument("--guarded", action="store_true",
+                        help="add a <column>_guarded companion to every text column "
+                             "and protect values a spreadsheet would alter")
     args = parser.parse_args(argv)
 
     try:
@@ -257,7 +289,7 @@ def main(argv: list[str] | None = None) -> int:
     except TableLineageError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
-    write(rows, args.out)
+    write(rows, args.out, guarded=args.guarded)
 
     column = HEADER.index
     print(f"rows:          {len(rows)}")
@@ -265,6 +297,13 @@ def main(argv: list[str] | None = None) -> int:
     print(f"opaque views:  {sum(1 for r in rows if r[column('intermediate_view')])}")
     print(f"no physical:   {sum(1 for r in rows if not r[column('physical_table_original')])}")
     print(f"written:       {args.out}")
+    risky = at_risk(rows)
+    if risky and not args.guarded:
+        print(
+            f"warning: {risky} value(s) would be altered by a spreadsheet on "
+            f"opening this file. Re-run with --guarded to protect them.",
+            file=sys.stderr,
+        )
     return 0
 
 

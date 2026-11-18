@@ -142,6 +142,48 @@ class TableLineage(unittest.TestCase):
             table_lineage.write(table_lineage.build(tmp), second)
             self.assertEqual(first.read_bytes(), second.read_bytes())
 
+    def test_the_sheet_is_plain_by_default(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            knowledge_base.write(
+                mds_xml.load(FIXTURES), tmp, corpus_root="-", timestamp="-"
+            )
+            out = Path(tmp) / "plain.csv"
+            table_lineage.write(table_lineage.build(tmp), out)
+            first_line = out.read_text(encoding="utf-8").splitlines()[0]
+        self.assertEqual(
+            first_line, ",".join(f'"{name}"' for name in table_lineage.HEADER)
+        )
+
+    def test_guarded_adds_a_companion_to_every_text_column(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            knowledge_base.write(
+                mds_xml.load(FIXTURES), tmp, corpus_root="-", timestamp="-"
+            )
+            built = table_lineage.build(tmp)
+            out = Path(tmp) / "guarded.csv"
+            table_lineage.write(built, out, guarded=True)
+            raw_header = out.read_text(encoding="utf-8").splitlines()[0]
+            header, rows = read_table(out)
+        self.assertEqual(raw_header.count("_guarded"), 9)
+        self.assertEqual((header, rows), (table_lineage.HEADER, built))
+
+    def test_a_value_a_spreadsheet_would_alter_is_written_as_is_and_counted(self):
+        """Plain is a choice with a cost, and the cost is reported (NFR7)."""
+        hazardous = "-- revenue by day\nselect * from SAMP_REVENUE_F"
+
+        def make_view(estate: Estate) -> None:
+            estate.physical_tables[0] = replace(
+                estate.physical_tables[0], table_type="select"
+            )
+            estate.physical_table_definitions.append(definition(FACT, hazardous))
+
+        rows = self.rows(make_view)
+        self.assertEqual({r["final_table"] for r in rows}, {hazardous})
+        self.assertEqual(
+            table_lineage.at_risk([list(r.values()) for r in rows]), len(rows)
+        )
+        self.assertEqual(table_lineage.at_risk([list(r.values()) for r in self.rows()]), 0)
+
     def test_a_knowledge_base_from_an_older_extractor_is_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
             knowledge_base.write(
